@@ -4,15 +4,15 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import { Dropdown } from 'react-native-element-dropdown'; 
 
 const categories = [
-  { label: 'Fruit', value: 'Fruit' },
-  { label: 'Vegetables', value: 'Vegetables' },
-  { label: 'Meat', value: 'Meat' },
-  { label: 'Fish', value: 'Fish' },
-  { label: 'Dairy/Eggs', value: 'Dairy/Eggs' },
-  { label: 'Preserves/Condiments', value: 'Preserves/Condiments' },
-  { label: 'Bread/Baked Goods', value: 'Bread/Baked Goods' },
+  { label: 'Bread & Baked Goods', value: 'Bread & Baked Goods' },
+  { label: 'Dairy & Eggs', value: 'Dairy & Eggs' },
+  { label: 'Fish & Meat', value: 'Fish & Meat' },
+  { label: 'Fruit & Veggies', value: 'Fruit & Veggies' },
+  { label: 'Grains', value: 'Grains'},
+  { label: 'Pasta & Rice', value: 'Pasta & Rice'},
+  { label: 'Preserves & Sauces', value: 'Preserves & Sauces' },
   { label: 'Other', value: 'Other' },
-];
+  ];
 
 export default function AddToFridge({ onAddProduct, navigation }) {
   const [name, setName] = useState('');
@@ -51,14 +51,9 @@ const onDateChange = (event, selectedDate) => {
 
   return (
     <View style={styles.container}> 
-       <Text style={styles.title}>Add Item to Fridge</Text>
+       <Text style={styles.heading}>Add a product: </Text>
+        <Text style={styles.subheading}>Type the name of your product</Text>
        
-       <TextInput 
-          placeholder="Item Name" 
-          style={styles.input}
-          value={name}
-          onChangeText={setName}
-       />
 
        <Dropdown
           style={styles.dropdown}
@@ -69,20 +64,27 @@ const onDateChange = (event, selectedDate) => {
           value={category}
           onChange={item => setCategory(item.value)}
        />
-
+       
        <TextInput 
-          placeholder="Quantity" 
+          placeholder="Product Name" 
           style={styles.input}
-          keyboardType="numeric"
-          value={qty}
-          onChangeText={setQty}
+          value={name}
+          onChangeText={setName}
        />
+
+
+       <TextInput placeholder="Quantity" style={styles.input} keyboardType="numeric" value={qty} onChangeText={setQty}/>
+          
+
+          
+       
 <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker(true)}>
   <Text>Expires: {expiryDate.toLocaleDateString()}</Text>
 </TouchableOpacity>
+
 <TouchableOpacity style={styles.button} onPress={handleSave}>
-          <Text style={styles.buttonText}>Save to Fridge</Text>
-       </TouchableOpacity>
+    <Text style={styles.buttonText}>SAVE</Text>
+  </TouchableOpacity>
 
 {showDatePicker && (
   <DateTimePicker
@@ -99,10 +101,53 @@ const onDateChange = (event, selectedDate) => {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'white', padding: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
-  input: { borderBottomWidth: 1, marginBottom: 20, padding: 10, fontSize: 18 },
-  dropdown: { height: 50, borderBottomWidth: 1, marginBottom: 20 },
-  button: { backgroundColor: '#2ecc71', padding: 15, borderRadius: 10, alignItems: 'center' },
-  buttonText: { color: 'white', fontWeight: 'bold', fontSize: 18 }
+  container: { 
+    flex: 1, 
+    backgroundColor: 'white', 
+    padding: 20 
+  },
+
+  heading: { 
+    fontSize: 24, 
+    fontWeight: 'bold', 
+    marginBottom: 10 
+  },
+
+  subheading: { 
+    fontSize: 20, 
+    marginBottom: 15 
+  },
+  
+  input: { 
+    borderWidth: 2, 
+    borderColor: 'orange', 
+    marginVertical: 8,   
+    padding: 10, 
+    fontSize: 18,
+    borderRadius: 4     
+  },
+  
+  dropdown: { 
+    height: 50, 
+    borderWidth: 2, 
+    borderColor: 'orange',
+    borderRadius: 4,
+    marginVertical: 8,  
+    paddingHorizontal: 10 
+  },
+  
+  button: { 
+    backgroundColor: 'white', 
+    padding: 10, 
+    borderRadius: 10, 
+    borderColor: "orange", 
+    borderWidth: 2, 
+    alignItems: 'center',
+    marginTop: 20  
+  },
+  buttonText: { 
+    color: 'orange', 
+    fontWeight: 'bold', 
+    fontSize: 18 
+  }
 });
