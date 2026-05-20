@@ -4,6 +4,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 
 
 const categories = [
+  { label: 'All Categories', value: 'All' },
   { label: 'Bread & Baked Goods', value: 'Bread & Baked Goods' },
   { label: 'Dairy & Eggs', value: 'Dairy & Eggs' },
   { label: 'Fish & Meat', value: 'Fish & Meat' },
@@ -60,7 +61,6 @@ export default function Fridge({ inventory, navigation, onDeleteItem, onDecrease
         data={categories}
         labelField="label"
         valueField="value"
-        placeholder="Filter by Category"
         value={selectedCategory}
         onChange={item => setSelectedCategory(item.value)}
       />

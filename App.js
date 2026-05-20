@@ -1,12 +1,11 @@
 import 'react-native-gesture-handler';
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import {StyleSheet, Text, View} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'; 
 import { Ionicons } from '@expo/vector-icons';
-
-// Import screens
 import Fridge from './screens/Fridge';
 import AddToFridge from './screens/AddToFridge';
 import Profile from './screens/Profile'; 
@@ -66,23 +65,26 @@ export default function App() {
             let iconName;
 
             if (route.name === 'Profile') {
-              iconName = focused ? 'person-circle' : 'person-circle-outline';
+              iconName = focused ? 'person-circle' : 'person-circle-outline'; //placeholder icon
             } else if (route.name === 'FridgeTab') {
-              iconName = focused ? 'fast-food' : 'fast-food-outline';
+              iconName = focused ? 'fast-food' : 'fast-food-outline'; //placeholder icon
             } else if (route.name === 'Shopping') {
-              iconName = focused ? 'basket' : 'basket-outline';
+              iconName = focused ? 'basket' : 'basket-outline'; //placeholder icon
             } else if (route.name === 'Add') {
-              iconName = focused ? 'add-circle' : 'add-circle-outline';
+              iconName = focused ? 'add-circle' : 'add-circle-outline'; //placeholder icon
             }
 
             return <Ionicons name={iconName} size={size + 2} color={color} />;
           },
           tabBarActiveTintColor: 'rgba(236, 96, 57, 1)',   
           tabBarInactiveTintColor: 'rgba(246, 202, 94, 1)',
-          headerShown: false,                 // Hides the Tab header so it doesn't conflict with the Stack title header
+          headerShown: false,                
           tabBarStyle: {
-            height: 70,
-            paddingBottom: 10,
+            height: 80,
+            paddingBottom: 20,
+            marginBottom: 40,// the icons were too close to the bottom of the screen. Not sure if this is the proper fix or not
+            paddingTop: 10,
+            borderTopWidth: 1,
             backgroundColor: '#ffffff'
           }
         })}
@@ -103,11 +105,16 @@ export default function App() {
 
         <Tab.Screen name="Shopping" component={Shopping} />
         
-        <Tab.Screen name="Add" component={AddToFridge} initialParams={{ onAddProduct: (newItem) => setInventory([...inventory, newItem]) }} listeners={({ navigation }) => ({
-          tabPress: (e) => {
-
-          },
-        })}/>
+       <Tab.Screen 
+  name="Add" 
+  component={View}
+  listeners={({ navigation }) => ({
+    tabPress: (e) => {
+      e.preventDefault(); 
+      navigation.navigate('FridgeTab', { screen: 'AddToFridge' });
+    },
+  })}
+/>
 
       </Tab.Navigator>
       
