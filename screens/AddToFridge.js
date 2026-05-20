@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker'
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
 
 const categories = [
@@ -21,8 +21,6 @@ export default function AddToFridge({ onAddProduct, route, navigation }) {
   const [expiryDate, setExpiryDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-
-
   const onDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (selectedDate) {
@@ -31,6 +29,7 @@ export default function AddToFridge({ onAddProduct, route, navigation }) {
   };
 
   const handleSave = () => {
+    // 1. Validate Info First
     if (!name.trim() || !qty.trim() || !category) {
       Alert.alert(
         "Missing Info",
@@ -40,43 +39,37 @@ export default function AddToFridge({ onAddProduct, route, navigation }) {
       return;
     }
 
-    if (onAddProduct) {
-      onAddProduct(newItem);
-      setName('');
-      setQty('');
-      setCategory(null);
-
-      navigation.navigate('FridgeHome');
-    }
-
+    // 2. Create the Item Object (Now properly initialized BEFORE using it)
     const newItem = {
       id: Date.now().toString(),
-      name: name,
+      name: name.trim(),
       qty: qty,
       category: category,
       addedAt: new Date().toLocaleDateString(),
       expiryDate: expiryDate.toLocaleDateString(),
     };
 
-    if (handleAdd) {
-      handleAdd(newItem);
-
-
+    // 3. Send data up via Prop and navigate
+    if (onAddProduct) {
+      onAddProduct(newItem);
+      
+      // Clear out the states for a fresh form next time
       setName('');
       setQty('');
       setCategory(null);
       setExpiryDate(new Date());
 
-      navigation.navigate('FridgeTab');
+      // Safely bounce back to the main list view screen
+      navigation.navigate('FridgeHome');
     } else {
-      console.warn("Could not find a valid save handler.");
+      console.warn("onAddProduct prop was not found.");
     }
   };
+
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Add a product: </Text>
       <Text style={styles.subheading}>Type the name of your product</Text>
-
 
       <Dropdown
         style={styles.dropdown}
@@ -95,11 +88,13 @@ export default function AddToFridge({ onAddProduct, route, navigation }) {
         onChangeText={setName}
       />
 
-
-      <TextInput placeholder="Quantity" style={styles.input} keyboardType="numeric" value={qty} onChangeText={setQty} />
-
-
-
+      <TextInput 
+        placeholder="Quantity" 
+        style={styles.input} 
+        keyboardType="numeric" 
+        value={qty} 
+        onChangeText={setQty} 
+      />
 
       <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker(true)}>
         <Text>Expires: {expiryDate.toLocaleDateString()}</Text>
@@ -118,8 +113,6 @@ export default function AddToFridge({ onAddProduct, route, navigation }) {
         />
       )}
     </View>
-
-
   );
 }
 
@@ -129,18 +122,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     padding: 20
   },
-
   heading: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10
   },
-
   subheading: {
     fontSize: 20,
     marginBottom: 15
   },
-
   input: {
     borderWidth: 2,
     borderColor: 'rgba(236, 96, 57, 1)',
@@ -149,7 +139,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     borderRadius: 4
   },
-
   dropdown: {
     height: 50,
     borderWidth: 2,
@@ -158,7 +147,6 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     paddingHorizontal: 10
   },
-
   button: {
     backgroundColor: 'white',
     padding: 10,
