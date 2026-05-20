@@ -1,13 +1,46 @@
 import 'react-native-gesture-handler';
+import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'; 
+import { Ionicons } from '@expo/vector-icons';
+
+// Import screens
 import Fridge from './screens/Fridge';
 import AddToFridge from './screens/AddToFridge';
-import React, { useState } from 'react';
+import Profile from './screens/Profile'; 
+import Shopping from './screens/Shopping'; 
 
 const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
+
+function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="FridgeHome" options={{ title: 'yield' }}>
+        {(props) => (
+          <Fridge 
+            {...props} 
+            inventory={inventory} 
+            onDeleteItem={deleteItem} 
+            onDecreaseQty={decreaseQty}
+          />
+        )}
+      </Stack.Screen>
+      
+      <Stack.Screen name="AddToFridge" options={{ title: 'Add to Fridge' }}>
+        {(props) => (
+          <AddToFridge 
+            {...props} 
+            onAddProduct={(newItem) => setInventory([...inventory, newItem])}
+          />
+        )}    
+      </Stack.Screen>
+    </Stack.Navigator>
+  );
+}
+
 
 export default function App() {
   const [inventory, setInventory] = useState([]);
@@ -17,31 +50,67 @@ export default function App() {
   };
 
   const decreaseQty = (id) => {
-  setInventory(inventory.map(item => {
-    if (item.id === id) {
-      return { ...item, qty: Math.max(1, item.qty - 1) };
-    }
-    return item;
-  }));
-};
+    setInventory(inventory.map(item => {
+      if (item.id === id) {
+        return { ...item, qty: Math.max(1, item.qty - 1) };
+      }
+      return item;
+    }));
+  };
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Fridge">
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
+
+            if (route.name === 'Profile') {
+              iconName = focused ? 'person-circle' : 'person-circle-outline';
+            } else if (route.name === 'FridgeTab') {
+              iconName = focused ? 'fast-food' : 'fast-food-outline';
+            } else if (route.name === 'Shopping') {
+              iconName = focused ? 'basket' : 'basket-outline';
+            } else if (route.name === 'Add') {
+              iconName = focused ? 'add-circle' : 'add-circle-outline';
+            }
+
+            return <Ionicons name={iconName} size={size + 2} color={color} />;
+          },
+          tabBarActiveTintColor: 'rgba(236, 96, 57, 1)',   
+          tabBarInactiveTintColor: 'rgba(246, 202, 94, 1)',
+          headerShown: false,                 // Hides the Tab header so it doesn't conflict with the Stack title header
+          tabBarStyle: {
+            height: 70,
+            paddingBottom: 10,
+            backgroundColor: '#ffffff'
+          }
+        })}
+      >
         
-        <Stack.Screen name="Fridge">
-          {(props) => (<Fridge {...props} inventory={inventory} onDeleteItem={deleteItem} onDecreaseQty={decreaseQty}/>)}
-        </Stack.Screen>
+        <Tab.Screen name="Profile" component={Profile} />
 
-        <Stack.Screen name="AddToFridge" options={{ title: 'Add to Fridge' }}>
-          {(props) => (
-            <AddToFridge 
-              {...props} 
-              onAddProduct={(newItem) => setInventory([...inventory, newItem])}
+        <Tab.Screen name="FridgeTab" options={{ title: 'Fridge' }}>
+          {() => (
+            <FridgeStack 
+              inventory={inventory} 
+              deleteItem={deleteItem} 
+              decreaseQty={decreaseQty} 
+              setInventory={setInventory}
             />
-          )}    
-        </Stack.Screen>
+          )}
+        </Tab.Screen>
 
-      </Stack.Navigator>
+        <Tab.Screen name="Shopping" component={Shopping} />
+        
+        <Tab.Screen name="Add" component={AddToFridge} initialParams={{ onAddProduct: (newItem) => setInventory([...inventory, newItem]) }} listeners={({ navigation }) => ({
+          tabPress: (e) => {
+
+          },
+        })}/>
+
+      </Tab.Navigator>
+      
       <StatusBar style="auto" />
     </NavigationContainer>
   );

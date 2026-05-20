@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   
   input: { 
     borderWidth: 2, 
-    borderColor: 'orange', 
+    borderColor: 'rgba(236, 96, 57, 1)', 
     marginVertical: 8,   
     padding: 10, 
     fontSize: 18,
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   dropdown: { 
     height: 50, 
     borderWidth: 2, 
-    borderColor: 'orange',
+    borderColor: 'rgba(236, 96, 57, 1)',
     borderRadius: 4,
     marginVertical: 8,  
     paddingHorizontal: 10 
@@ -140,13 +140,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'white', 
     padding: 10, 
     borderRadius: 10, 
-    borderColor: "orange", 
+    borderColor: "rgba(236, 96, 57, 1)", 
     borderWidth: 2, 
     alignItems: 'center',
     marginTop: 20  
   },
   buttonText: { 
-    color: 'orange', 
+    color: 'rgba(236, 96, 57, 1)', 
     fontWeight: 'bold', 
     fontSize: 18 
   }

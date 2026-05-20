@@ -74,19 +74,17 @@ export default function Fridge({ inventory, navigation, onDeleteItem, onDecrease
         }
       />
       
-      <TouchableOpacity 
-        style={styles.addButton} onPress={() => navigation.navigate('AddToFridge')}>
-        
-        <Text style={styles.addButtonText}>+ Add Item</Text>
-      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5', padding: 10 },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#f5f5f5', 
+    padding: 10, 
+  },
   
-  // 6. Added necessary styling for the dropdown component
   dropdown: {
     backgroundColor: 'white',
     borderRadius: 8,
@@ -98,8 +96,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 1.41,
   },
-  placeholderStyle: { fontSize: 16, color: '#888' },
-  selectedTextStyle: { fontSize: 16, color: '#333' },
+
+  placeholderStyle: { 
+    fontSize: 16, 
+    color: '#888' 
+  },
+
+  selectedTextStyle: { 
+    fontSize: 16, 
+    color: '#333' 
+  },
 
   tile: {
     backgroundColor: '#fff',
@@ -112,12 +118,43 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-  tileHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  itemName: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  itemQty: { fontSize: 16, color: '#666' },
-  tileFooter: { borderTopWidth: 1, borderTopColor: '#eee', paddingTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  dateLabel: { fontSize: 12, color: '#888' },
-  expiryText: { color: '#e74c3c', fontWeight: 'bold', marginTop: 2 },
+
+  tileHeader: { 
+  flexDirection: 'row', 
+  justifyContent: 'space-between', 
+  marginBottom: 10,
+ },
+
+  itemName: { 
+    fontSize: 18, 
+    fontWeight: 'bold', 
+    color: '#333',
+ },
+
+  itemQty: { 
+    fontSize: 16, 
+    color: '#666' 
+  },
+
+  tileFooter: { 
+    borderTopWidth: 1, 
+    borderTopColor: '#eee', 
+    paddingTop: 10, 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center'
+ },
+
+  dateLabel: { 
+    fontSize: 12, 
+    color: '#888' 
+  },
+  expiryText: { 
+    color: '#e74c3c', 
+    fontWeight: 'bold', 
+    marginTop: 2 
+  },
+
   addButton: {
     backgroundColor: '#2ecc71',
     padding: 15,
@@ -127,9 +164,22 @@ const styles = StyleSheet.create({
     right: 20,
     elevation: 5,
   },
-  addButtonText: { color: 'white', fontWeight: 'bold' },
-  emptyText: { textAlign: 'center', marginTop: 50, color: '#999' },
-  qtyContainer: { flexDirection: 'row', alignItems: 'center' },
+  addButtonText: { 
+    color: 'white', 
+    fontWeight: 'bold' 
+  },
+
+  emptyText: { 
+    textAlign: 'center', 
+    marginTop: 50, 
+    color: '#999' 
+  },
+
+  qtyContainer: { 
+    flexDirection: 'row', 
+    alignItems: 'center' 
+  },
+
   minusButton: {
     backgroundColor: '#eee',
     width: 30,
@@ -139,5 +189,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 10,
   },
-  minusText: { fontSize: 20, color: '#e74c3c', fontWeight: 'bold' },
+  minusText: { 
+    fontSize: 20, 
+    color: '#e74c3c', 
+    fontWeight: 'bold'
+   },
+
 });
