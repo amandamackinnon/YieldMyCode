@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
+import { useFonts } from 'expo-font';
+import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold } from '@expo-google-fonts/nunito';
 
 const categories = [
   { label: 'Bread & Baked Goods', value: 'Bread & Baked Goods' },
@@ -27,6 +29,13 @@ export default function AddToFridge({ onAddProduct, route, navigation }) {
       setExpiryDate(selectedDate);
     }
   };
+
+     const [fontsLoaded, fontError] = useFonts({
+      NunitoRegular: Nunito_400Regular,
+      NunitoMedium: Nunito_500Medium,
+      NunitoSemiBold: Nunito_600SemiBold,
+      NunitoBold: Nunito_700Bold,
+    });
 
   const handleSave = () => {
     if (!name.trim() || !qty.trim() || !category) {
@@ -119,11 +128,12 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'NunitoBold',
     marginBottom: 10
   },
   subheading: {
     fontSize: 20,
+    fontFamily: 'NunitoMedium',
     marginBottom: 15
   },
   input: {
@@ -131,11 +141,13 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(236, 96, 57, 1)',
     marginVertical: 8,
     padding: 10,
-    fontSize: 18,
+    fontSize: 15,
+    fontFamily: 'NunitoMedium',
     borderRadius: 4
   },
   dropdown: {
     height: 50,
+    fontFamily: 'NunitoMedium',
     borderWidth: 2,
     borderColor: 'rgba(236, 96, 57, 1)',
     borderRadius: 4,
@@ -155,7 +167,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'rgba(236, 96, 57, 1)',
-    fontWeight: 'bold',
+    fontFamily: 'NunitoBold',
     fontSize: 18
   }
 });

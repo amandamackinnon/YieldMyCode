@@ -1,6 +1,8 @@
 import React, { useState } from 'react'; 
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
+import { useFonts } from 'expo-font';
+import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold } from '@expo-google-fonts/nunito';
 
 
 const categories = [
@@ -16,6 +18,14 @@ const categories = [
   ];
 
 export default function Fridge({ inventory, navigation, onDeleteItem, onDecreaseQty }) {
+
+     const [fontsLoaded, fontError] = useFonts({
+      NunitoRegular: Nunito_400Regular,
+      NunitoMedium: Nunito_500Medium,
+      NunitoSemiBold: Nunito_600SemiBold,
+      NunitoBold: Nunito_700Bold,
+    });
+
   const [selectedCategory, setSelectedCategory] = useState('All');
 
   
@@ -171,7 +181,9 @@ const styles = StyleSheet.create({
 
   emptyText: { 
     textAlign: 'center', 
+    fontFamily: 'NunitoSemiBold',
     marginTop: 50, 
+
     color: '#999' 
   },
 

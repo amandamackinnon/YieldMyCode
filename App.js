@@ -28,7 +28,7 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
             onPress={() => navigation.navigate('Notifications')}
             style={{ marginRight: 16 }}
           >
-            <Ionicons name="notifications-outline" size={24} color="#333"/>
+            <Ionicons name="notifications" size={24} color="rgba(236, 96, 57, 1)"/>
             <View
               style={{
                 position: 'absolute',
@@ -43,7 +43,7 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
         ),
       }}
     >
-      <Stack.Screen name="FridgeHome" options={{ title: 'yield' }}>
+      <Stack.Screen name="FridgeHome" options={{title: 'yield', headerTitleStyle: {fontFamily: 'NunitoBold'}}}>
         {(props) => (
           <Fridge
             {...props}
@@ -54,7 +54,7 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
         )}
       </Stack.Screen>
 
-      <Stack.Screen name="AddToFridge" options={{ title: 'Add to Fridge' }}>
+      <Stack.Screen name="AddToFridge" options={{ title: '' }}>
         {(props) => (
           <AddToFridge
             {...props}
