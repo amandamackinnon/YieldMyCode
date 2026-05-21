@@ -1,16 +1,20 @@
 import 'react-native-gesture-handler';
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { useFonts } from 'expo-font';
+import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold } from '@expo-google-fonts/nunito';
 import TabBarIcon from './components/icons/TabBarIcon';
 import Fridge from './screens/Fridge';
 import AddToFridge from './screens/AddToFridge';
 import Profile from './screens/Profile';
 import Shopping from './screens/Shopping';
+
+
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -43,6 +47,15 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
 
 
 export default function App() {
+
+   const [fontsLoaded, fontError] = useFonts({
+    NunitoRegular: Nunito_400Regular,
+    NunitoMedium: Nunito_500Medium,
+    NunitoSemiBold: Nunito_600SemiBold,
+    NunitoBold: Nunito_700Bold,
+  });
+
+  
   const [inventory, setInventory] = useState([]);
 
   const deleteItem = (id) => {
@@ -62,7 +75,7 @@ export default function App() {
     <NavigationContainer>
       <Tab.Navigator
         screenOptions={({ route }) => ({
-          tabBarIcon: ({ focused }) => {   // ← REPLACED: removed color, size params
+          tabBarIcon: ({ focused }) => {   
             const config = {
               Profile: { name: 'profile', label: 'Profile' },
               FridgeTab: { name: 'fridge', label: 'Fridge' },
@@ -72,18 +85,18 @@ export default function App() {
             const { name, label } = config[route.name];
             return <TabBarIcon name={name} label={label} focused={focused} />;
           },
-          tabBarShowLabel: false,           // ← NEW: hide default labels (we render our own)
+          tabBarShowLabel: false,           
           headerShown: false,
- tabBarStyle: {
-  height: 55,           // ← REDUCED from 60
-  paddingBottom: 4,     // ← REDUCED from 6
-  paddingTop: 2,        // ← REDUCED from 4
-  borderTopWidth: 1,
-  backgroundColor: '#ffffff',
-},
-tabBarItemStyle: {      // ← ADD this new property
-  paddingHorizontal: 0,
-},
+          tabBarStyle: {
+            height: 55,           
+            paddingBottom: 4,     
+            paddingTop: 2,        
+            borderTopWidth: 1,
+            backgroundColor: '#ffffff',
+          },
+          tabBarItemStyle: {     
+            paddingHorizontal: 0,
+          },
         })}
       >
         <Tab.Screen name="Profile" component={Profile} />

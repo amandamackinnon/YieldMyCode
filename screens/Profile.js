@@ -1,12 +1,28 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
+const bodyText = "Profile placeholder screen"
+
 const Profile = () => {
   return (
     <View>
-      <Text>Profile</Text>
+      <Text style = {styles.bodyText}>
+       <Text>{bodyText}</Text>
+       </Text>
     </View>
   )
 }
+
+const styles = {
+bodyText:{
+  top: 300, 
+  marginLeft: 90,
+  fontWeight: 'bold',
+  fontSize: 20,
+  color: '#EC6039',
+}
+
+}
+
 
 export default Profile

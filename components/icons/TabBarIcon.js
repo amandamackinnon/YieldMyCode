@@ -13,8 +13,8 @@ const iconMap = {
 
 export default function TabBarIcon({ name, label, focused }) {
   const IconComponent = iconMap[name];
-  const activeColor = '#D4704A';
-  const inactiveColor = '#E8C46A';
+  const activeColor = '#EC6039';
+  const inactiveColor = '#F6CA5E';
   const color = focused ? activeColor : inactiveColor;
 
   return (
@@ -31,14 +31,15 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 70,        // ← ADD: constrain width so labels don't push layout
-    paddingTop: 2,
+    width: 70,        
+    paddingTop: 15,
   },
   label: {
-    fontSize: 10,     // ← REDUCED from 11
+    fontSize: 12,     
     fontWeight: '500',
     marginTop: 2,
     textAlign: 'center',
-    width: '100%',    // ← ADD: force label to stay within container
+    width: '100%',    
+    fontFamily: 'NunitoBold',
   },
 });
