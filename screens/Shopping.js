@@ -3,7 +3,7 @@ import React from 'react'
 
 const bodyText = "Shopping placeholder screen"
 
-const Shopping = () => {
+export default function Shopping(){
     return (
       <View>
         <Text style = {styles.bodyText}>
@@ -16,11 +16,11 @@ const Shopping = () => {
   const styles = {
   bodyText:{
     top: 300, 
-    marginLeft: 80,
+    marginLeft: 60,
     fontWeight: 'bold',
     fontSize: 20,
     color: '#EC6039',
   }
 }
 
-export default Shopping
+

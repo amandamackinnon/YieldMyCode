@@ -29,7 +29,6 @@ export default function AddToFridge({ onAddProduct, route, navigation }) {
   };
 
   const handleSave = () => {
-    // 1. Validate Info First
     if (!name.trim() || !qty.trim() || !category) {
       Alert.alert(
         "Missing Info",
@@ -39,7 +38,6 @@ export default function AddToFridge({ onAddProduct, route, navigation }) {
       return;
     }
 
-    // 2. Create the Item Object (Now properly initialized BEFORE using it)
     const newItem = {
       id: Date.now().toString(),
       name: name.trim(),
@@ -49,17 +47,14 @@ export default function AddToFridge({ onAddProduct, route, navigation }) {
       expiryDate: expiryDate.toLocaleDateString(),
     };
 
-    // 3. Send data up via Prop and navigate
+    
     if (onAddProduct) {
       onAddProduct(newItem);
-      
-      // Clear out the states for a fresh form next time
       setName('');
       setQty('');
       setCategory(null);
       setExpiryDate(new Date());
 
-      // Safely bounce back to the main list view screen
       navigation.navigate('FridgeHome');
     } else {
       console.warn("onAddProduct prop was not found.");

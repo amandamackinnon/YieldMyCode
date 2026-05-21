@@ -3,7 +3,7 @@ import React from 'react'
 
 const bodyText = "Profile placeholder screen"
 
-const Profile = () => {
+export default function Profile(){
   return (
     <View>
       <Text style = {styles.bodyText}>
@@ -25,4 +25,4 @@ bodyText:{
 }
 
 
-export default Profile
+
