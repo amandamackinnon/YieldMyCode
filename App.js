@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 import React, { useState, useCallback } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -21,7 +21,28 @@ const Tab = createBottomTabNavigator();
 
 function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerRight: () => (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Notifications')}
+            style={{ marginRight: 16 }}
+          >
+            <Ionicons name="notifications-outline" size={24} color="#333"/>
+            <View
+              style={{
+                position: 'absolute',
+                top: -2,
+                right: -2,
+                width: 8,
+                height: 8,
+                borderRadius: 4,
+              }}
+            />
+          </TouchableOpacity>
+        ),
+      }}
+    >
       <Stack.Screen name="FridgeHome" options={{ title: 'yield' }}>
         {(props) => (
           <Fridge
