@@ -1,9 +1,9 @@
-import React, { useState } from 'react'; 
+import React, { useState, useContext } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useFonts } from 'expo-font';
 import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold } from '@expo-google-fonts/nunito';
-
+import { FridgeContext } from '../context/FridgeContext';
 
 const categories = [
   { label: 'All Categories', value: 'All' },
@@ -11,83 +11,109 @@ const categories = [
   { label: 'Dairy & Eggs', value: 'Dairy & Eggs' },
   { label: 'Fish & Meat', value: 'Fish & Meat' },
   { label: 'Fruit & Veggies', value: 'Fruit & Veggies' },
-  { label: 'Grains', value: 'Grains'},
-  { label: 'Pasta & Rice', value: 'Pasta & Rice'},
+  { label: 'Grains', value: 'Grains' },
+  { label: 'Pasta & Rice', value: 'Pasta & Rice' },
   { label: 'Preserves & Sauces', value: 'Preserves & Sauces' },
   { label: 'Other', value: 'Other' },
-  ];
+];
 
-export default function Fridge({ inventory, navigation, onDeleteItem, onDecreaseQty }) {
+export default function Fridge({ navigation }) {
 
-     const [fontsLoaded, fontError] = useFonts({
-      NunitoRegular: Nunito_400Regular,
-      NunitoMedium: Nunito_500Medium,
-      NunitoSemiBold: Nunito_600SemiBold,
-      NunitoBold: Nunito_700Bold,
-    });
+  const {
+    items,
+    removeItem,
+    decreaseQty
+  } = useContext(FridgeContext);
 
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] =
+    useState('All');
 
-  
-  const filteredInventory = inventory.filter(item => {
-    if (selectedCategory === 'All') return true;
+  const [fontsLoaded, fontError] = useFonts({
+    NunitoRegular: Nunito_400Regular,
+    NunitoMedium: Nunito_500Medium,
+    NunitoSemiBold: Nunito_600SemiBold,
+    NunitoBold: Nunito_700Bold,
+  });
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
+
+  const filteredInventory = items.filter(item => {
+
+    if (selectedCategory === 'All') {
+      return true;
+    }
+
     return item.category === selectedCategory;
   });
 
   const renderItem = ({ item }) => (
+
     <View style={styles.tile}>
       <View style={styles.tileHeader}>
         <Text style={styles.itemName}>{item.name}</Text>
+          
         <View style={styles.qtyContainer}>
-          <TouchableOpacity 
-            style={styles.minusButton} 
-            onPress={() => onDecreaseQty(item.id)}
-          >
+          <TouchableOpacity style={styles.minusButton} onPress={() => decreaseQty(item.id)}>
             <Text style={styles.minusText}>−</Text>
           </TouchableOpacity>
+
           <Text style={styles.itemQty}>{item.qty}</Text>
         </View>
       </View>
-      
-      <View style={styles.tileFooter}>
-        <Text style={styles.dateLabel}>Purchased: {item.addedAt}</Text>
-        <Text style={[styles.dateLabel, styles.expiryText]}>
-          Expires: {item.expiryDate}
-        </Text>
 
-        <TouchableOpacity 
-          style={styles.deleteButton} 
-          onPress={() => onDeleteItem(item.id)}
-        >
-          <Text style={{ color: 'red' }}>Remove</Text>
+      <View style={styles.tileFooter}>
+
+        <Text style={styles.dateLabel}> Purchased: {item.addedAt} </Text>
+        <Text style={[ styles.dateLabel, styles.expiryText]}>Expires: {item.expiryDate}</Text>
+          
+            
+        <TouchableOpacity style={styles.deleteButton} onPress={() => removeItem(item.id)} >
+          <Text style={{ color: 'red' }}> Remove </Text>
         </TouchableOpacity>
+
       </View>
+
     </View>
   );
 
   return (
+
     <View style={styles.container}>
-      <Dropdown style={styles.dropdown} placeholderStyle={styles.placeholderStyle} selectedTextStyle={styles.selectedTextStyle}
+
+      <Dropdown
+        style={styles.dropdown}
+        placeholderStyle={styles.placeholderStyle}
+        selectedTextStyle={styles.selectedTextStyle}
         data={categories}
         labelField="label"
         valueField="value"
         value={selectedCategory}
-        onChange={item => setSelectedCategory(item.value)}
+        onChange={item =>
+          setSelectedCategory(item.value)
+        }
       />
 
       <FlatList
         data={filteredInventory}
         renderItem={renderItem}
-        keyExtractor={item => item.id}
+        keyExtractor={item =>
+          item.id.toString()
+        }
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No items found in this category.</Text>
+
+          <Text style={styles.emptyText}>
+            No items found in this category.
+          </Text>
+
         }
       />
-      
+
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 

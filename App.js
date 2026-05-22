@@ -13,7 +13,7 @@ import Fridge from './screens/Fridge';
 import AddToFridge from './screens/AddToFridge';
 import Profile from './screens/Profile';
 import Shopping from './screens/Shopping';
-
+import { FridgeProvider } from './context/FridgeContext';
 
 
 const Stack = createStackNavigator();
@@ -21,6 +21,7 @@ const Tab = createBottomTabNavigator();
 
 function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
   return (
+    <FridgeProvider>
     <Stack.Navigator
       screenOptions={{
         headerRight: () => (
@@ -63,6 +64,7 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
         )}
       </Stack.Screen>
     </Stack.Navigator>
+    </FridgeProvider>
   );
 }
 
