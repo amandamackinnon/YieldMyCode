@@ -1,11 +1,12 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useFonts } from 'expo-font';
 import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold } from '@expo-google-fonts/nunito';
 import { FridgeContext } from '../context/FridgeContext';
 import { BlurView } from 'expo-blur';
+
 
 const categories = [
   { label: 'Bread & Baked Goods', value: 'Bread & Baked Goods' },
@@ -81,6 +82,10 @@ export default function AddToFridge({ navigation }) {
       </BlurView>
 
       <View style={styles.modalCard}>
+        <Image 
+    source={require('../assets/modal-tile-image.png')} 
+    style={styles.illustration} 
+  />
         <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
           <View style={styles.circle}>
           <Text style={styles.closeButtonText}>✕</Text>
@@ -164,6 +169,15 @@ const styles = StyleSheet.create({
     elevation: 5,
     position: 'relative',
   },
+illustration: {
+  width: 100,            // Adjust size to fit your design
+  height: 100,           // Keep width and height equal for a perfect circle
+  position: 'absolute',  // Takes it out of normal layout flow
+  top: -50,              // Pulls it halfway up over the top border line
+  left: 20,              // Positions it on the left side
+  zIndex: 5,             // Ensures it sits on top of the border line
+},
+
   closeButton: {
     position: 'absolute',
     top: 16,
