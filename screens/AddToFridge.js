@@ -82,7 +82,9 @@ export default function AddToFridge({ navigation }) {
 
       <View style={styles.modalCard}>
         <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
+          <View style={styles.circle}>
           <Text style={styles.closeButtonText}>✕</Text>
+          </View>
         </TouchableOpacity>
 
         <Text style={styles.heading}>Add a product:</Text>
@@ -101,16 +103,16 @@ export default function AddToFridge({ navigation }) {
         />
           
         <TextInput
-          placeholder="Product Name"
-          placeholderTextColor="#999"
+          placeholder="Product Name..."
+          placeholderTextColor="#000000"
           style={styles.input}
           value={name}
           onChangeText={setName}
         />
 
         <TextInput
-          placeholder="Quantity"
-          placeholderTextColor="#999"
+          placeholder="Quantity..."
+          placeholderTextColor="#000000"
           style={styles.input}
           keyboardType="numeric"
           value={qty}
@@ -141,9 +143,9 @@ export default function AddToFridge({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center', // Centers the modal card vertically
-    alignItems: 'center',     // Centers the modal card horizontally
-    backgroundColor: 'transparent', // Crucial to see underlying screen
+    justifyContent: 'center', 
+    alignItems: 'center',     
+    backgroundColor: 'transparent', 
   },
   dismissOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -152,8 +154,9 @@ const styles = StyleSheet.create({
     width: '90%',
     backgroundColor: 'white',
     borderRadius: 4,
+    borderColor: 'rgba(236, 96, 57, 1)',
+    borderWidth: 4,
     padding: 24,
-    // Soft shadow styling for iOS/Android depth
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.15,
@@ -167,12 +170,24 @@ const styles = StyleSheet.create({
     right: 16,
     zIndex: 1,
     padding: 4,
+    
   },
+ 
+circle: {
+    width: 25,
+    height: 25,
+    borderRadius: 50,
+    backgroundColor: '#D9D9D9',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
   closeButtonText: {
-    fontSize: 18,
-    color: '#999',
-    fontFamily: 'NunitoBold',
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
+
   heading: {
     fontSize: 24,
     fontFamily: 'NunitoBold',
@@ -214,7 +229,7 @@ const styles = StyleSheet.create({
   dropdownPlaceholder: {
     fontSize: 15,
     fontFamily: 'NunitoMedium',
-    color: '#999',
+    color: '#000000',
   },
   dropdownSelectedText: {
     fontSize: 15,
@@ -247,7 +262,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'rgba(236, 96, 57, 1)',
     fontFamily: 'NunitoBold',
-    fontSize: 16,
+    fontSize: 15,
     textTransform: 'uppercase',
   }
 
