@@ -87,6 +87,7 @@ export default function Fridge({ navigation }) {
         style={styles.dropdown}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
+        itemTextStyle={styles.dropdownItemText}
         data={categories}
         labelField="label"
         valueField="value"
@@ -135,12 +136,20 @@ const styles = StyleSheet.create({
 
   placeholderStyle: { 
     fontSize: 16, 
-    color: '#888' 
+    color: '#888', 
+    fontFamily: 'NunitoMedium',
   },
 
   selectedTextStyle: { 
     fontSize: 16, 
-    color: '#333' 
+    color: '#333', 
+    fontFamily: 'NunitoBold',  
+  },
+
+   dropdownItemText: { 
+    fontSize: 16,
+    color: '#333',
+    fontFamily: 'NunitoMedium',
   },
 
   tile: {
@@ -163,13 +172,14 @@ const styles = StyleSheet.create({
 
   itemName: { 
     fontSize: 18, 
-    fontWeight: 'bold', 
+    fontFamily: 'NunitoBold',
     color: '#333',
  },
 
   itemQty: { 
     fontSize: 16, 
-    color: '#666' 
+    color: '#666',
+    fontFamily: 'NunitoMedium', 
   },
 
   tileFooter: { 
@@ -183,11 +193,11 @@ const styles = StyleSheet.create({
 
   dateLabel: { 
     fontSize: 12, 
-    color: '#888' 
+    color: '#888',
+    fontFamily: 'NunitoMedium',
   },
   expiryText: { 
     color: '#e74c3c', 
-    fontWeight: 'bold', 
     marginTop: 2 
   },
 
@@ -205,11 +215,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold' 
   },
 
+
   emptyText: { 
     textAlign: 'center', 
     fontFamily: 'NunitoSemiBold',
     marginTop: 50, 
-
     color: '#999' 
   },
 
