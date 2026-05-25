@@ -54,8 +54,13 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
           />
         )}
       </Stack.Screen>
-
-      <Stack.Screen name="AddToFridge" options={{ title: '' }}>
+<Stack.Screen name="AddToFridge" 
+      options={{ 
+        presentation: 'transparentModal',
+        headerShown: false,
+        cardStyle: {backgroundColor:'transparent'},
+        }}
+        >
         {(props) => (
           <AddToFridge
             {...props}
@@ -63,6 +68,7 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
           />
         )}
       </Stack.Screen>
+      
     </Stack.Navigator>
     </FridgeProvider>
   );

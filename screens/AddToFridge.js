@@ -1,10 +1,11 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useFonts } from 'expo-font';
 import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold } from '@expo-google-fonts/nunito';
 import { FridgeContext } from '../context/FridgeContext';
+import { BlurView } from 'expo-blur';
 
 const categories = [
   { label: 'Bread & Baked Goods', value: 'Bread & Baked Goods' },
@@ -18,18 +19,13 @@ const categories = [
 ];
 
 export default function AddToFridge({ navigation }) {
-
   const { addItem } = useContext(FridgeContext);
 
   const [name, setName] = useState('');
   const [qty, setQty] = useState('');
   const [category, setCategory] = useState(null);
-
-  const [expiryDate, setExpiryDate] =
-    useState(new Date());
-
-  const [showDatePicker, setShowDatePicker] =
-    useState(false);
+  const [expiryDate, setExpiryDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const [fontsLoaded, fontError] = useFonts({
     NunitoRegular: Nunito_400Regular,
@@ -42,32 +38,16 @@ export default function AddToFridge({ navigation }) {
     return null;
   }
 
-  const onDateChange = (
-    event,
-    selectedDate
-  ) => {
-
+  const onDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
-
     if (selectedDate) {
       setExpiryDate(selectedDate);
     }
   };
 
   const handleSave = () => {
-
-    if (
-      !name.trim() ||
-      !qty.trim() ||
-      !category
-    ) {
-
-      Alert.alert(
-        'Missing Info',
-        'Please fill in all fields and select a category before saving.',
-        [{ text: 'OK' }]
-      );
-
+    if (!name.trim() || !qty.trim() || !category) {
+      Alert.alert('Missing Info', 'Please fill in all fields and select a category before saving.', [{ text: 'OK' }]);
       return;
     }
 
@@ -78,7 +58,7 @@ export default function AddToFridge({ navigation }) {
       category: category,
       addedAt: new Date().toLocaleDateString(),
       expiryDate: expiryDate.toLocaleDateString(),
-      };
+    };
 
     addItem(newItem);
     setName('');
@@ -90,106 +70,186 @@ export default function AddToFridge({ navigation }) {
   };
 
   return (
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+      style={styles.container}
+    >
+      {/* 1. Full screen blur background */}
+      <BlurView intensity={70} tint="light" style={StyleSheet.absoluteFillObject}>
+        {/* Invisible touchable area to dismiss modal when tapping outside */}
+        <TouchableOpacity style={styles.dismissOverlay} activeOpacity={1} onPress={() => navigation.goBack()} />
+      </BlurView>
 
-    <View style={styles.container}>
-      <Text style={styles.heading}> Add a product:</Text>
-      <Text style={styles.subheading}> Type the name of your product </Text>
+      <View style={styles.modalCard}>
+        <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.closeButtonText}>✕</Text>
+        </TouchableOpacity>
 
-      <Dropdown
-        style={styles.dropdown}
-        data={categories}
-        labelField="label"
-        valueField="value"
-        placeholder="Select Category"
-        value={category}
-        onChange={item => setCategory(item.value)}/>
+        <Text style={styles.heading}>Add a product:</Text>
+        <Text style={styles.subheading}>Type the name of your product</Text>
+
+        <Dropdown
+          style={styles.dropdown}
+          placeholderStyle={styles.dropdownPlaceholder}
+          selectedTextStyle={styles.dropdownSelectedText}
+          data={categories}
+          labelField="label"
+          valueField="value"
+          placeholder="Select Category"
+          value={category}
+          onChange={item => setCategory(item.value)}
+        />
           
-      <TextInput
-        placeholder="Product Name"
-        style={styles.input}
-        value={name}
-        onChangeText={setName}
-      />
+        <TextInput
+          placeholder="Product Name"
+          placeholderTextColor="#999"
+          style={styles.input}
+          value={name}
+          onChangeText={setName}
+        />
 
-      <TextInput
-        placeholder="Quantity"
-        style={styles.input}
-        keyboardType="numeric"
-        value={qty}
-        onChangeText={setQty}
-      />
+        <TextInput
+          placeholder="Quantity"
+          placeholderTextColor="#999"
+          style={styles.input}
+          keyboardType="numeric"
+          value={qty}
+          onChangeText={setQty}
+        />
 
-      <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker(true)}>
-        <Text> Expires: {' '} {expiryDate.toLocaleDateString()} </Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker(true)}>
+          <Text style={styles.dateText}> Expires: {expiryDate.toLocaleDateString()} </Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={handleSave}>
-        <Text style={styles.buttonText}>SAVE</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleSave}>
+          <Text style={styles.buttonText}>SAVE</Text>
+        </TouchableOpacity>
+      </View>
 
       {showDatePicker && (
-
         <DateTimePicker
           value={expiryDate}
           mode="date"
           display="default"
           onChange={onDateChange}
         />
-
       )}
-
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'center', // Centers the modal card vertically
+    alignItems: 'center',     // Centers the modal card horizontally
+    backgroundColor: 'transparent', // Crucial to see underlying screen
+  },
+  dismissOverlay: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  modalCard: {
+    width: '90%',
     backgroundColor: 'white',
-    padding: 20
+    borderRadius: 4,
+    padding: 24,
+    // Soft shadow styling for iOS/Android depth
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 5,
+    position: 'relative',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 1,
+    padding: 4,
+  },
+  closeButtonText: {
+    fontSize: 18,
+    color: '#999',
+    fontFamily: 'NunitoBold',
   },
   heading: {
     fontSize: 24,
     fontFamily: 'NunitoBold',
-    marginBottom: 10
+    color: '#333',
+    marginBottom: 6,
+    marginTop: 8,
   },
   subheading: {
-    fontSize: 20,
+    fontSize: 15,
     fontFamily: 'NunitoMedium',
-    marginBottom: 15
+    color: '#000000',
+    marginBottom: 20,
   },
   input: {
     borderWidth: 2,
     borderColor: 'rgba(236, 96, 57, 1)',
     marginVertical: 8,
-    padding: 10,
+    padding: 12,
     fontSize: 15,
     fontFamily: 'NunitoMedium',
-    borderRadius: 4
+    borderRadius: 4,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+  },
+  dateText: {
+    fontSize: 15,
+    fontFamily: 'NunitoMedium',
+    color: '#333',
   },
   dropdown: {
     height: 50,
-    fontFamily: 'NunitoMedium',
     borderWidth: 2,
     borderColor: 'rgba(236, 96, 57, 1)',
     borderRadius: 4,
     marginVertical: 8,
-    paddingHorizontal: 10
+    paddingHorizontal: 12,
+    backgroundColor: '#fff',
+  },
+  dropdownPlaceholder: {
+    fontSize: 15,
+    fontFamily: 'NunitoMedium',
+    color: '#999',
+  },
+  dropdownSelectedText: {
+    fontSize: 15,
+    fontFamily: 'NunitoMedium',
+    color: '#000000',
+  },
+
+  selectedTextStyle: { 
+    fontSize: 16, 
+    color: '#333', 
+    fontFamily: 'NunitoBold',  
+  },
+
+   dropdownItemText: { 
+    fontSize: 16,
+    color: '#333',
+    fontFamily: 'NunitoMedium',
   },
   button: {
     backgroundColor: 'white',
-    padding: 10,
-    borderRadius: 10,
-    marginLeft: 100,
-    marginRight: 100,
+    paddingVertical: 12,
+    borderRadius: 4, 
     borderColor: "rgba(236, 96, 57, 1)",
     borderWidth: 2,
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 24,
+    width: '60%',
+    alignSelf: 'center',
   },
   buttonText: {
     color: 'rgba(236, 96, 57, 1)',
     fontFamily: 'NunitoBold',
-    fontSize: 18
+    fontSize: 16,
+    textTransform: 'uppercase',
   }
+
+  
 });
