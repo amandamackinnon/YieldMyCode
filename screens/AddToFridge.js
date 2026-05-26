@@ -71,21 +71,16 @@ export default function AddToFridge({ navigation }) {
   };
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
-      style={styles.container}
-    >
-      {/* 1. Full screen blur background */}
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
+    
       <BlurView intensity={70} tint="light" style={StyleSheet.absoluteFillObject}>
-        {/* Invisible touchable area to dismiss modal when tapping outside */}
         <TouchableOpacity style={styles.dismissOverlay} activeOpacity={1} onPress={() => navigation.goBack()} />
       </BlurView>
 
       <View style={styles.modalCard}>
-        <Image 
-    source={require('../assets/modal-tile-image.png')} 
-    style={styles.illustration} 
-  />
+        <View style = {styles.illustrationBadge}>
+          <Image source={require('../assets/modal-tile-image.png')} style={styles.illustrationImage} resizeMode="contain"/>
+        </View>
         <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
           <View style={styles.circle}>
           <Text style={styles.closeButtonText}>✕</Text>
@@ -169,14 +164,28 @@ const styles = StyleSheet.create({
     elevation: 5,
     position: 'relative',
   },
-illustration: {
-  width: 100,            // Adjust size to fit your design
-  height: 100,           // Keep width and height equal for a perfect circle
-  position: 'absolute',  // Takes it out of normal layout flow
-  top: -50,              // Pulls it halfway up over the top border line
-  left: 20,              // Positions it on the left side
-  zIndex: 5,             // Ensures it sits on top of the border line
+illustrationBadge: {
+  width: 105,            
+  height: 105,           
+  position: 'absolute',  
+  marginTop: -30,             
+  marginLeft: 3,       
+  borderColor: 'rgba(236, 96, 57, 1)', 
+  borderWidth: 1,     
+  borderRadius: 52.5,  
+  backgroundColor: 'rgba(236, 96, 57, 1)',
+  zIndex: 5,
+  justifyContent: 'center',    
+  alignItems: 'center',        
+  overflow: 'hidden',
+  
 },
+  illustrationImage: {
+    width: 135,
+    height: 135,
+    marginRight: 14,
+
+  },
 
   closeButton: {
     position: 'absolute',
@@ -190,7 +199,7 @@ illustration: {
 circle: {
     width: 25,
     height: 25,
-    borderRadius: 50,
+    borderRadius: 52.5,
     backgroundColor: '#D9D9D9',
     justifyContent: 'center',
     alignItems: 'center',
@@ -206,14 +215,16 @@ circle: {
     fontSize: 24,
     fontFamily: 'NunitoBold',
     color: '#333',
-    marginBottom: 6,
-    marginTop: 8,
+    marginLeft: 80,
+    marginTop: 20,
   },
   subheading: {
     fontSize: 15,
     fontFamily: 'NunitoMedium',
     color: '#000000',
     marginBottom: 20,
+    marginLeft: 80,
+    
   },
   input: {
     borderWidth: 2,
