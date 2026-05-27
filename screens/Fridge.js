@@ -57,29 +57,32 @@ const handleNuclearReset = async () => {
 
     <View style={styles.tile}>
       <View style={styles.tileHeader}>
-        <Text style={styles.itemName}>{item.name}</Text>
+       
         <View style={styles.imageBackgroundCircle}>
           <Image source={{ uri: item.imageUrl || 'https://spoonacular.com/cdn/ingredients_250x250/apple.png' }} style={styles.foodImage} resizeMode="contain"/>   
         </View>
+         <Text style={styles.itemName}>{item.name}</Text>
           
         <View style={styles.qtyContainer}>
+          
+          <Text style={styles.itemQty}>{item.qty}</Text>
           <TouchableOpacity style={styles.minusButton} onPress={() => decreaseQty(item.id)}>
             <Text style={styles.minusText}>−</Text>
           </TouchableOpacity>
+           <TouchableOpacity style={styles.deleteButton} onPress={() => removeItem(item.id)} >
+          <Text style={{ color: 'red' }}> Remove </Text>
+        </TouchableOpacity>
 
-          <Text style={styles.itemQty}>{item.qty}</Text>
+          
         </View>
       </View>
 
       <View style={styles.tileFooter}>
 
-        <Text style={styles.dateLabel}> Purchased: {item.addedAt} </Text>
         <Text style={[ styles.dateLabel, styles.expiryText]}>Expires: {item.expiryDate}</Text>
           
             
-        <TouchableOpacity style={styles.deleteButton} onPress={() => removeItem(item.id)} >
-          <Text style={{ color: 'red' }}> Remove </Text>
-        </TouchableOpacity>
+       
 
       </View>
 
@@ -165,15 +168,11 @@ const styles = StyleSheet.create({
 
   tile: {
     backgroundColor: '#fff',
-    borderRadius: 12,
     padding: 15,
     marginBottom: 10,
     width: '48%',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    elevation: 1,
+  
   },
 
   tileHeader: { 
@@ -186,6 +185,7 @@ const styles = StyleSheet.create({
     fontSize: 18, 
     fontFamily: 'NunitoBold',
     color: '#333',
+    
  },
 
   itemQty: { 
@@ -213,21 +213,6 @@ const styles = StyleSheet.create({
     marginTop: 2 
   },
 
-  addButton: {
-    backgroundColor: '#2ecc71',
-    padding: 15,
-    borderRadius: 30,
-    position: 'absolute',
-    bottom: 30,
-    right: 20,
-    elevation: 5,
-  },
-  addButtonText: { 
-    color: 'white', 
-    fontWeight: 'bold' 
-  },
-
-
   emptyText: { 
     textAlign: 'center', 
     fontFamily: 'NunitoSemiBold',
@@ -242,7 +227,8 @@ const styles = StyleSheet.create({
 
   imageBackgroundCircle: {
     width: 120,                
-    height: 120,                     
+    height: 120,       
+    borderRadius: 4,              
     backgroundColor: 'rgba(79, 107, 183, 1)', 
     justifyContent: 'center', 
     alignItems: 'center',     
