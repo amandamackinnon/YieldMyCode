@@ -116,6 +116,8 @@ const handleNuclearReset = async () => {
         data={filteredInventory}
         renderItem={renderItem}
         keyExtractor={item => item.id}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
         ListEmptyComponent={
       
       <Text style={styles.emptyText}> No items found in this category.</Text> } />
@@ -127,12 +129,18 @@ const styles = StyleSheet.create({
   container: { 
     flex: 1, 
     backgroundColor: 'white', 
-    padding: 10, 
+    paddingHorizontal: 10,
+    paddingTop: 0, 
+  },
+
+  row: {
+    flex: 1,
+    justifyContent: 'space-between', 
   },
   
   dropdown: {
     backgroundColor: '#D9D9D966',
-    borderRadius: 8,
+    borderRadius: 2,
     padding: 12,
     marginBottom: 15,
     
@@ -160,6 +168,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 15,
     marginBottom: 10,
+    width: '48%',
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -168,7 +177,7 @@ const styles = StyleSheet.create({
   },
 
   tileHeader: { 
-  flexDirection: 'row', 
+  flexDirection: 'column', 
   justifyContent: 'space-between', 
   marginBottom: 10,
  },
@@ -189,7 +198,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1, 
     borderTopColor: '#eee', 
     paddingTop: 10, 
-    flexDirection: 'row', 
+    flexDirection: 'column', 
     justifyContent: 'space-between', 
     alignItems: 'center'
  },
@@ -232,18 +241,17 @@ const styles = StyleSheet.create({
   },
 
   imageBackgroundCircle: {
-    width: 60,                // Set an explicit width for the container
-    height: 60,               // Set an explicit height
-    borderRadius: 30,         // Perfect circle
-    backgroundColor: '#f9f9f9', // Light gray tile profile backdrop
-    justifyContent: 'center', // Centers the food asset vertically
-    alignItems: 'center',     // Centers the food asset horizontally
+    width: 120,                
+    height: 120,                     
+    backgroundColor: 'rgba(79, 107, 183, 1)', 
+    justifyContent: 'center', 
+    alignItems: 'center',     
     overflow: 'hidden',
   },
 
   foodImage: {
-    width: 45,                // Explicit dimensions for network imagery are mandatory!
-    height: 45,
+    width: 100,                
+    height: 100,
   },
 
   minusButton: {
