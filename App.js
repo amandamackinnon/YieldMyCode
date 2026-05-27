@@ -44,7 +44,7 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
         ),
       }}
     >
-      <Stack.Screen name="FridgeHome" options={{title: 'yield', headerTitleStyle: {fontFamily: 'NunitoBold'}}}>
+      <Stack.Screen name="FridgeHome" options={{title: 'yield', headerShadowVisible: false, headerTitleStyle: {fontFamily: 'NunitoBold'}}}>
         {(props) => (
           <Fridge
             {...props}

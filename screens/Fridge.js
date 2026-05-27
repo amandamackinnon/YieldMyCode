@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, ScrollView, Image }
 import { Dropdown } from 'react-native-element-dropdown';
 import { useFonts } from 'expo-font';
 import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold } from '@expo-google-fonts/nunito';
+import { Ionicons } from '@expo/vector-icons';
 import { FridgeContext } from '../context/FridgeContext';
 
 const categories = [
@@ -94,6 +95,7 @@ const handleNuclearReset = async () => {
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         itemTextStyle={styles.dropdownItemText}
+        placeholder = ""
         data={categories}
         labelField="label"
         valueField="value"
@@ -101,6 +103,13 @@ const handleNuclearReset = async () => {
         onChange={item =>
           setSelectedCategory(item.value)
         }
+        renderLeftIcon={() => (
+      <Ionicons 
+      name="search" 
+      size={25} 
+      color="white" />
+  )}
+      renderRightIcon ={() => null}
       />
 
       <FlatList
@@ -117,20 +126,16 @@ const handleNuclearReset = async () => {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: '#f5f5f5', 
+    backgroundColor: 'white', 
     padding: 10, 
   },
   
   dropdown: {
-    backgroundColor: 'white',
+    backgroundColor: '#D9D9D966',
     borderRadius: 8,
     padding: 12,
     marginBottom: 15,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
+    
   },
 
   placeholderStyle: { 
@@ -140,9 +145,8 @@ const styles = StyleSheet.create({
   },
 
   selectedTextStyle: { 
-    fontSize: 16, 
-    color: '#333', 
-    fontFamily: 'NunitoBold',  
+    fontSize: 1,       
+    color: 'transparent', 
   },
 
    dropdownItemText: { 
