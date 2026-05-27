@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useFonts } from 'expo-font';
 import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold } from '@expo-google-fonts/nunito';
@@ -19,12 +19,8 @@ const categories = [
 
 export default function Fridge({ navigation }) {
 
-  const {
-    items,
-    removeItem,
-    decreaseQty
-  } = useContext(FridgeContext);
-
+  const { items, removeItem, decreaseQty } = useContext(FridgeContext);
+    
   const [selectedCategory, setSelectedCategory] =
     useState('All');
 
@@ -38,7 +34,14 @@ export default function Fridge({ navigation }) {
   if (!fontsLoaded && !fontError) {
     return null;
   }
-
+const handleNuclearReset = async () => {
+    try {
+      await AsyncStorage.clear(); // Force deletes the file on the device disk
+      alert("Storage entirely wiped! Restart your app server now.");
+    } catch (e) {
+      console.log("Failed to clear storage:", e);
+    }
+  };
 
   const filteredInventory = items.filter(item => {
 
@@ -54,6 +57,9 @@ export default function Fridge({ navigation }) {
     <View style={styles.tile}>
       <View style={styles.tileHeader}>
         <Text style={styles.itemName}>{item.name}</Text>
+        <View style={styles.imageBackgroundCircle}>
+          <Image source={{ uri: item.imageUrl || 'https://spoonacular.com/cdn/ingredients_250x250/apple.png' }} style={styles.foodImage} resizeMode="contain"/>   
+        </View>
           
         <View style={styles.qtyContainer}>
           <TouchableOpacity style={styles.minusButton} onPress={() => decreaseQty(item.id)}>
@@ -100,17 +106,10 @@ export default function Fridge({ navigation }) {
       <FlatList
         data={filteredInventory}
         renderItem={renderItem}
-        keyExtractor={item =>
-          item.id.toString()
-        }
+        keyExtractor={item => item.id}
         ListEmptyComponent={
-
-          <Text style={styles.emptyText}>
-            No items found in this category.
-          </Text>
-
-        }
-      />
+      
+      <Text style={styles.emptyText}> No items found in this category.</Text> } />
 
     </View>
   );
@@ -226,6 +225,21 @@ const styles = StyleSheet.create({
   qtyContainer: { 
     flexDirection: 'row', 
     alignItems: 'center' 
+  },
+
+  imageBackgroundCircle: {
+    width: 60,                // Set an explicit width for the container
+    height: 60,               // Set an explicit height
+    borderRadius: 30,         // Perfect circle
+    backgroundColor: '#f9f9f9', // Light gray tile profile backdrop
+    justifyContent: 'center', // Centers the food asset vertically
+    alignItems: 'center',     // Centers the food asset horizontally
+    overflow: 'hidden',
+  },
+
+  foodImage: {
+    width: 45,                // Explicit dimensions for network imagery are mandatory!
+    height: 45,
   },
 
   minusButton: {

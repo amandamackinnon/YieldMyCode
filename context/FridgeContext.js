@@ -35,7 +35,7 @@ export const FridgeProvider = ({ children }) => {
   };
 
   const saveItems = async () => {
-    try {
+    try { 
     const jsonValue = JSON.stringify(items);
         await AsyncStorage.setItem(
         STORAGE_KEY,

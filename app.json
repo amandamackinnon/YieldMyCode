@@ -27,6 +27,10 @@
     },
     "plugins": [
       "@react-native-community/datetimepicker"
-    ]
+    ],
+    "extra": {
+      "spoonacularApiKey": "e7de26d39bf344c88aaf33e8ee08eda4"
+    }
+    
   }
 }

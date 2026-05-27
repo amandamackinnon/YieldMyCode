@@ -5,6 +5,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { useFonts } from 'expo-font';
 import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold } from '@expo-google-fonts/nunito';
 import { FridgeContext } from '../context/FridgeContext';
+import Constants from 'expo-constants';
 import { BlurView } from 'expo-blur';
 
 
@@ -19,6 +20,8 @@ const categories = [
   { label: 'Other', value: 'Other' },
 ];
 
+const SPOONACULAR_API_KEY =  Constants.expoConfig?.extra?.spoonacularApiKey || Constants.manifest?.extra?.spoonacularApiKey;
+
 export default function AddToFridge({ navigation }) {
   const { addItem } = useContext(FridgeContext);
 
@@ -27,6 +30,7 @@ export default function AddToFridge({ navigation }) {
   const [category, setCategory] = useState(null);
   const [expiryDate, setExpiryDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [fontsLoaded, fontError] = useFonts({
     NunitoRegular: Nunito_400Regular,
@@ -46,17 +50,42 @@ export default function AddToFridge({ navigation }) {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name.trim() || !qty.trim() || !category) {
-      Alert.alert('Missing Info', 'Please fill in all fields and select a category before saving.', [{ text: 'OK' }]);
+      Alert.alert('Missing Info', 'Please select a category and fill in all fields before saving.', [{ text: 'OK' }]);
       return;
     }
+setIsSaving(true); 
+
+    
+    let finalImageUrl = 'https://spoonacular.com/cdn/ingredients_250x250/apple.png'; 
+
+    try {
+  const response = await fetch(
+    `https://api.spoonacular.com/food/ingredients/search?query=${encodeURIComponent(name.trim())}&number=1&apiKey=${SPOONACULAR_API_KEY}`
+  );
+
+  const data = await response.json();
+
+
+  if (
+    data.results &&
+    data.results.length > 0 &&
+    data.results[0].image
+  ) {
+    finalImageUrl = `https://spoonacular.com/cdn/ingredients_250x250/${data.results[0].image}`;
+  }
+} catch (error) {
+  console.log('Spoonacular API Error:', error);
+}
+
 
     const newItem = {
       id: Date.now().toString(),
       name: name.trim(),
       qty: Number(qty),
       category: category,
+      imageUrl: finalImageUrl,
       addedAt: new Date().toLocaleDateString(),
       expiryDate: expiryDate.toLocaleDateString(),
     };
@@ -66,6 +95,7 @@ export default function AddToFridge({ navigation }) {
     setQty('');
     setCategory(null);
     setExpiryDate(new Date());
+    setIsSaving(false); 
 
     navigation.navigate('FridgeHome');
   };
