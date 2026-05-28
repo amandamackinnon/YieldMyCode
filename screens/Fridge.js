@@ -20,44 +20,48 @@ const categories = [
 ];
 
 const getDaysLeft = (expiryDateStr) => {
-  if (!expiryDateStr) return '';
+  if (!expiryDateStr || typeof expiryDateStr !== 'string' || expiryDateStr.trim() === '') {
+    return { text: 'No Expiry Set', days: 999 };
+  }
 
   try {
-    // 1. Separate the clean components
-    const parts = expiryDateStr.trim().split('/');
-    if (parts.length !== 3) return 'Invalid Date';
+  const cleanStr = expiryDateStr.replace(/Expires:\s*/i, '').trim();
+  const dateParts = cleanStr.split('/');
+    if (dateParts.length !== 3) {
+      return { text: 'Invalid Format', days: 999 };
+    }
+  const [dayStr, monthStr, yearStr] = dateParts;
+  const expDay = parseInt(dayStr, 10);
+  const expMonth = parseInt(monthStr, 10) - 1; 
+  const expYear = parseInt(yearStr, 10);
 
-    const day = parseInt(parts[0], 10);
-    const month = parseInt(parts[1], 10) - 1; // 0-indexed months
-    const year = parseInt(parts[2], 10);
+    if (isNaN(expDay) || isNaN(expMonth) || isNaN(expYear)) {
+      return { text: 'Invalid Numbers', days: 999 };
+    }
 
-    // 2. Create absolute UTC Midnight references (Timezone Neutral)
-    const expiryDate = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
-    
+    const expiryDate = new Date(expYear, expMonth, expDay, 12, 0, 0);
     const now = new Date();
-    const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0));
-
-    // 3. Compute absolute physical days difference using Math.round
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
     const diffTime = expiryDate.getTime() - today.getTime();
     const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
-    // 🔍 Debug log to verify the fresh calculation values
-    console.log(`📊 Math Check -> Expiry UTC: ${expiryDate.toUTCString()} | Today UTC: ${today.toUTCString()} | Diff Days: ${diffDays}`);
 
-    // 4. Return clean strings
     if (diffDays === 0) {
-      return 'Expires today';
+      return { text: 'Expires today', days: diffDays };
     } else if (diffDays === 1) {
-      return '1 day left';
+      return { text: '1 day left', days: diffDays };
     } else if (diffDays < 0) {
       const positiveDays = Math.abs(diffDays);
-      return `Expired ${positiveDays} ${positiveDays === 1 ? 'day' : 'days'} ago`;
+      return { 
+        text: `Expired ${positiveDays} ${positiveDays === 1 ? 'day' : 'days'} ago`, 
+        days: diffDays 
+      };
     } else {
-      return `${diffDays} days left`;
+      return { text: `${diffDays} days left`, days: diffDays };
     }
+
   } catch (error) {
-    console.log('❌ Date calculation error:', error);
-    return 'Date error';
+    return { text: 'Calc Error', days: 999 };
   }
 };
 
@@ -76,7 +80,6 @@ export default function Fridge({ navigation }) {
     return null;
   }
 
-
   const filteredInventory = items.filter(item => {
     if (selectedCategory === 'All') {
       return true;
@@ -84,9 +87,19 @@ export default function Fridge({ navigation }) {
     return item.category === selectedCategory;
   });
 
-  // FIXED: Added block syntax curly braces and return statement here
   const renderItem = ({ item }) => {
-    const daysLeftText = getDaysLeft(item.expiryDate);
+    const info = getDaysLeft(item.expiryDate);
+
+    let statusStyle = null;
+    if (info.days <= 0) {
+      statusStyle = styles.urgentRed;       // Expired / Expires today
+    } else if (info.days >= 1 && info.days <= 2) {
+      statusStyle = styles.urgentRed;       // 1-2 days left
+    } else if (info.days >= 3 && info.days <= 4) {
+      statusStyle = styles.warningYellow;   // 3-4 days left
+    } else {
+      statusStyle = styles.safeGreen;       // 5+ days left
+    }
 
     return (
       <View style={styles.tile}>
@@ -112,8 +125,8 @@ export default function Fridge({ navigation }) {
         </View>
 
         <View style={styles.tileFooter}>
-          {/* UPDATED: Changed from raw date string to daysLeftText */}
-          <Text style={[styles.dateLabel, styles.expiryText]}>{daysLeftText}</Text>
+          {/* Now perfectly matches the object output format */}
+          <Text style={[styles.expiryText, statusStyle]}>{info.text}</Text>
         </View>
       </View>
     );
@@ -126,14 +139,14 @@ export default function Fridge({ navigation }) {
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         itemTextStyle={styles.dropdownItemText}
-        placeholder=""
+        placeholder="Filter Category"
         data={categories}
         labelField="label"
         valueField="value"
         value={selectedCategory}
         onChange={item => setSelectedCategory(item.value)}
         renderLeftIcon={() => (
-          <Ionicons name="search" size={25} color="white" />
+          <Ionicons name="search" size={25} color="white" style={{ marginRight: 10 }} />
         )}
         renderRightIcon={() => null}
       />
@@ -152,7 +165,6 @@ export default function Fridge({ navigation }) {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
@@ -160,37 +172,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingTop: 0, 
   },
-
   row: {
     flex: 1,
     justifyContent: 'space-between', 
   },
-  
   dropdown: {
     backgroundColor: '#D9D9D966',
     borderRadius: 2,
     padding: 12,
     marginBottom: 15,
-    
   },
-
   placeholderStyle: { 
     fontSize: 16, 
     color: '#888', 
     fontFamily: 'NunitoMedium',
   },
-
   selectedTextStyle: { 
     fontSize: 1,       
     color: 'transparent', 
   },
-
-   dropdownItemText: { 
+  dropdownItemText: { 
     fontSize: 16,
     color: '#333',
     fontFamily: 'NunitoMedium',
   },
-
   tile: {
     backgroundColor: '#fff',
     padding: 15,
@@ -198,73 +203,89 @@ const styles = StyleSheet.create({
     width: '48%',
     alignItems: 'center',
     elevation: 1,
-  
   },
-
   tileHeader: { 
-  flexDirection: 'column', 
-  justifyContent: 'space-between', 
-  marginBottom: 10,
- },
-
+    flexDirection: 'column', 
+    justifyContent: 'space-between', 
+    marginBottom: 10,
+    alignItems: 'center',
+  },
   itemName: { 
     fontSize: 18, 
     fontFamily: 'NunitoBold',
     color: '#333',
-    
- },
-
+    marginTop: 4,
+  },
   itemQty: { 
     fontSize: 16, 
     color: '#666',
     fontFamily: 'NunitoMedium', 
   },
-
   tileFooter: { 
     borderTopWidth: 1, 
     borderTopColor: '#eee', 
     paddingTop: 10, 
     flexDirection: 'column', 
     justifyContent: 'space-between', 
-    alignItems: 'center'
- },
-
+    alignItems: 'center',
+    width: '100%',
+  },
   dateLabel: { 
     fontSize: 12, 
     color: '#888',
     fontFamily: 'NunitoMedium',
   },
   expiryText: { 
-    color: '#e74c3c', 
-    marginTop: 2 
+    marginTop: 4, 
+    borderWidth: 1, 
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    fontFamily: 'NunitoMedium',
+    fontSize: 12,
+    borderRadius: 6,
+    overflow: 'hidden', 
+    textAlign: 'center',
+    alignSelf: 'stretch',
   },
-
+  urgentRed: {
+    backgroundColor: '#FFE5E5',
+    borderColor: '#D32F2F',
+    color: '#D32F2F',
+  },
+  warningYellow: {
+    backgroundColor: '#FFF9C4',
+    borderColor: '#FBC02D',
+    color: '#F57F17',
+  },
+  safeGreen: {
+    backgroundColor: '#E8F5E9',
+    borderColor: '#388E3C',
+    color: '#2E7D32',
+  },
   emptyText: { 
     textAlign: 'center', 
     fontFamily: 'NunitoSemiBold',
     marginTop: 50, 
     color: '#999' 
   },
-
   qtyContainer: { 
     flexDirection: 'row', 
-    alignItems: 'center' 
+    alignItems: 'center',
+    marginTop: 4,
   },
-
   imageBackgroundCircle: {
-    width: '90%',                    
-    borderRadius: 4,              
-    backgroundColor: 'rgba(79, 107, 183, 1)', 
+    width: 100,                    
+    height: 100,
+    borderRadius: 50, // Made it a perfect circles layout for food backgrounds
+    backgroundColor: 'rgba(79, 107, 183, 0.15)', // Softened opacity so food stands out cleanly
     justifyContent: 'center', 
     alignItems: 'center',     
     overflow: 'hidden',
   },
-
   foodImage: {
-    width: 100,                
-    height: 100,
+    width: 70,                
+    height: 70,
   },
-
   minusButton: {
     backgroundColor: '#eee',
     width: 30,
@@ -272,12 +293,14 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
+    marginHorizontal: 8,
   },
   minusText: { 
     fontSize: 20, 
     color: '#e74c3c', 
     fontWeight: 'bold'
-   },
-
+  },
+  deleteButton: {
+    marginLeft: 5,
+  }
 });
