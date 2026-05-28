@@ -103,7 +103,6 @@ export default function AddToFridge({ navigation }) {
   console.log('❌ Core Spoonacular Engine Crash:', error);
 }
 
-    // Format your European tracking date strings safely
     const today = new Date();
     const todayDay = String(today.getDate()).padStart(2, '0');
     const todayMonth = String(today.getMonth() + 1).padStart(2, '0');

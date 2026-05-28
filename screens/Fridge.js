@@ -22,23 +22,42 @@ const categories = [
 const getDaysLeft = (expiryDateStr) => {
   if (!expiryDateStr) return '';
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); 
+  try {
+    // 1. Separate the clean components
+    const parts = expiryDateStr.trim().split('/');
+    if (parts.length !== 3) return 'Invalid Date';
 
-  const expiryDate = new Date(expiryDateStr);
-  expiryDate.setHours(0, 0, 0, 0);
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // 0-indexed months
+    const year = parseInt(parts[2], 10);
 
-  const diffTime = expiryDate - today;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    // 2. Create absolute UTC Midnight references (Timezone Neutral)
+    const expiryDate = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
+    
+    const now = new Date();
+    const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0));
 
-  if (diffDays === 0) {
-    return 'Expires today';
-  } else if (diffDays === 1) {
-    return '1 day left';
-  } else if (diffDays < 0) {
-    return `Expired ${Math.abs(diffDays)} ${Math.abs(diffDays) === 1 ? 'day' : 'days'} ago`;
-  } else {
-    return `${diffDays} days left`;
+    // 3. Compute absolute physical days difference using Math.round
+    const diffTime = expiryDate.getTime() - today.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+    // 🔍 Debug log to verify the fresh calculation values
+    console.log(`📊 Math Check -> Expiry UTC: ${expiryDate.toUTCString()} | Today UTC: ${today.toUTCString()} | Diff Days: ${diffDays}`);
+
+    // 4. Return clean strings
+    if (diffDays === 0) {
+      return 'Expires today';
+    } else if (diffDays === 1) {
+      return '1 day left';
+    } else if (diffDays < 0) {
+      const positiveDays = Math.abs(diffDays);
+      return `Expired ${positiveDays} ${positiveDays === 1 ? 'day' : 'days'} ago`;
+    } else {
+      return `${diffDays} days left`;
+    }
+  } catch (error) {
+    console.log('❌ Date calculation error:', error);
+    return 'Date error';
   }
 };
 
