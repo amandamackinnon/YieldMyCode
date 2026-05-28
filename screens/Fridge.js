@@ -91,26 +91,47 @@ export default function Fridge({ navigation }) {
     const info = getDaysLeft(item.expiryDate);
 
     let statusStyle = null;
+    let bannerElement = null; // 🌟 Initialize a variable to hold our dynamic overlay banner
+
     if (info.days <= 0) {
-      statusStyle = styles.urgentRed;       // Expired / Expires today
+      statusStyle = styles.urgentRed;
+      bannerElement = (
+        <View style={[styles.bannerOverlay, styles.bannerRed]}>
+          <Text style={styles.bannerText}>☠️ EXPIRED</Text>
+        </View>
+      );
     } else if (info.days >= 1 && info.days <= 2) {
-      statusStyle = styles.urgentRed;       // 1-2 days left
+      statusStyle = styles.urgentRed;
+      bannerElement = (
+        <View style={[styles.bannerOverlay, styles.bannerRed]}>
+          <Text style={styles.bannerText}>⏰ PLEASE HURRY!</Text>
+        </View>
+      );
     } else if (info.days >= 3 && info.days <= 4) {
-      statusStyle = styles.warningYellow;   // 3-4 days left
+      statusStyle = styles.warningYellow;
+      bannerElement = (
+        <View style={[styles.bannerOverlay, styles.bannerOrange]}>
+          <Text style={styles.bannerText}>⏳ SLOWLY DYING...</Text>
+        </View>
+      );
     } else {
-      statusStyle = styles.safeGreen;       // 5+ days left
+      statusStyle = styles.safeGreen;
+      // No overlay banner needed for items with 5+ fresh safe days!
     }
 
     return (
       <View style={styles.tile}>
         <View style={styles.tileHeader}>
+          
           <View style={styles.imageBackgroundCircle}>
             <Image 
               source={{ uri: item.imageUrl || 'https://spoonacular.com/cdn/ingredients_250x250/apple.png' }} 
               style={styles.foodImage} 
               resizeMode="contain"
             />   
+            {bannerElement} 
           </View>
+          
           <Text style={styles.itemName}>{item.name}</Text>
             
           <View style={styles.qtyContainer}>
@@ -125,7 +146,6 @@ export default function Fridge({ navigation }) {
         </View>
 
         <View style={styles.tileFooter}>
-          {/* Now perfectly matches the object output format */}
           <Text style={[styles.expiryText, statusStyle]}>{info.text}</Text>
         </View>
       </View>
@@ -274,13 +294,40 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   imageBackgroundCircle: {
-    width: 100,                    
-    height: 100,
-    borderRadius: 50, // Made it a perfect circles layout for food backgrounds
-    backgroundColor: 'rgba(79, 107, 183, 0.15)', // Softened opacity so food stands out cleanly
+    width: 130,                    
+    height: 130,
+    borderRadius: 5, 
+    backgroundColor: '#f5f5f5', 
     justifyContent: 'center', 
     alignItems: 'center',     
-    overflow: 'hidden',
+    overflow: 'hidden', // Crucial: clips the rectangular banner to the circular image edge
+    position: 'relative', // Lets the banner position itself absolutely inside
+  },
+
+  
+  bannerOverlay: {
+    position: 'absolute',
+    bottom: '30%', 
+    left: 0,
+    right: 0,
+    paddingVertical: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'white',
+  },
+  bannerRed: {
+    backgroundColor: '#FF3B30', // Vibrant alert red matching your layout design style
+  },
+  bannerOrange: {
+    backgroundColor: '#FF9500', // Warning orange
+  },
+  bannerText: {
+    color: 'white',
+    fontFamily: 'NunitoBold',
+    fontSize: 9,
+    letterSpacing: 0.5,
+    textAlign: 'center',
   },
   foodImage: {
     width: 70,                
