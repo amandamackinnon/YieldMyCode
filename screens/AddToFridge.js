@@ -1,4 +1,5 @@
-import React, { useState, useContext } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import React, { useState, useContext, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -7,6 +8,7 @@ import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold
 import { FridgeContext } from '../context/FridgeContext';
 import Constants from 'expo-constants';
 import { BlurView } from 'expo-blur';
+
 
 
 const categories = [
@@ -29,6 +31,7 @@ export default function AddToFridge({ navigation }) {
   const [qty, setQty] = useState('');
   const [category, setCategory] = useState(null);
   const [expiryDate, setExpiryDate] = useState(new Date());
+  const [displayDateString, setDisplayDateString] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -39,62 +42,92 @@ export default function AddToFridge({ navigation }) {
     NunitoBold: Nunito_700Bold,
   });
 
+
   if (!fontsLoaded && !fontError) {
     return null;
   }
 
   const onDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
-    if (selectedDate) {
-      setExpiryDate(selectedDate);
-    }
+   if (selectedDate) {
+    setExpiryDate(selectedDate); 
+
+    
+    const day = String(selectedDate.getDate()).padStart(2, '0');
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const year = selectedDate.getFullYear();
+    const europeanStr = `${day}/${month}/${year}`;
+
+    setDisplayDateString(europeanStr); 
+
+  }
   };
 
-  const handleSave = async () => {
+   const handleSave = async () => {
     if (!name.trim() || !qty.trim() || !category) {
       Alert.alert('Missing Info', 'Please select a category and fill in all fields before saving.', [{ text: 'OK' }]);
       return;
     }
-setIsSaving(true); 
+    setIsSaving(true); 
 
-    
     let finalImageUrl = 'https://spoonacular.com/cdn/ingredients_250x250/apple.png'; 
 
     try {
+  const cleanSearchQuery = name.trim().toLowerCase();
+
   const response = await fetch(
-    `https://api.spoonacular.com/food/ingredients/search?query=${encodeURIComponent(name.trim())}&number=1&apiKey=${SPOONACULAR_API_KEY}`
+    `https://api.spoonacular.com/food/ingredients/search?query=${encodeURIComponent(cleanSearchQuery)}&number=1&apiKey=${SPOONACULAR_API_KEY}`
   );
 
-  const data = await response.json();
+  if (response.ok) {
+    const data = await response.json();
 
+    if (data && data.results && data.results.length > 0) {
+      const [targetIngredient] = data.results;
 
-  if (
-    data.results &&
-    data.results.length > 0 &&
-    data.results[0].image
-  ) {
-    finalImageUrl = `https://spoonacular.com/cdn/ingredients_250x250/${data.results[0].image}`;
+      const foundImageFilename = targetIngredient?.image || targetIngredient?.['image'];
+
+      if (foundImageFilename) {
+        const cleanFilename = String(foundImageFilename).replace(/["'\s]/g, '');
+        finalImageUrl = `https://spoonacular.com/cdn/ingredients_250x250/${cleanFilename}`;
+      } else {
+        console.log('⚠️ Could not extract image field via dot or bracket string lookup.', targetIngredient);
+      }
+    } else {
+      console.log('⚠️ API returned an empty results payload list.');
+    }
+  } else {
+    console.log(`❌ Network endpoint server error code: ${response.status}`);
   }
 } catch (error) {
-  console.log('Spoonacular API Error:', error);
+  console.log('❌ Core Spoonacular Engine Crash:', error);
 }
 
+    // Format your European tracking date strings safely
+    const today = new Date();
+    const todayDay = String(today.getDate()).padStart(2, '0');
+    const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
+    const todayYear = today.getFullYear();
+    const europeanAddedAt = `${todayDay}/${todayMonth}/${todayYear}`;
 
+    
     const newItem = {
       id: Date.now().toString(),
       name: name.trim(),
       qty: Number(qty),
       category: category,
-      imageUrl: finalImageUrl,
-      addedAt: new Date().toLocaleDateString(),
-      expiryDate: expiryDate.toLocaleDateString(),
+      imageUrl: finalImageUrl, 
+      addedAt: europeanAddedAt,
+      expiryDate: displayDateString,
     };
 
+    
     addItem(newItem);
     setName('');
     setQty('');
     setCategory(null);
     setExpiryDate(new Date());
+    setDisplayDateString(`${todayDay}/${todayMonth}/${todayYear}`);
     setIsSaving(false); 
 
     navigation.navigate('FridgeHome');
@@ -150,7 +183,7 @@ setIsSaving(true);
         />
 
         <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker(true)}>
-          <Text style={styles.dateText}> Expires: {expiryDate.toLocaleDateString()} </Text>
+          <Text style={styles.dateText}> Expires: {displayDateString} </Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.button} onPress={handleSave}>

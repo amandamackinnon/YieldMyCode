@@ -1,9 +1,10 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useFonts } from 'expo-font';
 import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold } from '@expo-google-fonts/nunito';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import { FridgeContext } from '../context/FridgeContext';
 
 const categories = [
@@ -18,12 +19,32 @@ const categories = [
   { label: 'Other', value: 'Other' },
 ];
 
-export default function Fridge({ navigation }) {
+const getDaysLeft = (expiryDateStr) => {
+  if (!expiryDateStr) return '';
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); 
+
+  const expiryDate = new Date(expiryDateStr);
+  expiryDate.setHours(0, 0, 0, 0);
+
+  const diffTime = expiryDate - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) {
+    return 'Expires today';
+  } else if (diffDays === 1) {
+    return '1 day left';
+  } else if (diffDays < 0) {
+    return `Expired ${Math.abs(diffDays)} ${Math.abs(diffDays) === 1 ? 'day' : 'days'} ago`;
+  } else {
+    return `${diffDays} days left`;
+  }
+};
+
+export default function Fridge({ navigation }) {
   const { items, removeItem, decreaseQty } = useContext(FridgeContext);
-    
-  const [selectedCategory, setSelectedCategory] =
-    useState('All');
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
   const [fontsLoaded, fontError] = useFonts({
     NunitoRegular: Nunito_400Regular,
@@ -35,84 +56,67 @@ export default function Fridge({ navigation }) {
   if (!fontsLoaded && !fontError) {
     return null;
   }
-const handleNuclearReset = async () => {
-    try {
-      await AsyncStorage.clear(); // Force deletes the file on the device disk
-      alert("Storage entirely wiped! Restart your app server now.");
-    } catch (e) {
-      console.log("Failed to clear storage:", e);
-    }
-  };
+
 
   const filteredInventory = items.filter(item => {
-
     if (selectedCategory === 'All') {
       return true;
     }
-
     return item.category === selectedCategory;
   });
 
-  const renderItem = ({ item }) => (
+  // FIXED: Added block syntax curly braces and return statement here
+  const renderItem = ({ item }) => {
+    const daysLeftText = getDaysLeft(item.expiryDate);
 
-    <View style={styles.tile}>
-      <View style={styles.tileHeader}>
-       
-        <View style={styles.imageBackgroundCircle}>
-          <Image source={{ uri: item.imageUrl || 'https://spoonacular.com/cdn/ingredients_250x250/apple.png' }} style={styles.foodImage} resizeMode="contain"/>   
-        </View>
-         <Text style={styles.itemName}>{item.name}</Text>
-          
-        <View style={styles.qtyContainer}>
-          
-          <Text style={styles.itemQty}>{item.qty}</Text>
-          <TouchableOpacity style={styles.minusButton} onPress={() => decreaseQty(item.id)}>
-            <Text style={styles.minusText}>−</Text>
-          </TouchableOpacity>
-           <TouchableOpacity style={styles.deleteButton} onPress={() => removeItem(item.id)} >
-          <Text style={{ color: 'red' }}> Remove </Text>
-        </TouchableOpacity>
-
-          
-        </View>
-      </View>
-
-      <View style={styles.tileFooter}>
-
-        <Text style={[ styles.dateLabel, styles.expiryText]}>Expires: {item.expiryDate}</Text>
-          
+    return (
+      <View style={styles.tile}>
+        <View style={styles.tileHeader}>
+          <View style={styles.imageBackgroundCircle}>
+            <Image 
+              source={{ uri: item.imageUrl || 'https://spoonacular.com/cdn/ingredients_250x250/apple.png' }} 
+              style={styles.foodImage} 
+              resizeMode="contain"
+            />   
+          </View>
+          <Text style={styles.itemName}>{item.name}</Text>
             
-       
+          <View style={styles.qtyContainer}>
+            <Text style={styles.itemQty}>{item.qty}</Text>
+            <TouchableOpacity style={styles.minusButton} onPress={() => decreaseQty(item.id)}>
+              <Text style={styles.minusText}>−</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.deleteButton} onPress={() => removeItem(item.id)}>
+              <Text style={{ color: 'red' }}> Remove </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
+        <View style={styles.tileFooter}>
+          {/* UPDATED: Changed from raw date string to daysLeftText */}
+          <Text style={[styles.dateLabel, styles.expiryText]}>{daysLeftText}</Text>
+        </View>
       </View>
-
-    </View>
-  );
+    );
+  };
 
   return (
-
     <View style={styles.container}>
-
       <Dropdown
         style={styles.dropdown}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         itemTextStyle={styles.dropdownItemText}
-        placeholder = ""
+        placeholder=""
         data={categories}
         labelField="label"
         valueField="value"
         value={selectedCategory}
-        onChange={item =>
-          setSelectedCategory(item.value)
-        }
+        onChange={item => setSelectedCategory(item.value)}
         renderLeftIcon={() => (
-      <Ionicons 
-      name="search" 
-      size={25} 
-      color="white" />
-  )}
-      renderRightIcon ={() => null}
+          <Ionicons name="search" size={25} color="white" />
+        )}
+        renderRightIcon={() => null}
       />
 
       <FlatList
@@ -122,12 +126,14 @@ const handleNuclearReset = async () => {
         numColumns={2}
         columnWrapperStyle={styles.row}
         ListEmptyComponent={
-      
-      <Text style={styles.emptyText}> No items found in this category.</Text> } />
-
+          <Text style={styles.emptyText}> No items found in this category.</Text>
+        } 
+      />
     </View>
   );
 }
+
+
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
@@ -171,6 +177,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 10,
     width: '48%',
+    alignItems: 'center',
     elevation: 1,
   
   },
@@ -226,8 +233,7 @@ const styles = StyleSheet.create({
   },
 
   imageBackgroundCircle: {
-    width: 120,                
-    height: 120,       
+    width: '90%',                    
     borderRadius: 4,              
     backgroundColor: 'rgba(79, 107, 183, 1)', 
     justifyContent: 'center', 
