@@ -91,7 +91,7 @@ export default function Fridge({ navigation }) {
     const info = getDaysLeft(item.expiryDate);
 
     let statusStyle = null;
-    let bannerElement = null; // 🌟 Initialize a variable to hold our dynamic overlay banner
+    let bannerElement = null; 
 
     if (info.days <= 0) {
       statusStyle = styles.urgentRed;
@@ -116,7 +116,6 @@ export default function Fridge({ navigation }) {
       );
     } else {
       statusStyle = styles.safeGreen;
-      // No overlay banner needed for items with 5+ fresh safe days!
     }
 
     return (
@@ -130,9 +129,10 @@ export default function Fridge({ navigation }) {
               resizeMode="contain"
             />   
             {bannerElement} 
+            <Text style={styles.itemName}>{item.name}</Text>
           </View>
           
-          <Text style={styles.itemName}>{item.name}</Text>
+          
             
           <View style={styles.qtyContainer}>
             <Text style={styles.itemQty}>{item.qty}</Text>
@@ -231,11 +231,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   itemName: { 
-    fontSize: 18, 
+    fontSize: 16, 
     fontFamily: 'NunitoBold',
-    color: '#333',
-    marginTop: 4,
+    color: 'white',
+    marginTop: -5,
+    marginBottom: 10,
+  
   },
+   foodImage: {
+    width: 120,                
+    height: 120,
+    marginTop: 10, 
+    marginBottom: 3,
+
+  },
+
   itemQty: { 
     fontSize: 16, 
     color: '#666',
@@ -261,7 +271,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 8,
     fontFamily: 'NunitoMedium',
-    fontSize: 12,
+    fontSize: 14,
     borderRadius: 6,
     overflow: 'hidden', 
     textAlign: 'center',
@@ -269,13 +279,13 @@ const styles = StyleSheet.create({
   },
   urgentRed: {
     backgroundColor: '#FFE5E5',
-    borderColor: '#D32F2F',
-    color: '#D32F2F',
+    borderColor: '#FF3800',
+    color: '#FF3800',
   },
   warningYellow: {
     backgroundColor: '#FFF9C4',
-    borderColor: '#FBC02D',
-    color: '#F57F17',
+    borderColor: '#FFC700',
+    color: '#FFC700',
   },
   safeGreen: {
     backgroundColor: '#E8F5E9',
@@ -294,14 +304,14 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   imageBackgroundCircle: {
-    width: 130,                    
-    height: 130,
+    width: 150,                    
+    height: 150,
     borderRadius: 5, 
-    backgroundColor: '#f5f5f5', 
+    backgroundColor: '#4F6BB7', 
     justifyContent: 'center', 
     alignItems: 'center',     
-    overflow: 'hidden', // Crucial: clips the rectangular banner to the circular image edge
-    position: 'relative', // Lets the banner position itself absolutely inside
+    overflow: 'hidden', 
+    position: 'relative', 
   },
 
   
@@ -317,22 +327,19 @@ const styles = StyleSheet.create({
     borderColor: 'white',
   },
   bannerRed: {
-    backgroundColor: '#FF3B30', // Vibrant alert red matching your layout design style
+    backgroundColor: '#FF3800', 
   },
   bannerOrange: {
-    backgroundColor: '#FF9500', // Warning orange
+    backgroundColor: '#FFC70080', 
   },
   bannerText: {
     color: 'white',
     fontFamily: 'NunitoBold',
-    fontSize: 9,
+    fontSize: 12,
     letterSpacing: 0.5,
     textAlign: 'center',
   },
-  foodImage: {
-    width: 70,                
-    height: 70,
-  },
+ 
   minusButton: {
     backgroundColor: '#eee',
     width: 30,
