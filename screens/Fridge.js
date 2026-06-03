@@ -65,6 +65,15 @@ const getDaysLeft = (expiryDateStr) => {
   }
 };
 
+const TILE_COLORS = [
+  '#4F6BB7', 
+  '#E7B1A6', 
+  '#B2DFE8', 
+  '#EC6039', 
+  '#E7C665', 
+  '#699966', 
+];
+
 export default function Fridge({ navigation }) {
   const { items, removeItem, decreaseQty } = useContext(FridgeContext);
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -87,7 +96,7 @@ export default function Fridge({ navigation }) {
     return item.category === selectedCategory;
   });
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item, index }) => { // <-- Added index here!
     const info = getDaysLeft(item.expiryDate);
 
     let statusStyle = null;
@@ -97,7 +106,7 @@ export default function Fridge({ navigation }) {
       statusStyle = styles.urgentRed;
       bannerElement = (
         <View style={[styles.bannerOverlay, styles.bannerRed]}>
-          <Text style={styles.bannerText}>☠️ EXPIRED</Text>
+          <Text style={styles.bannerText}>😭 EXPIRED</Text>
         </View>
       );
     } else if (info.days >= 1 && info.days <= 2) {
@@ -118,22 +127,27 @@ export default function Fridge({ navigation }) {
       statusStyle = styles.safeGreen;
     }
 
+    
+    const backgroundColor = TILE_COLORS[index % TILE_COLORS.length];
+
     return (
       <View style={styles.tile}>
         <View style={styles.tileHeader}>
+          <View style={[styles.imageBackgroundCircle, { backgroundColor }]}>
+  
+  {/* NEW: This inner white circle contains the image beautifully */}
+  <View style={styles.innerWhiteCircle}>
+    <Image 
+      source={{ uri: item.imageUrl || 'https://spoonacular.com/cdn/ingredients_250x250/apple.png' }} 
+      style={styles.foodImage} 
+      resizeMode="contain"
+    />   
+  </View>
+
+  {bannerElement} 
+  <Text style={styles.itemName}>{item.name}</Text>
+</View>
           
-          <View style={styles.imageBackgroundCircle}>
-            <Image 
-              source={{ uri: item.imageUrl || 'https://spoonacular.com/cdn/ingredients_250x250/apple.png' }} 
-              style={styles.foodImage} 
-              resizeMode="contain"
-            />   
-            {bannerElement} 
-            <Text style={styles.itemName}>{item.name}</Text>
-          </View>
-          
-          
-            
           <View style={styles.qtyContainer}>
             <Text style={styles.itemQty}>{item.qty}</Text>
             <TouchableOpacity style={styles.minusButton} onPress={() => decreaseQty(item.id)}>
@@ -230,20 +244,18 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     alignItems: 'center',
   },
+
   itemName: { 
     fontSize: 16, 
     fontFamily: 'NunitoBold',
     color: 'white',
-    marginTop: -5,
-    marginBottom: 10,
-  
+    textAlign: 'center',
+    marginBottom: 2, // Tucks it neatly near the bottom of the colored tile
   },
-   foodImage: {
-    width: 120,                
-    height: 120,
-    marginTop: 10, 
-    marginBottom: 3,
 
+   foodImage: {
+    width: 75,                
+    height: 75,
   },
 
   itemQty: { 
@@ -303,15 +315,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 4,
   },
+
   imageBackgroundCircle: {
     width: 150,                    
     height: 150,
-    borderRadius: 5, 
-    backgroundColor: '#4F6BB7', 
-    justifyContent: 'center', 
+    borderRadius: 12, // Slightly rounder corners look incredibly premium with this style!
+    justifyContent: 'space-between', // Pushes the inner circle to top, text to bottom
     alignItems: 'center',     
     overflow: 'hidden', 
-    position: 'relative', 
+    position: 'relative',
+    paddingVertical: 10, // Gives the text and inner circle some breathing room
+  },
+
+  innerWhiteCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 95 / 2, // Perfect circle anchor
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2, 
   },
 
   
