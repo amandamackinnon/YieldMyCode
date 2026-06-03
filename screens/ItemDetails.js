@@ -25,22 +25,17 @@ export default function ItemDetails({ route, navigation }) {
         <Text style={styles.titleText}>{item.name}</Text>
         <Text style={styles.categoryText}>{item.category}</Text>
       </View>
+      <Text style={styles.genText}>Left in the fridge: </Text>
 
       <View style={styles.counterRow}>
-        <TouchableOpacity 
-          style={styles.counterButton} 
-          onPress={() => decreaseQty(item.id)}
-        >
-          <Ionicons name="remove" size={28} color="#333" />
+        
+        <Text style={styles.quantityText}>{item.qty}</Text>
+        <TouchableOpacity style={styles.counterButton} onPress={() => decreaseQty(item.id)}>
+          <Ionicons name="remove-sharp" size={50} color="#FFF"/>
         </TouchableOpacity>
 
-        <Text style={styles.quantityText}>{item.qty}</Text>
-
-        <TouchableOpacity 
-          style={styles.counterButton} 
-          onPress={() => increaseQty(item.id)}
-        >
-          <Ionicons name="add" size={28} color="#333" />
+        <TouchableOpacity style={styles.counterButton} onPress={() => increaseQty(item.id)}>
+          <Ionicons name="add-sharp" size={50} color="#FFF"/>
         </TouchableOpacity>
       </View>
 
@@ -85,6 +80,15 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#333',
   },
+    genText: {
+        marginTop: 35,
+        textAlign: 'left',
+        alignSelf: 'flex-start',
+        marginLeft: 40,
+        fontSize: 20,
+        fontWeight: 'bold',
+
+    },
   categoryText: {
     fontSize: 14,
     color: '#888',
@@ -102,14 +106,13 @@ const styles = StyleSheet.create({
     height: 55,
     borderRadius: 28,
     borderWidth: 1,
-    borderColor: '#333',
-    backgroundColor: '#fff',
+    borderColor: '#E7B1A6',
+    backgroundColor: '#E7B1A6',
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 2,
   },
   quantityText: {
-    fontSize: 32,
+    fontSize: 40,
     fontWeight: '700',
     color: '#333',
   },

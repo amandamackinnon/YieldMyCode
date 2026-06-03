@@ -77,9 +77,10 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
           name="ItemDetails" 
           component={ItemDetails} 
           options={{ 
+            title: 'yield',
             headerShadowVisible: false,
-            headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 20 },
-            headerRight: undefined
+            headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 32 },
+            
           }} 
         />
         

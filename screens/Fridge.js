@@ -144,7 +144,7 @@ export default function Fridge({ navigation }) {
 
     return (
   <View style={styles.tile}>
-    {/* Wrap the core card block with a TouchableOpacity */}
+
     <TouchableOpacity activeOpacity={0.8} onPress={() => navigation.navigate('ItemDetails', { itemId: item.id })}>
       <View style={[styles.imageBackgroundCircle, { backgroundColor }]}>
         <View style={styles.innerWhiteCircle}>
