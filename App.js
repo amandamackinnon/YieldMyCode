@@ -14,7 +14,7 @@ import AddToFridge from './screens/AddToFridge';
 import Profile from './screens/Profile';
 import Shopping from './screens/Shopping';
 import { FridgeProvider } from './context/FridgeContext';
-
+import ItemDetails from './screens/ItemDetails'; 
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -22,69 +22,80 @@ const Tab = createBottomTabNavigator();
 function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
   return (
     <FridgeProvider>
-    <Stack.Navigator
-      screenOptions={{
-        headerRight: () => (
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Notifications')}
-            style={{ marginRight: 16 }}
-          >
-            <Ionicons name="notifications" size={32} color="rgba(236, 96, 57, 1)"/>
-            <View
-              style={{
-                position: 'absolute',
-                top: -2,
-                right: -2,
-                width: 8,
-                height: 8,
-                borderRadius: 4,
-              }}
+      <Stack.Navigator
+        screenOptions={({ navigation }) => ({
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Notifications')}
+              style={{ marginRight: 16 }}
+            >
+              <Ionicons name="notifications" size={32} color="rgba(236, 96, 57, 1)"/>
+              <View
+                style={{
+                  position: 'absolute',
+                  top: -2,
+                  right: -2,
+                  width: 8,
+                  height: 8,
+                  borderRadius: 4,
+                }}
+              />
+            </TouchableOpacity>
+          ),
+        })}
+      >
+        <Stack.Screen name="FridgeHome" options={{
+          title: 'yield', 
+          headerShadowVisible: false, 
+          headerTitleStyle: {fontSize: 32, fontFamily: 'NunitoSemiBold'}}}>
+          {(props) => (
+            <Fridge
+              {...props}
+              inventory={inventory}
+              onDeleteItem={deleteItem}
+              onDecreaseQty={decreaseQty}
             />
-          </TouchableOpacity>
-        ),
-      }}
-    >
-      <Stack.Screen name="FridgeHome" options={{title: 'yield', headerShadowVisible: false, headerTitleStyle: {fontSize: 32, fontFamily: 'NunitoSemiBold'}}}>
-        {(props) => (
-          <Fridge
-            {...props}
-            inventory={inventory}
-            onDeleteItem={deleteItem}
-            onDecreaseQty={decreaseQty}
-          />
-        )}
-      </Stack.Screen>
-<Stack.Screen name="AddToFridge" 
-      options={{ 
-        presentation: 'transparentModal',
-        headerShown: false,
-        cardStyle: {backgroundColor:'transparent'},
-        }}
+          )}
+        </Stack.Screen>
+
+        <Stack.Screen name="AddToFridge" 
+          options={{ 
+            presentation: 'transparentModal', 
+            headerShown: false,
+            cardStyle: {backgroundColor:'transparent'},
+          }}
         >
-        {(props) => (
-          <AddToFridge
-            {...props}
-            onAddProduct={(newItem) => setInventory([...inventory, newItem])}
-          />
-        )}
-      </Stack.Screen>
-      
-    </Stack.Navigator>
+          {(props) => (
+            <AddToFridge
+              {...props}
+              onAddProduct={(newItem) => setInventory([...inventory, newItem])}
+            />
+          )}
+        </Stack.Screen>
+
+        <Stack.Screen 
+          name="ItemDetails" 
+          component={ItemDetails} 
+          options={{ 
+            headerShadowVisible: false,
+            headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 20 },
+            headerRight: undefined
+          }} 
+        />
+        
+      </Stack.Navigator>
     </FridgeProvider>
   );
 }
 
-
 export default function App() {
-
-   const [fontsLoaded, fontError] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     NunitoRegular: Nunito_400Regular,
     NunitoMedium: Nunito_500Medium,
     NunitoSemiBold: Nunito_600SemiBold,
     NunitoBold: Nunito_700Bold,
   });
 
-  
   const [inventory, setInventory] = useState([]);
 
   const deleteItem = (id) => {

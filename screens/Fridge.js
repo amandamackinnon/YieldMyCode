@@ -143,34 +143,29 @@ export default function Fridge({ navigation }) {
     const backgroundColor = TILE_COLORS[index % TILE_COLORS.length];
 
     return (
-      <View style={styles.tile}>
-        
-        {/* Main image card block */}
-        <View style={[styles.imageBackgroundCircle, { backgroundColor }]}>
-          <View style={styles.innerWhiteCircle}>
-            <Image
-              source={{ uri: item.imageUrl || 'https://spoonacular.com/cdn/ingredients_250x250/apple.png' }}
-              style={styles.foodImage}
-              resizeMode="contain"/>
-          </View>
-          {bannerElement}
-          <Text style={styles.itemName}>{item.name}</Text>
+  <View style={styles.tile}>
+    {/* Wrap the core card block with a TouchableOpacity */}
+    <TouchableOpacity activeOpacity={0.8} onPress={() => navigation.navigate('ItemDetails', { itemId: item.id })}>
+      <View style={[styles.imageBackgroundCircle, { backgroundColor }]}>
+        <View style={styles.innerWhiteCircle}>
+          <Image source={{ uri: item.imageUrl || 'https://spoonacular.com/cdn/ingredients_250x250/apple.png' }} style={styles.foodImage} resizeMode="contain"/>
         </View>
-
-        {/* Updated metadata container row */}
-        <View style={styles.tileFooterRow}>
-          <View style={styles.qtyBox}>
-            <Text style={styles.qtyText}>{item.qty}</Text>
-          </View>
-
-          <View style={styles.expiryBadgeContainer}>
-            <Text style={styles.cleanExpiryText}>{info.text}</Text>
-            <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
-          </View>
-        </View>
-        
+        {bannerElement}
+        <Text style={styles.itemName}>{item.name}</Text>
       </View>
-    );
+    </TouchableOpacity>
+
+    <View style={styles.tileFooterRow}>
+      <View style={styles.qtyBox}>
+        <Text style={styles.qtyText}>{item.qty}</Text>
+      </View>
+      <View style={styles.expiryBadgeContainer}>
+        <Text style={styles.cleanExpiryText}>{info.text}</Text>
+        <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
+      </View>
+    </View>
+  </View>
+);
   };
 
   return (

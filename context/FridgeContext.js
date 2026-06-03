@@ -63,6 +63,16 @@ export const FridgeProvider = ({ children }) => {
         }
         return item }) );
     };
+
+    const increaseQty = (id) => {
+    setItems((prevItems) => {
+      const updatedItems = prevItems.map((item) =>
+        item.id === id ? { ...item, qty: item.qty + 1 } : item
+      );
+      
+      return updatedItems;
+    });
+  };
         return (
     <FridgeContext.Provider
       value={{ 
@@ -70,6 +80,7 @@ export const FridgeProvider = ({ children }) => {
         addItem,
         removeItem,
         updateItem,
+        increaseQty,
         decreaseQty,
         }}>
       {children}
