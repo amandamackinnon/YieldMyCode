@@ -53,7 +53,7 @@ const getDaysLeft = (expiryDateStr) => {
     } else if (diffDays < 0) {
       const positiveDays = Math.abs(diffDays);
       return {
-        text: `Expired ${positiveDays} ${positiveDays === 1 ? 'day' : 'days'} ago`,
+        text: `${positiveDays} ${positiveDays === 1 ? 'day' : 'days'} ago`,
         days: diffDays
       };
     } else {
@@ -102,14 +102,14 @@ export default function Fridge({ navigation }) {
     let statusStyle = null;
     let bannerElement = null;
 
-    if (info.days <= 0) {
+    if (info.days < 0) {
       statusStyle = styles.urgentRed;
       bannerElement = (
         <View style={[styles.bannerOverlay, styles.bannerRed]}>
           <Text style={styles.bannerText}>😭 EXPIRED</Text>
         </View>
       );
-    } else if (info.days >= 1 && info.days <= 2) {
+    } else if (info.days >= 0 && info.days <= 2) {
       statusStyle = styles.urgentRed;
       bannerElement = (
         <View style={[styles.bannerOverlay, styles.bannerRed1]}>
@@ -127,7 +127,7 @@ export default function Fridge({ navigation }) {
       statusStyle = styles.safeGreen;
     }
 
-    let statusColor = '#388E3C';
+    let statusColor = '#FFFFFF';
 
     if (info.days <= 0) {
       statusColor = '#FF3800';
@@ -136,7 +136,7 @@ export default function Fridge({ navigation }) {
     } else if (info.days >= 3 && info.days <= 4) {
       statusColor = '#FFC700';
     } else {
-      statusColor = '#388E3C';
+      statusColor = '#FFFFFF';
     }
 
 
@@ -144,21 +144,20 @@ export default function Fridge({ navigation }) {
 
     return (
       <View style={styles.tile}>
-        <View style={styles.tileHeader}>
-          <View style={[styles.imageBackgroundCircle, { backgroundColor }]}>
-            <View style={styles.innerWhiteCircle}>
-              <Image
-                source={{ uri: item.imageUrl || 'https://spoonacular.com/cdn/ingredients_250x250/apple.png' }}
-                style={styles.foodImage}
-                resizeMode="contain"
-              />
-            </View>
-            {bannerElement}
-            <Text style={styles.itemName}>{item.name}</Text>
+        
+        {/* Main image card block */}
+        <View style={[styles.imageBackgroundCircle, { backgroundColor }]}>
+          <View style={styles.innerWhiteCircle}>
+            <Image
+              source={{ uri: item.imageUrl || 'https://spoonacular.com/cdn/ingredients_250x250/apple.png' }}
+              style={styles.foodImage}
+              resizeMode="contain"/>
           </View>
+          {bannerElement}
+          <Text style={styles.itemName}>{item.name}</Text>
         </View>
 
-
+        {/* Updated metadata container row */}
         <View style={styles.tileFooterRow}>
           <View style={styles.qtyBox}>
             <Text style={styles.qtyText}>{item.qty}</Text>
@@ -169,6 +168,7 @@ export default function Fridge({ navigation }) {
             <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
           </View>
         </View>
+        
       </View>
     );
   };
@@ -239,15 +239,14 @@ const styles = StyleSheet.create({
   },
   tile: {
     backgroundColor: '#fff',
-    padding: 15,
-    marginBottom: 10,
+    marginBottom: 15,
     width: '48%',
     alignItems: 'center',
-    elevation: 1,
+    
   },
   tileHeader: {
     flexDirection: 'column',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
     marginBottom: 10,
     alignItems: 'center',
   },
@@ -269,46 +268,54 @@ const styles = StyleSheet.create({
     borderColor: '#333',
     borderRadius: 4,
     paddingVertical: 6,
-    paddingHorizontal: 16,
+    width: 65,
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#fff',
   },
 
   qtyText: {
-    fontFamily: 'NunitoBold',
-    fontSize: 14,
-    color: '#333',
+    fontFamily: 'NunitoMedium',
+    fontSize: 12,
+    color: '#292929',
+  },
+
+  expiryBadgeContainer: {
+    position: 'relative',
+    width: 102, 
   },
 
   cleanExpiryText: {
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: '#292929',
     borderRadius: 4,
     paddingVertical: 6,
     paddingHorizontal: 8,
-    fontFamily: 'NunitoSemiBold',
-    fontSize: 13,
+    fontFamily: 'NunitoMedium',
+    fontSize: 12,
     backgroundColor: '#fff',
     textAlign: 'center',
-    color: '#333',
+    color: '#292929',
   },
 
   statusDot: {
     position: 'absolute',
     width: 12,
     height: 12,
-    borderRadius: 5, // Makes it a perfect circle
-    top: -5,        // Slightly offsets it up past the top boundary line
-    right: -5,      // Slightly offsets it right past the side boundary line
-    borderWidth: 1,  // Optional: adds a crisp line division separation
-    borderColor: '#333', 
+    borderRadius: 10, 
+    top: -5,        
+    right: -5,      
+    borderWidth: 1,  
+    borderColor: '#292929', 
   },
 
   tileFooterRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: '100%',
-    marginTop: 12,
+    width: 175,
+    marginTop: 10,
+    
   },
   dateLabel: {
     fontSize: 12,
@@ -337,11 +344,7 @@ const styles = StyleSheet.create({
     borderColor: '#FFC700',
     color: '#FFC700',
   },
-  safeGreen: {
-    backgroundColor: '#E8F5E9',
-    borderColor: '#388E3C',
-    color: '#2E7D32',
-  },
+  
   emptyText: {
     textAlign: 'center',
     fontFamily: 'NunitoSemiBold',
@@ -352,23 +355,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 4,
+    
   },
 
   imageBackgroundCircle: {
-    width: 150,
-    height: 150,
-    borderRadius: 12,
+    width: 175,
+    height: 175,
+    borderRadius: 4,
     justifyContent: 'space-between',
     alignItems: 'center',
     overflow: 'hidden',
     position: 'relative',
     paddingVertical: 10,
+    marginBottom: 5,
+    paddingTop: 25,
+    
   },
 
   innerWhiteCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 95 / 2,
+    width: 110,
+    height: 110,
+    borderRadius: 110 / 2,
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
@@ -377,6 +384,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+    
   },
 
 
