@@ -14,7 +14,8 @@ import AddToFridge from './screens/AddToFridge';
 import Profile from './screens/Profile';
 import Shopping from './screens/Shopping';
 import { FridgeProvider } from './context/FridgeContext';
-import ItemDetails from './screens/ItemDetails'; 
+import ItemDetails from './screens/ItemDetails';
+import RecipeDetails from './screens/RecipeDetails';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -27,9 +28,9 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
           headerRight: () => (
             <TouchableOpacity
               onPress={() => navigation.navigate('Notifications')}
-              style={{ marginRight: 16 }}
-            >
-              <Ionicons name="notifications" size={32} color="rgba(236, 96, 57, 1)"/>
+              style={{ marginRight: 16 }}>
+
+              <Ionicons name="notifications" size={32} color="rgba(236, 96, 57, 1)" />
               <View
                 style={{
                   position: 'absolute',
@@ -38,52 +39,59 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
                   width: 8,
                   height: 8,
                   borderRadius: 4,
-                }}
-              />
+                }} />
+
             </TouchableOpacity>
           ),
-        })}
-      >
+        })}>
+
         <Stack.Screen name="FridgeHome" options={{
-          title: 'yield', 
-          headerShadowVisible: false, 
-          headerTitleStyle: {fontSize: 32, fontFamily: 'NunitoSemiBold'}}}>
+          title: 'yield',
+          headerShadowVisible: false,
+          headerTitleStyle: { fontSize: 32, fontFamily: 'NunitoSemiBold' }
+        }}>
           {(props) => (
             <Fridge
               {...props}
               inventory={inventory}
               onDeleteItem={deleteItem}
-              onDecreaseQty={decreaseQty}
-            />
+              onDecreaseQty={decreaseQty} />
           )}
         </Stack.Screen>
 
-        <Stack.Screen name="AddToFridge" 
-          options={{ 
-            presentation: 'transparentModal', 
+        <Stack.Screen name="AddToFridge"
+          options={{
+            presentation: 'transparentModal',
             headerShown: false,
-            cardStyle: {backgroundColor:'transparent'},
-          }}
-        >
+            cardStyle: { backgroundColor: 'transparent' },
+          }} >
+
           {(props) => (
             <AddToFridge
               {...props}
-              onAddProduct={(newItem) => setInventory([...inventory, newItem])}
-            />
+              onAddProduct={(newItem) => setInventory([...inventory, newItem])} />
           )}
         </Stack.Screen>
 
-        <Stack.Screen 
-          name="ItemDetails" 
-          component={ItemDetails} 
-          options={{ 
+        <Stack.Screen
+          name="ItemDetails"
+          component={ItemDetails}
+          options={{
             title: 'yield',
             headerShadowVisible: false,
             headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 32 },
-            
-          }} 
+          }} />
+
+        <Stack.Screen
+          name="RecipeDetails"
+          component={RecipeDetails}
+          options={{
+            title: 'Recipe Cooking Guide',
+            headerShadowVisible: false,
+            headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 20 }
+          }}
         />
-        
+
       </Stack.Navigator>
     </FridgeProvider>
   );
@@ -116,7 +124,7 @@ export default function App() {
     <NavigationContainer>
       <Tab.Navigator
         screenOptions={({ route }) => ({
-          tabBarIcon: ({ focused }) => {   
+          tabBarIcon: ({ focused }) => {
             const config = {
               Profile: { name: 'profile', label: 'Profile' },
               FridgeTab: { name: 'fridge', label: 'Fridge' },
@@ -126,16 +134,16 @@ export default function App() {
             const { name, label } = config[route.name];
             return <TabBarIcon name={name} label={label} focused={focused} />;
           },
-          tabBarShowLabel: false,           
+          tabBarShowLabel: false,
           headerShown: false,
           tabBarStyle: {
-            height: 55,           
-            paddingBottom: 4,     
-            paddingTop: 2,        
+            height: 55,
+            paddingBottom: 4,
+            paddingTop: 2,
             borderTopWidth: 1,
             backgroundColor: '#ffffff',
           },
-          tabBarItemStyle: {     
+          tabBarItemStyle: {
             paddingHorizontal: 0,
           },
         })}
