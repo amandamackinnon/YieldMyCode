@@ -5,6 +5,7 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold } from '@expo-google-fonts/nunito';
@@ -16,6 +17,8 @@ import Shopping from './screens/Shopping';
 import { FridgeProvider } from './context/FridgeContext';
 import ItemDetails from './screens/ItemDetails';
 import RecipeDetails from './screens/RecipeDetails';
+
+
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -121,6 +124,7 @@ export default function App() {
   };
 
   return (
+    <SafeAreaProvider>
     <NavigationContainer>
       <Tab.Navigator
         screenOptions={({ route }) => ({
@@ -177,5 +181,6 @@ export default function App() {
 
       <StatusBar style="auto" />
     </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
