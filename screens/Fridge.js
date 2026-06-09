@@ -102,14 +102,7 @@ export default function Fridge({ navigation }) {
     let statusStyle = null;
     let bannerElement = null;
 
-    if (info.days < 0) {
-      statusStyle = styles.urgentRed;
-      bannerElement = (
-        <View style={[styles.bannerOverlay, styles.bannerRed]}>
-          <Text style={styles.bannerText}>😭 EXPIRED</Text>
-        </View>
-      );
-    } else if (info.days >= 0 && info.days <= 2) {
+   if (info.days >= 0 && info.days <= 2) {
       statusStyle = styles.urgentRed;
       bannerElement = (
         <View style={[styles.bannerOverlay, styles.bannerRed1]}>
@@ -129,9 +122,7 @@ export default function Fridge({ navigation }) {
 
     let statusColor = '#FFFFFF';
 
-    if (info.days <= 0) {
-      statusColor = '#FF3800';
-    } else if (info.days >= 1 && info.days <= 2) {
+    if (info.days >= 1 && info.days <= 2) {
       statusColor = '#FF3800';
     } else if (info.days >= 3 && info.days <= 4) {
       statusColor = '#FFC700';
