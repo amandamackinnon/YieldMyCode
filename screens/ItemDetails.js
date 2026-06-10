@@ -5,7 +5,7 @@ import { FridgeContext } from '../context/FridgeContext';
 
 export default function ItemDetails({ route, navigation }) {
   const { itemId } = route.params;
-  const { items, increaseQty, decreaseQty, removeItem } = useContext(FridgeContext);
+  const { items, decreaseQty, removeItem } = useContext(FridgeContext);
 
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -49,6 +49,27 @@ export default function ItemDetails({ route, navigation }) {
         <Text style={styles.titleText}>{item.name}</Text>
         <Text style={styles.categoryText}>{item.category}</Text>
       </View>
+
+      <View style={styles.timelineContainer}>
+        <View style={styles.timelineRow}>
+          <Ionicons name="calendar-outline" size={20} color="#555" style={styles.timelineIcon} />
+          <View>
+            <Text style={styles.timelineLabel}>Added to Fridge</Text>
+            <Text style={styles.timelineValue}>{item.addedAt || 'Not specified'}</Text>
+          </View>
+        </View>
+
+        <View style={[styles.timelineRow, { borderBottomWidth: 0 }]}>
+          <Ionicons name="time-outline" size={20} color="#EF4E23" style={styles.timelineIcon} />
+          <View>
+            <Text style={styles.timelineLabel}>Expiration Date</Text>
+            <Text style={[styles.timelineValue, { color: '#EF4E23', fontFamily: 'NunitoBold' }]}>
+              {item.expiryDate || 'No date set'}
+            </Text>
+          </View>
+        </View>
+      </View>
+      
       <Text style={styles.genText}>Left in the fridge: </Text>
 
       <View style={styles.counterRow}>
@@ -58,9 +79,6 @@ export default function ItemDetails({ route, navigation }) {
           <Ionicons name="remove-sharp" size={50} color="#FFF"/>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.counterButton} onPress={() => increaseQty(item.id)}>
-          <Ionicons name="add-sharp" size={50} color="#FFF"/>
-        </TouchableOpacity>
       </View>
 
         <TouchableOpacity 

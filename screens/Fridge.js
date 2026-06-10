@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useFonts } from 'expo-font';
 import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold } from '@expo-google-fonts/nunito';
@@ -167,6 +167,7 @@ export default function Fridge({ navigation }) {
         selectedTextStyle={styles.selectedTextStyle}
         itemTextStyle={styles.dropdownItemText}
         placeholder="Filter Category"
+        maxHeight={220}
         data={categories}
         labelField="label"
         valueField="value"
@@ -209,6 +210,20 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 15,
   },
+
+  dropdownContainer: {
+    borderRadius: 12,
+    backgroundColor: '#ffffff',
+    borderColor: '#e0e0e0',
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4, 
+    overflowY: 'scroll', 
+  },
+  
   placeholderStyle: {
     fontSize: 16,
     color: '#888',
