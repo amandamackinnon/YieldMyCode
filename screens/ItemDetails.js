@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
+import React, { useContext, useState, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Pressable, Image, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { FridgeContext } from '../context/FridgeContext';
 
@@ -10,8 +10,13 @@ export default function ItemDetails({ route, navigation }) {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const timerRef = useRef(null);
+  const isLongPressingRef = useRef(false); 
+  const touchStartTimeRef = useRef(0);
+
   const item = items.find((i) => i.id === itemId);
 
+  
   if (!item) {
     return (
       <View style={styles.container}>
@@ -20,38 +25,67 @@ export default function ItemDetails({ route, navigation }) {
     );
   }
 
-  // --- NEW INTERCEPT HANDLER FOR THE MINUS BUTTON ---
-  const handleDecrease = () => {
-    if (item.qty <= 1) {
-      // Trigger the native confirmation pop-up modal
-      Alert.alert(
-        "Remove Item?",
-        `Reducing the quantity will remove ${item.name} from your fridge completely.`,
-        [
-          {
-            text: "Cancel",
-            style: "cancel" // Keeps it safe, does nothing on click
-          },
-          {
-            text: "Remove",
-            style: "destructive", // Colorizes red on iOS natively
-            onPress: () => {
-              removeItem(item.id);
-              navigation.goBack(); // Navigates user back to the fridge automatically
-            }
-          }
-        ]
-      );
-    } else {
-      // If quantity is 2 or higher, just decrease it normally
-      decreaseQty(item.id);
+  
+  const handlePressIn = () => {
+    if (timerRef.current) return;
+
+    touchStartTimeRef.current = Date.now();
+    isLongPressingRef.current = false; // Fixed name mismatch typo
+
+    timerRef.current = setInterval(() => {
+      const freshItem = items.find((i) => i.id === itemId);
+
+      if (freshItem && freshItem.qty > 1) {
+        isLongPressingRef.current = true; 
+        decreaseQty(itemId);
+      } else {
+        cleanUpTimer();
+        triggerDeleteAlert();
+      }
+    }, 150);
+  };
+
+  const handlePressOut = () => {
+    const touchDuration = Date.now() - touchStartTimeRef.current;
+    cleanUpTimer();
+
+    if (!isLongPressingRef.current && touchDuration < 300) {
+      if (item.qty <= 1) {
+        triggerDeleteAlert();
+      } else {
+        decreaseQty(item.id);
+      }
     }
   };
-  // --------------------------------------------------
+
+  const cleanUpTimer = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  const triggerDeleteAlert = () => {
+    Alert.alert(
+      "Remove Item?",
+      `Are you sure you want to remove ${item.name} from the fridge?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Remove",
+          style: "destructive",
+          onPress: () => {
+            removeItem(item.id);
+            navigation.goBack();
+          }
+        }
+      ]
+    );
+  };
 
   const findRecipes = async () => {
     setLoading(true);
-    const apiKey = 'e7de26d39bf344c88aaf33e8ee08eda4'; 
+    const apiKey = 'e7de26d39bf344c88aaf33e8ee08eda4';
     const ingredientName = encodeURIComponent(item.name);
     const url = `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${ingredientName}&number=10&apiKey=${apiKey}`;
 
@@ -78,9 +112,9 @@ export default function ItemDetails({ route, navigation }) {
         <Text style={styles.categoryText}>{item.category}</Text>
       </View>
 
-      <View style={styles.timelineContainer}> 
+      <View style={styles.timelineContainer}>
         <View style={styles.timelineRow}>
-          <Ionicons name="calendar-outline" size={20} color="#555" style={styles.timelineIcon} /> 
+          <Ionicons name="calendar-outline" size={20} color="#555" style={styles.timelineIcon} />
           <View>
             <Text style={styles.timelineLabel}>Added to Fridge</Text>
             <Text style={styles.timelineValue}>{item.addedAt || 'Not specified'}</Text>
@@ -102,25 +136,20 @@ export default function ItemDetails({ route, navigation }) {
 
       <View style={styles.counterRow}>
         <Text style={styles.quantityText}>{item.qty}</Text>
-        {/* CHANGED: This now triggers our intercept function instead of calling decreaseQty directly */}
-        <TouchableOpacity style={styles.counterButton} onPress={handleDecrease}>
-          <Ionicons name="remove-sharp" size={48} color="#FFF"/>
-        </TouchableOpacity>
+        <Pressable
+          style={({ pressed }) => [
+            styles.counterButton,
+            { opacity: pressed ? 0.7 : 1.0 }
+          ]}
+          onPressIn={handlePressIn}   
+          onPressOut={handlePressOut} 
+        >
+          <Ionicons name="remove-sharp" size={48} color="#FFF" />
+        </Pressable>
       </View>
 
-      <TouchableOpacity 
-        style={styles.removeButton} 
-        onPress={() => {
-          removeItem(item.id);
-          navigation.goBack(); 
-        }}
-      >
-        <Ionicons name="trash-outline" size={20} color="#EF4E23" style={{ marginRight: 5}} />
-        <Text style={styles.removeButtonText}>Remove Item from Fridge</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={styles.recipeButton} 
+      <TouchableOpacity
+        style={styles.recipeButton}
         onPress={findRecipes}
         disabled={loading}
       >
@@ -134,8 +163,8 @@ export default function ItemDetails({ route, navigation }) {
         <View style={styles.recipeListContainer}>
           <Text style={styles.recipeSectionTitle}>Recipe Ideas:</Text>
           {recipes.map((recipe) => (
-            <TouchableOpacity 
-              key={recipe.id} 
+            <TouchableOpacity
+              key={recipe.id}
               style={styles.recipeCard}
               onPress={() => navigation.navigate('RecipeDetails', { recipeId: recipe.id })}
             >
@@ -178,13 +207,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#333',
   },
-    genText: {
-        marginTop: 35,
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginLeft: -15,
+  genText: {
+    marginTop: 35,
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginLeft: -15,
 
-    },
+  },
   categoryText: {
     fontSize: 14,
     color: '#888',
@@ -193,39 +222,26 @@ const styles = StyleSheet.create({
   counterRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '30%',
+    justifyContent: 'flex-start',
     marginVertical: 30,
+    gap: 20,
   },
   counterButton: {
     width: 50,
     height: 50,
-    borderRadius: 28,
+    borderRadius: 25,
     borderWidth: 1,
     borderColor: '#E7B1A6',
     backgroundColor: '#E7B1A6',
     alignItems: 'center',
-    justifyContent: 'flex-center',
+    justifyContent: 'center',
   },
   quantityText: {
     fontSize: 50,
     fontWeight: '700',
     color: '#333',
   },
-  removeButton: {
-    flexDirection: 'row',
-    alignItems: "center",
-    marginTop: 'auto',
-    marginBottom: 40,
-    padding: 12,
-    
-  },
-  removeButtonText: {
-    color: '#EF4E23',
-    fontSize: 15,
-    fontWeight: '600',
-    
-},
+
   errorText: {
     fontSize: 16,
     color: '#666',
@@ -234,7 +250,7 @@ const styles = StyleSheet.create({
 
   recipeButton: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(236, 96, 57, 1)', 
+    backgroundColor: 'rgba(236, 96, 57, 1)',
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 25,
@@ -296,5 +312,5 @@ const styles = StyleSheet.create({
     color: '#777',
     marginTop: 4,
   },
- 
+
 });

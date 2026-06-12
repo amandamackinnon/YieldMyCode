@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
     fontFamily: 'NunitoSemiBold',
     marginTop: 50,
     color: '#999',
-    fontSize: 50,
+    fontSize: 30,
   },
   qtyContainer: {
     flexDirection: 'row',
@@ -442,8 +442,9 @@ const styles = StyleSheet.create({
   },
 
   emptyImage: {
-    height: "100vh", 
-    width: "100vw",
+    height: 500, 
+    width: 500,
+    marginLeft: -30,
     
 }
 });
