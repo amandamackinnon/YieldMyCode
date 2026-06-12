@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FridgeContext } from '../context/FridgeContext';
 
+
 const categories = [
   { label: 'All Categories', value: 'All' },
   { label: 'Bread & Baked Goods', value: 'Bread & Baked Goods' },
@@ -186,7 +187,10 @@ export default function Fridge({ navigation }) {
         numColumns={2}
         columnWrapperStyle={styles.row}
         ListEmptyComponent={
-          <Text style={styles.emptyText}> No items found in this category.</Text>
+          <View style ={styles.emptyContainer}>
+            <Text style={styles.emptyText}> Your fridge is empty. Click Add icon to restock</Text>
+          <Image source={require('../assets/empty-fridge-image.png')} style={styles.emptyImage} resizeMode="contain" />
+          </View>
         }
       />
     </View>
@@ -350,7 +354,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: 'NunitoSemiBold',
     marginTop: 50,
-    color: '#999'
+    color: '#999',
+    fontSize: 50,
   },
   qtyContainer: {
     flexDirection: 'row',
@@ -434,5 +439,11 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     marginLeft: 5,
-  }
+  },
+
+  emptyImage: {
+    height: "100vh", 
+    width: "100vw",
+    
+}
 });

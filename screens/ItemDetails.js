@@ -20,12 +20,40 @@ export default function ItemDetails({ route, navigation }) {
     );
   }
 
+  // --- NEW INTERCEPT HANDLER FOR THE MINUS BUTTON ---
+  const handleDecrease = () => {
+    if (item.qty <= 1) {
+      // Trigger the native confirmation pop-up modal
+      Alert.alert(
+        "Remove Item?",
+        `Reducing the quantity will remove ${item.name} from your fridge completely.`,
+        [
+          {
+            text: "Cancel",
+            style: "cancel" // Keeps it safe, does nothing on click
+          },
+          {
+            text: "Remove",
+            style: "destructive", // Colorizes red on iOS natively
+            onPress: () => {
+              removeItem(item.id);
+              navigation.goBack(); // Navigates user back to the fridge automatically
+            }
+          }
+        ]
+      );
+    } else {
+      // If quantity is 2 or higher, just decrease it normally
+      decreaseQty(item.id);
+    }
+  };
+  // --------------------------------------------------
+
   const findRecipes = async () => {
     setLoading(true);
     const apiKey = 'e7de26d39bf344c88aaf33e8ee08eda4'; 
     const ingredientName = encodeURIComponent(item.name);
-    const url = `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${ingredientName}&number=10&apiKey=${apiKey}`; //this is where I can set the number of recipes generated
-
+    const url = `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${ingredientName}&number=10&apiKey=${apiKey}`;
 
     try {
       const response = await fetch(url);
@@ -50,9 +78,9 @@ export default function ItemDetails({ route, navigation }) {
         <Text style={styles.categoryText}>{item.category}</Text>
       </View>
 
-      <View style={styles.timelineContainer}>
+      <View style={styles.timelineContainer}> 
         <View style={styles.timelineRow}>
-          <Ionicons name="calendar-outline" size={20} color="#555" style={styles.timelineIcon} />
+          <Ionicons name="calendar-outline" size={20} color="#555" style={styles.timelineIcon} /> 
           <View>
             <Text style={styles.timelineLabel}>Added to Fridge</Text>
             <Text style={styles.timelineValue}>{item.addedAt || 'Not specified'}</Text>
@@ -69,19 +97,18 @@ export default function ItemDetails({ route, navigation }) {
           </View>
         </View>
       </View>
-      
+
       <Text style={styles.genText}>Left in the fridge: </Text>
 
       <View style={styles.counterRow}>
-        
         <Text style={styles.quantityText}>{item.qty}</Text>
-        <TouchableOpacity style={styles.counterButton} onPress={() => decreaseQty(item.id)}>
-          <Ionicons name="remove-sharp" size={50} color="#FFF"/>
+        {/* CHANGED: This now triggers our intercept function instead of calling decreaseQty directly */}
+        <TouchableOpacity style={styles.counterButton} onPress={handleDecrease}>
+          <Ionicons name="remove-sharp" size={48} color="#FFF"/>
         </TouchableOpacity>
-
       </View>
 
-        <TouchableOpacity 
+      <TouchableOpacity 
         style={styles.removeButton} 
         onPress={() => {
           removeItem(item.id);
@@ -97,8 +124,6 @@ export default function ItemDetails({ route, navigation }) {
         onPress={findRecipes}
         disabled={loading}
       >
-
-        
         <Ionicons name="restaurant-outline" size={20} color="white" style={{ marginRight: 8 }} />
         <Text style={styles.recipeButtonText}>
           {loading ? 'Searching...' : `Find Recipes with ${item.name}`}
@@ -110,9 +135,10 @@ export default function ItemDetails({ route, navigation }) {
           <Text style={styles.recipeSectionTitle}>Recipe Ideas:</Text>
           {recipes.map((recipe) => (
             <TouchableOpacity 
-            key={recipe.id} 
-            style={styles.recipeCard}
-            onPress ={()=>navigation.navigate('RecipeDetails', { recipeId: recipe.id })}>
+              key={recipe.id} 
+              style={styles.recipeCard}
+              onPress={() => navigation.navigate('RecipeDetails', { recipeId: recipe.id })}
+            >
               <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
               <View style={styles.recipeInfo}>
                 <Text style={styles.recipeTitle} numberOfLines={2}>{recipe.title}</Text>
@@ -123,10 +149,8 @@ export default function ItemDetails({ route, navigation }) {
             </TouchableOpacity>
           ))}
         </View>
-        )}
-
+      )}
     </ScrollView>
-
   );
 }
 
@@ -170,21 +194,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    width: '60%',
-    marginVertical: 40,
+    width: '30%',
+    marginVertical: 30,
   },
   counterButton: {
-    width: 55,
-    height: 55,
+    width: 50,
+    height: 50,
     borderRadius: 28,
     borderWidth: 1,
     borderColor: '#E7B1A6',
     backgroundColor: '#E7B1A6',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-center',
   },
   quantityText: {
-    fontSize: 40,
+    fontSize: 50,
     fontWeight: '700',
     color: '#333',
   },
@@ -272,4 +296,5 @@ const styles = StyleSheet.create({
     color: '#777',
     marginTop: 4,
   },
+ 
 });

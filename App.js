@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 import React, { useState, useCallback } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Platform } from 'react-native'; // Added Platform
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -18,95 +18,82 @@ import { FridgeProvider } from './context/FridgeContext';
 import ItemDetails from './screens/ItemDetails';
 import RecipeDetails from './screens/RecipeDetails';
 
-
-
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
   return (
-    <FridgeProvider>
-      <Stack.Navigator
-        screenOptions={({ navigation }) => ({
-          headerRight: () => (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Notifications')}
-              style={{ marginRight: 16 }}>
+    <Stack.Navigator
+      screenOptions={({ navigation }) => ({
+        headerRight: () => (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Notifications')}
+            style={{ marginRight: 16 }}>
+            <Ionicons name="notifications" size={32} color="rgba(236, 96, 57, 1)" />
+            <View
+              style={{
+                position: 'absolute',
+                top: -2,
+                right: -2,
+                width: 8,
+                height: 8,
+                borderRadius: 4,
+              }} />
+          </TouchableOpacity>
+        ),
+      })}>
 
-              <Ionicons name="notifications" size={32} color="rgba(236, 96, 57, 1)" />
-              <View
-                style={{
-                  position: 'absolute',
-                  top: -2,
-                  right: -2,
-                  width: 8,
-                  height: 8,
-                  borderRadius: 4,
-                }} />
+      <Stack.Screen name="FridgeHome" options={{
+        title: 'yield',
+        headerShadowVisible: false,
+        headerTitleStyle: { fontSize: 32, fontFamily: 'NunitoSemiBold' }
+      }}>
+        {(props) => (
+          <Fridge
+            {...props}
+            inventory={inventory}
+            onDeleteItem={deleteItem}
+            onDecreaseQty={decreaseQty} />
+        )}
+      </Stack.Screen>
 
-            </TouchableOpacity>
-          ),
-        })}>
+      <Stack.Screen name="AddToFridge"
+        options={{
+          presentation: 'transparentModal',
+          headerShown: false,
+          cardStyle: { backgroundColor: 'transparent' },
+        }} >
+        {(props) => (
+          <AddToFridge
+            {...props}
+            onAddProduct={(newItem) => setInventory([...inventory, newItem])} />
+        )}
+      </Stack.Screen>
 
-        <Stack.Screen name="FridgeHome" options={{
+      <Stack.Screen
+        name="ItemDetails"
+        component={ItemDetails}
+        options={{
           title: 'yield',
           headerShadowVisible: false,
-          headerTitleStyle: { fontSize: 32, fontFamily: 'NunitoSemiBold' }
-        }}>
-          {(props) => (
-            <Fridge
-              {...props}
-              inventory={inventory}
-              onDeleteItem={deleteItem}
-              onDecreaseQty={decreaseQty} />
-          )}
-        </Stack.Screen>
+          headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 32 },
+        }} />
 
-        <Stack.Screen name="AddToFridge"
-          options={{
-            presentation: 'transparentModal',
-            headerShown: false,
-            cardStyle: { backgroundColor: 'transparent' },
-          }} >
-
-          {(props) => (
-            <AddToFridge
-              {...props}
-              onAddProduct={(newItem) => setInventory([...inventory, newItem])} />
-          )}
-        </Stack.Screen>
-
-        <Stack.Screen
-          name="ItemDetails"
-          component={ItemDetails}
-          options={{
-            title: 'yield',
-            headerShadowVisible: false,
-            headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 32 },
-          }} />
-
-        <Stack.Screen
-          name="RecipeDetails"
-          component={RecipeDetails}
-          options={{
-            title: 'Recipe Cooking Guide',
-            headerShadowVisible: false,
-            headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 20 }
-          }}
-        />
-
-      </Stack.Navigator>
-    </FridgeProvider>
+      <Stack.Screen
+        name="RecipeDetails"
+        component={RecipeDetails}
+        options={{
+          title: 'Recipe Cooking Guide',
+          headerShadowVisible: false,
+          headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 20 }
+        }}
+      />
+    </Stack.Navigator>
   );
 }
 
-export default function App() {
-  const [fontsLoaded, fontError] = useFonts({
-    NunitoRegular: Nunito_400Regular,
-    NunitoMedium: Nunito_500Medium,
-    NunitoSemiBold: Nunito_600SemiBold,
-    NunitoBold: Nunito_700Bold,
-  });
+function MainAppContent() {
+  const insets = useSafeAreaInsets(); 
 
   const [inventory, setInventory] = useState([]);
 
@@ -117,14 +104,16 @@ export default function App() {
   const decreaseQty = (id) => {
     setInventory(inventory.map(item => {
       if (item.id === id) {
-        return { ...item, qty: Math.max(1, item.qty - 1) };
+        return { ...item, qty: item.qty - 1 };
       }
       return item;
     }));
   };
 
+  const safeBottomPadding = insets.bottom > 0 ? insets.bottom : (Platform.OS === 'android' ? 14 : 10);
+  const totalTabBarHeight = insets.bottom > 0 ? 60 + insets.bottom : 76;
+
   return (
-    <SafeAreaProvider>
     <NavigationContainer>
       <Tab.Navigator
         screenOptions={({ route }) => ({
@@ -141,10 +130,11 @@ export default function App() {
           tabBarShowLabel: false,
           headerShown: false,
           tabBarStyle: {
-            height: 55,
-            paddingBottom: 4,
-            paddingTop: 2,
+            height: totalTabBarHeight,
+            paddingBottom: safeBottomPadding,
+            paddingTop: 12,
             borderTopWidth: 1,
+            borderTopColor: '#e0e0e0',
             backgroundColor: '#ffffff',
           },
           tabBarItemStyle: {
@@ -178,9 +168,28 @@ export default function App() {
           })}
         />
       </Tab.Navigator>
-
       <StatusBar style="auto" />
     </NavigationContainer>
+  );
+}
+
+export default function App() {
+  const [fontsLoaded, fontError] = useFonts({
+    NunitoRegular: Nunito_400Regular,
+    NunitoMedium: Nunito_500Medium,
+    NunitoSemiBold: Nunito_600SemiBold,
+    NunitoBold: Nunito_700Bold,
+  });
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
+  return (
+    <SafeAreaProvider>
+      <FridgeProvider>
+        <MainAppContent />
+      </FridgeProvider>
     </SafeAreaProvider>
   );
 }
