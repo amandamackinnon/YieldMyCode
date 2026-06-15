@@ -148,11 +148,7 @@ export default function ItemDetails({ route, navigation }) {
         </Pressable>
       </View>
 
-      <TouchableOpacity
-        style={styles.recipeButton}
-        onPress={findRecipes}
-        disabled={loading}
-      >
+      <TouchableOpacity style={styles.recipeButton} onPress={findRecipes} disabled={loading}>
         <Ionicons name="restaurant-outline" size={20} color="white" style={{ marginRight: 8 }} />
         <Text style={styles.recipeButtonText}>
           {loading ? 'Searching...' : `Find Recipes with ${item.name}`}
@@ -163,11 +159,7 @@ export default function ItemDetails({ route, navigation }) {
         <View style={styles.recipeListContainer}>
           <Text style={styles.recipeSectionTitle}>Recipe Ideas:</Text>
           {recipes.map((recipe) => (
-            <TouchableOpacity
-              key={recipe.id}
-              style={styles.recipeCard}
-              onPress={() => navigation.navigate('RecipeDetails', { recipeId: recipe.id })}
-            >
+            <TouchableOpacity key={recipe.id} style={styles.recipeCard} onPress={() => navigation.navigate('RecipeDetails', { recipeId: recipe.id })} >
               <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
               <View style={styles.recipeInfo}>
                 <Text style={styles.recipeTitle} numberOfLines={2}>{recipe.title}</Text>

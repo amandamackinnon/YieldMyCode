@@ -100,6 +100,8 @@ export default function Fridge({ navigation }) {
   const renderItem = ({ item, index }) => {
     const info = getDaysLeft(item.expiryDate);
 
+    const itemHasExpired = info.days < 0;
+
     let statusStyle = null;
     let bannerElement = null;
 
@@ -117,13 +119,13 @@ export default function Fridge({ navigation }) {
           <Text style={styles.bannerText}>⏳ SLOWLY DYING...</Text>
         </View>
       );
-    } else {
-      statusStyle = styles.safeGreen;
-    }
+      } else if (itemHasExpired) {
+      statusColor = '#757575'; 
+      }
 
     let statusColor = '#FFFFFF';
 
-    if (info.days >= 1 && info.days <= 2) {
+    if (info.days >= 0 && info.days <= 2) {
       statusColor = '#FF3800';
     } else if (info.days >= 3 && info.days <= 4) {
       statusColor = '#FFC700';
@@ -132,18 +134,23 @@ export default function Fridge({ navigation }) {
     }
 
 
-    const backgroundColor = TILE_COLORS[index % TILE_COLORS.length];
+    const backgroundColor = itemHasExpired ? '#EAEAEA' : TILE_COLORS[index % TILE_COLORS.length];
 
     return (
+  <View style={[styles.tileContainer, itemHasExpired && styles.expiredTile]}>
   <View style={styles.tile}>
-
-    <TouchableOpacity activeOpacity={0.8} onPress={() => navigation.navigate('ItemDetails', { itemId: item.id })}>
+  <TouchableOpacity activeOpacity={0.8} onPress={() => navigation.navigate('ItemDetails', { itemId: item.id })}>
       <View style={[styles.imageBackgroundCircle, { backgroundColor }]}>
         <View style={styles.innerWhiteCircle}>
-          <Image source={{ uri: item.imageUrl || 'https://spoonacular.com/cdn/ingredients_250x250/apple.png' }} style={styles.foodImage} resizeMode="contain"/>
+          <Image source={{ uri: item.imageUrl || 'https://spoonacular.com/cdn/ingredients_250x250/apple.png' }} 
+                  style={[styles.foodImage, itemHasExpired && styles.expiredImage]} 
+                  resizeMode="contain" 
+                />
         </View>
         {bannerElement}
-        <Text style={styles.itemName}>{item.name}</Text>
+        <Text style={[styles.itemName, itemHasExpired && styles.expiredText]}>
+                {item.name}
+              </Text>
       </View>
     </TouchableOpacity>
 
@@ -152,10 +159,13 @@ export default function Fridge({ navigation }) {
         <Text style={styles.qtyText}>{item.qty}</Text>
       </View>
       <View style={styles.expiryBadgeContainer}>
-        <Text style={styles.cleanExpiryText}>{info.text}</Text>
+        <Text style={[styles.cleanExpiryText, itemHasExpired && styles.expiredText]}>
+                {info.text}
+              </Text>
         <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
       </View>
     </View>
+  </View>
   </View>
 );
   };
@@ -446,5 +456,16 @@ const styles = StyleSheet.create({
     width: 500,
     marginLeft: -30,
     
-}
+},
+
+expiredTile: {
+    opacity: 0.7, // Fades the entire tile card container to look historical/inactive
+  },
+  expiredImage: {
+    opacity: 0.4, // Bleeds the underlying white container up through the food pixels to simulate desaturation
+  },
+  expiredText: {
+    color: '#757575', // Turns the product names and expiry text into cold slate gray
+    
+  },
 });
