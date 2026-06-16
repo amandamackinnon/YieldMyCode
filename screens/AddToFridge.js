@@ -188,7 +188,6 @@ export default function AddToFridge({ navigation }) {
     onChangeText={setQty}
   />
 
-  {/* Right Half: Dropdown Picker */}
 <Dropdown
   style={styles.halfDropdown}
   placeholderStyle={styles.placeholderStyle}
@@ -202,7 +201,6 @@ export default function AddToFridge({ navigation }) {
   onChange={item => {
     setUnit(item.value);
   }}
-  // FIX: This forces the native scroll indicator track to stay permanently visible
   flatListProps={{
     persistentScrollbar: true,
   }}
@@ -405,7 +403,7 @@ const styles = StyleSheet.create({
 
   dropdownItemText: {
     fontSize: 16,
-    color: '#333',
+    color: 'black',
     fontFamily: 'NunitoMedium',
   },
   button: {
@@ -430,50 +428,51 @@ formRow: {
     alignItems: 'center',
     width: '100%',
     marginVertical: 8,
-    gap: 12, // Creates the distinct vertical split between the two boxes
+    gap: 12, 
   },
-  // Left Box: Automatically shares 50% of the available width
+
   halfInput: {
     flex: 1, 
     height: 50,
-    borderWidth: 1,
-    borderColor: '#EC6039', // Your orange border styling line accent
-    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#EC6039', 
+    borderRadius: 4,
     paddingHorizontal: 12,
     backgroundColor: '#FFFFFF',
     fontSize: 16,
     color: '#000000',
+    fontFamily: 'NunitoMedium'
   },
 
-  // Right Box: Automatically shares the other 50% of the row width
   halfDropdown: {
     flex: 1, 
     height: 50,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#EC6039',
-    borderRadius: 8,
+    borderRadius: 4,
     paddingHorizontal: 12,
     backgroundColor: '#FFFFFF',
+    fontFamily: 'NunitoBold',
   },
 
-  // FIX: This forces the open selection list overlay box to drop down 
-  // exactly underneath the right cell without blocking the numeric field!
   dropdownOverlayMenu: {
-    borderRadius: 8,
+    borderRadius: 4,
     marginTop: 4,
-    // Ensures the menu container matches the 50% column shape allocation bounds
     width: '46%', 
   },
 
   placeholderStyle: {
     fontSize: 16,
-    color: '#EC6039', // Matches the orange placeholder indicator flavor from your drawing
-    textAlign: 'center', // Centers the text just like your diagram
+    color: '#EC6039', 
+    textAlign: 'center', 
+    
+
   },
   selectedTextStyle: {
     fontSize: 16,
     color: '#000000',
     textAlign: 'center',
+    fontFamily: 'NunitoMedium',
   },
 
 });
