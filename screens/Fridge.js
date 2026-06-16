@@ -113,7 +113,7 @@ export default function Fridge({ navigation }) {
     let statusStyle = null;
     let bannerElement = null;
 
-   if (info.days >= 0 && info.days <= 3) {
+    if (info.days >= 0 && info.days <= 3) {
       statusStyle = styles.urgentRed;
       bannerElement = (
         <View style={[styles.bannerOverlay, styles.bannerRed1]}>
@@ -131,31 +131,33 @@ export default function Fridge({ navigation }) {
 
     let statusColor = '#FFFFFF';
 
-    if (info.days <= 3) {
+      if (info.days < 0) {
+      statusColor = 'grey';
+      }
+     else if (info.days >= 0 && info.days <= 3) {
       statusColor = '#FF3800';
     } else if (info.days >= 4 && info.days <= 5) {
       statusColor = '#FFC700';
     }
 
 
-    const backgroundColor = itemHasExpired 
+    const backgroundColor = itemHasExpired
       ? EXPIRED_TILE_COLORS[index % EXPIRED_TILE_COLORS.length]
       : TILE_COLORS[index % TILE_COLORS.length];
 
     return (
       <View style={[styles.tileContainer, itemHasExpired && styles.expiredTile]}>
         <View style={styles.tile}>
-          <TouchableOpacity 
-            activeOpacity={0.8} 
+          <TouchableOpacity
+            activeOpacity={0.8}
             onPress={() => navigation.navigate('ItemDetails', { itemId: item.id })}
           >
             <View style={[styles.imageBackgroundCircle, { backgroundColor }]}>
-              {/* Added expired overlay rules directly to the white item circle container */}
               <View style={[styles.innerWhiteCircle, itemHasExpired && styles.expiredInnerCircle]}>
-                <Image 
-                  source={{ uri: item.imageUrl || 'https://spoonacular.com/cdn/ingredients_250x250/apple.png' }} 
-                  style={[styles.foodImage, itemHasExpired && styles.expiredImage]} 
-                  resizeMode="contain" 
+                <Image
+                  source={{ uri: item.imageUrl || 'https://spoonacular.com/cdn/ingredients_250x250/apple.png' }}
+                  style={[styles.foodImage, itemHasExpired && styles.expiredImage]}
+                  resizeMode="contain"
                 />
               </View>
               {bannerElement}
@@ -170,7 +172,6 @@ export default function Fridge({ navigation }) {
               <Text style={styles.qtyText}>{item.qty}</Text>
             </View>
             <View style={styles.expiryBadgeContainer}>
-              {/* numberOfLines ensures text fits on one line without pushing the layout boundary out of frame */}
               <Text style={[styles.cleanExpiryText, itemHasExpired && styles.expiredText]} numberOfLines={1}>
                 {info.text}
               </Text>
@@ -183,7 +184,7 @@ export default function Fridge({ navigation }) {
   };
 
   return (
-    
+
     <View style={styles.container}>
       <Dropdown
         style={styles.dropdown}
@@ -203,20 +204,20 @@ export default function Fridge({ navigation }) {
         renderRightIcon={() => null}
       />
 
-   <FlatList
-  data={filteredInventory}
-  renderItem={renderItem}
-  keyExtractor={item => item.id.toString()}
-  numColumns={2}
-  columnWrapperStyle={styles.row} // Spreads out the dynamic width items evenly
-  contentContainerStyle={styles.listContainer} // Safely offsets items from screen glass edges
-  ListEmptyComponent={
-    <View style={styles.emptyContainer}>
-      <Image source={require('../assets/empty-fridge-image.png')} style={styles.emptyImage} resizeMode="contain" />
-      <Text style={styles.emptyText}>Your fridge is empty. Click Add icon to restock</Text>
-    </View>
-  }
-/>
+      <FlatList
+        data={filteredInventory}
+        renderItem={renderItem}
+        keyExtractor={item => item.id.toString()}
+        numColumns={2}
+        columnWrapperStyle={styles.row} 
+        contentContainerStyle={styles.listContainer} 
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Image source={require('../assets/empty-fridge-image.png')} style={styles.emptyImage} resizeMode="contain" />
+            <Text style={styles.emptyText}>Your fridge is empty. Click Add icon to restock</Text>
+          </View>
+        }
+      />
     </View>
   );
 }
@@ -228,10 +229,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingTop: 0,
   },
- row: {
-  justifyContent: 'flex-start',
-  marginBottom: 12,
-},
+  row: {
+    justifyContent: 'flex-start',
+    marginBottom: 12,
+  },
   dropdown: {
     backgroundColor: '#D9D9D966',
     borderRadius: 2,
@@ -239,14 +240,14 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
 
-tileContainer: {
-  flex: 1,
-  maxWidth: '48%',
-  marginHorizontal: 4,
-  backgroundColor: '#FFFFFF',
-  borderRadius: 4,
-  overflow: 'hidden',
-},
+  tileContainer: {
+    flex: 1,
+    maxWidth: '48%',
+    marginHorizontal: 4,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
 
   emptyContainer: {
     flex: 1,
@@ -277,10 +278,10 @@ tileContainer: {
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 4, 
-    overflowY: 'scroll', 
+    elevation: 4,
+    overflowY: 'scroll',
   },
-  
+
   placeholderStyle: {
     fontSize: 16,
     color: '#888',
@@ -296,10 +297,10 @@ tileContainer: {
     fontFamily: 'NunitoMedium',
   },
   tile: {
-    width: '100%', // Strips hardcoded dimensions and matches the container bounds
+    width: '100%',
     alignItems: 'center',
     paddingBottom: 10,
-    
+
   },
   tileHeader: {
     flexDirection: 'column',
@@ -337,7 +338,7 @@ tileContainer: {
     color: '#292929',
   },
 
- expiryBadgeContainer: {
+  expiryBadgeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
@@ -363,11 +364,11 @@ tileContainer: {
     position: 'absolute',
     width: 12,
     height: 12,
-    borderRadius: 10, 
-    top: -5,        
-    right: -5,      
-    borderWidth: 1,  
-    borderColor: '#292929', 
+    borderRadius: 10,
+    top: -5,
+    right: -5,
+    borderWidth: 1,
+    borderColor: '#292929',
   },
 
   tileFooterRow: {
@@ -376,7 +377,7 @@ tileContainer: {
     alignItems: 'center',
     width: 175,
     marginTop: 10,
-    
+
   },
   dateLabel: {
     fontSize: 12,
@@ -405,7 +406,7 @@ tileContainer: {
     borderColor: '#FFC700',
     color: '#FFC700',
   },
-  
+
   emptyText: {
     textAlign: 'center',
     fontFamily: 'NunitoSemiBold',
@@ -417,7 +418,7 @@ tileContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 4,
-    
+
   },
 
   imageBackgroundCircle: {
@@ -431,7 +432,6 @@ tileContainer: {
     paddingVertical: 10,
     marginBottom: 5,
     paddingTop: 25,
-    
   },
 
   innerWhiteCircle: {
@@ -441,10 +441,7 @@ tileContainer: {
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-
-    
   },
-
 
   bannerOverlay: {
     position: 'absolute',
@@ -457,6 +454,7 @@ tileContainer: {
     borderWidth: 2,
     borderColor: 'white',
   },
+
   bannerRed1: {
     backgroundColor: '#FF380080',
   },
@@ -494,11 +492,25 @@ tileContainer: {
   },
 
   emptyImage: {
-    height: 500, 
+    height: 500,
     width: 500,
     marginLeft: -30,
-    
+
+  },
+
+  expiredInnerCircle: {
+  backgroundColor: '#D9D9D9',
+  opacity: 0.7,
 },
 
- 
+expiredImage: {
+  opacity: 0.35,
+},
+
+expiredText: {
+  opacity: 0.45,
+  textDecorationLine: 'line-through'
+},
+
+
 });
