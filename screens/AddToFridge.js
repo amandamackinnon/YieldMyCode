@@ -27,6 +27,7 @@ export default function AddToFridge({ navigation }) {
   const webDatePickerRef = useRef(null); 
   const [name, setName] = useState('');
   const [qty, setQty] = useState('');
+  const [unit, setUnit] = useState('pcs');
   const [category, setCategory] = useState(null);
   const [expiryDate, setExpiryDate] = useState(new Date());
   const [displayDateString, setDisplayDateString] = useState(() => {
@@ -50,6 +51,17 @@ export default function AddToFridge({ navigation }) {
   if (!fontsLoaded && !fontError) {
     return null;
   }
+
+  const unitData = [
+    { label: 'g', value: 'g' },
+    { label: 'kg', value: 'kg' },
+    { label: 'ml', value: 'ml' },
+    { label: 'l', value: 'l' },
+    { label: 'oz', value: 'oz' },
+    { label: 'lb', value: 'lb' },
+    { label: 'pkg', value: 'pkg' },
+    { label: 'pcs', value: 'pcs' }, 
+  ];
 
   const onDateChange = (event, selectedDate) => {
     if (Platform.OS === 'android') {
@@ -165,14 +177,37 @@ export default function AddToFridge({ navigation }) {
           onChangeText={setName}
         />
 
-        <TextInput
-          placeholder="Quantity..."
-          placeholderTextColor="#000000"
-          style={styles.input}
-          keyboardType="numeric"
-          value={qty}
-          onChangeText={setQty}
-        />
+        <View style={styles.formRow}>
+  {/* Left Half: Numeric Text Entry */}
+  <TextInput
+    placeholder="Quantity..."
+    placeholderTextColor="#666"
+    style={styles.halfInput}
+    keyboardType="numeric"
+    value={qty}
+    onChangeText={setQty}
+  />
+
+  {/* Right Half: Dropdown Picker */}
+<Dropdown
+  style={styles.halfDropdown}
+  placeholderStyle={styles.placeholderStyle}
+  selectedTextStyle={styles.selectedTextStyle}
+  containerStyle={styles.dropdownOverlayMenu}
+  data={unitData}
+  labelField="label"
+  valueField="value"
+  placeholder="UNIT"
+  value={unit}
+  onChange={item => {
+    setUnit(item.value);
+  }}
+  // FIX: This forces the native scroll indicator track to stay permanently visible
+  flatListProps={{
+    persistentScrollbar: true,
+  }}
+/>
+</View>
 
         {Platform.OS === 'web' ? (
           <View style={{ width: '100%', position: 'relative' }}>
@@ -389,7 +424,56 @@ const styles = StyleSheet.create({
     fontFamily: 'NunitoBold',
     fontSize: 15,
     textTransform: 'uppercase',
-  }
+  },
+formRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    marginVertical: 8,
+    gap: 12, // Creates the distinct vertical split between the two boxes
+  },
+  // Left Box: Automatically shares 50% of the available width
+  halfInput: {
+    flex: 1, 
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#EC6039', // Your orange border styling line accent
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#FFFFFF',
+    fontSize: 16,
+    color: '#000000',
+  },
 
+  // Right Box: Automatically shares the other 50% of the row width
+  halfDropdown: {
+    flex: 1, 
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#EC6039',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#FFFFFF',
+  },
+
+  // FIX: This forces the open selection list overlay box to drop down 
+  // exactly underneath the right cell without blocking the numeric field!
+  dropdownOverlayMenu: {
+    borderRadius: 8,
+    marginTop: 4,
+    // Ensures the menu container matches the 50% column shape allocation bounds
+    width: '46%', 
+  },
+
+  placeholderStyle: {
+    fontSize: 16,
+    color: '#EC6039', // Matches the orange placeholder indicator flavor from your drawing
+    textAlign: 'center', // Centers the text just like your diagram
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+    color: '#000000',
+    textAlign: 'center',
+  },
 
 });
