@@ -75,6 +75,14 @@ const TILE_COLORS = [
   '#699966',
 ];
 
+const EXPIRED_TILE_COLORS = [
+  '#4F6BB780',
+  '#E7B1A680',
+  '#B2DFE880',
+  '#EC603980',
+  '#E7C66580',
+  '#69996680',
+];
 export default function Fridge({ navigation }) {
   const { items, removeItem, decreaseQty } = useContext(FridgeContext);
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -105,72 +113,77 @@ export default function Fridge({ navigation }) {
     let statusStyle = null;
     let bannerElement = null;
 
-   if (info.days >= 0 && info.days <= 2) {
+   if (info.days >= 0 && info.days <= 3) {
       statusStyle = styles.urgentRed;
       bannerElement = (
         <View style={[styles.bannerOverlay, styles.bannerRed1]}>
           <Text style={styles.bannerText}>⏰ PLEASE HURRY!</Text>
         </View>
       );
-    } else if (info.days >= 3 && info.days <= 4) {
+    } else if (info.days >= 4 && info.days <= 5) {
       statusStyle = styles.warningYellow;
       bannerElement = (
         <View style={[styles.bannerOverlay, styles.bannerOrange]}>
           <Text style={styles.bannerText}>⏳ SLOWLY DYING...</Text>
         </View>
       );
-      } else if (itemHasExpired) {
-      statusColor = '#757575'; 
-      }
+    }
 
     let statusColor = '#FFFFFF';
 
-    if (info.days >= 0 && info.days <= 2) {
+    if (info.days <= 3) {
       statusColor = '#FF3800';
-    } else if (info.days >= 3 && info.days <= 4) {
+    } else if (info.days >= 4 && info.days <= 5) {
       statusColor = '#FFC700';
-    } else {
-      statusColor = '#FFFFFF';
     }
 
 
-    const backgroundColor = itemHasExpired ? '#EAEAEA' : TILE_COLORS[index % TILE_COLORS.length];
+    const backgroundColor = itemHasExpired 
+      ? EXPIRED_TILE_COLORS[index % EXPIRED_TILE_COLORS.length]
+      : TILE_COLORS[index % TILE_COLORS.length];
 
     return (
-  <View style={[styles.tileContainer, itemHasExpired && styles.expiredTile]}>
-  <View style={styles.tile}>
-  <TouchableOpacity activeOpacity={0.8} onPress={() => navigation.navigate('ItemDetails', { itemId: item.id })}>
-      <View style={[styles.imageBackgroundCircle, { backgroundColor }]}>
-        <View style={styles.innerWhiteCircle}>
-          <Image source={{ uri: item.imageUrl || 'https://spoonacular.com/cdn/ingredients_250x250/apple.png' }} 
+      <View style={[styles.tileContainer, itemHasExpired && styles.expiredTile]}>
+        <View style={styles.tile}>
+          <TouchableOpacity 
+            activeOpacity={0.8} 
+            onPress={() => navigation.navigate('ItemDetails', { itemId: item.id })}
+          >
+            <View style={[styles.imageBackgroundCircle, { backgroundColor }]}>
+              {/* Added expired overlay rules directly to the white item circle container */}
+              <View style={[styles.innerWhiteCircle, itemHasExpired && styles.expiredInnerCircle]}>
+                <Image 
+                  source={{ uri: item.imageUrl || 'https://spoonacular.com/cdn/ingredients_250x250/apple.png' }} 
                   style={[styles.foodImage, itemHasExpired && styles.expiredImage]} 
                   resizeMode="contain" 
                 />
-        </View>
-        {bannerElement}
-        <Text style={[styles.itemName, itemHasExpired && styles.expiredText]}>
+              </View>
+              {bannerElement}
+              <Text style={[styles.itemName, itemHasExpired && styles.expiredText]}>
                 {item.name}
               </Text>
-      </View>
-    </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
 
-    <View style={styles.tileFooterRow}>
-      <View style={styles.qtyBox}>
-        <Text style={styles.qtyText}>{item.qty}</Text>
-      </View>
-      <View style={styles.expiryBadgeContainer}>
-        <Text style={[styles.cleanExpiryText, itemHasExpired && styles.expiredText]}>
+          <View style={styles.tileFooterRow}>
+            <View style={styles.qtyBox}>
+              <Text style={styles.qtyText}>{item.qty}</Text>
+            </View>
+            <View style={styles.expiryBadgeContainer}>
+              {/* numberOfLines ensures text fits on one line without pushing the layout boundary out of frame */}
+              <Text style={[styles.cleanExpiryText, itemHasExpired && styles.expiredText]} numberOfLines={1}>
                 {info.text}
               </Text>
-        <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
+              <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
+            </View>
+          </View>
+        </View>
       </View>
-    </View>
-  </View>
-  </View>
-);
+    );
   };
 
   return (
+    
     <View style={styles.container}>
       <Dropdown
         style={styles.dropdown}
@@ -190,19 +203,20 @@ export default function Fridge({ navigation }) {
         renderRightIcon={() => null}
       />
 
-      <FlatList
-        data={filteredInventory}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
-        ListEmptyComponent={
-          <View style ={styles.emptyContainer}>
-            <Text style={styles.emptyText}> Your fridge is empty. Click Add icon to restock</Text>
-          <Image source={require('../assets/empty-fridge-image.png')} style={styles.emptyImage} resizeMode="contain" />
-          </View>
-        }
-      />
+   <FlatList
+  data={filteredInventory}
+  renderItem={renderItem}
+  keyExtractor={item => item.id.toString()}
+  numColumns={2}
+  columnWrapperStyle={styles.row} // Spreads out the dynamic width items evenly
+  contentContainerStyle={styles.listContainer} // Safely offsets items from screen glass edges
+  ListEmptyComponent={
+    <View style={styles.emptyContainer}>
+      <Image source={require('../assets/empty-fridge-image.png')} style={styles.emptyImage} resizeMode="contain" />
+      <Text style={styles.emptyText}>Your fridge is empty. Click Add icon to restock</Text>
+    </View>
+  }
+/>
     </View>
   );
 }
@@ -214,10 +228,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingTop: 0,
   },
-  row: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
+ row: {
+  justifyContent: 'flex-start',
+  marginBottom: 12,
+},
   dropdown: {
     backgroundColor: '#D9D9D966',
     borderRadius: 2,
@@ -225,6 +239,35 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
 
+tileContainer: {
+  flex: 1,
+  maxWidth: '48%',
+  marginHorizontal: 4,
+  backgroundColor: '#FFFFFF',
+  borderRadius: 4,
+  overflow: 'hidden',
+},
+
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 60,
+    paddingHorizontal: 20,
+  },
+  emptyImage: {
+    width: 180,
+    height: 180,
+    marginBottom: 20,
+    opacity: 0.8, // Blends beautifully with your minimalist empty design theme
+  },
+  emptyText: {
+    fontSize: 16,
+    fontFamily: 'NunitoMedium',
+    color: '#757575',
+    textAlign: 'center',
+    lineHeight: 22,
+  },
   dropdownContainer: {
     borderRadius: 12,
     backgroundColor: '#ffffff',
@@ -253,10 +296,9 @@ const styles = StyleSheet.create({
     fontFamily: 'NunitoMedium',
   },
   tile: {
-    backgroundColor: '#fff',
-    marginBottom: 15,
-    width: '48%',
+    width: '100%', // Strips hardcoded dimensions and matches the container bounds
     alignItems: 'center',
+    paddingBottom: 10,
     
   },
   tileHeader: {
@@ -295,9 +337,13 @@ const styles = StyleSheet.create({
     color: '#292929',
   },
 
-  expiryBadgeContainer: {
-    position: 'relative',
-    width: 102, 
+ expiryBadgeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    flex: 1,
+    gap: 4,
+    marginLeft: 6,
   },
 
   cleanExpiryText: {
@@ -395,11 +441,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+
     
   },
 
@@ -458,14 +500,5 @@ const styles = StyleSheet.create({
     
 },
 
-expiredTile: {
-    opacity: 0.7, // Fades the entire tile card container to look historical/inactive
-  },
-  expiredImage: {
-    opacity: 0.4, // Bleeds the underlying white container up through the food pixels to simulate desaturation
-  },
-  expiredText: {
-    color: '#757575', // Turns the product names and expiry text into cold slate gray
-    
-  },
+ 
 });
