@@ -30,7 +30,7 @@ export default function ItemDetails({ route, navigation }) {
     if (timerRef.current) return;
 
     touchStartTimeRef.current = Date.now();
-    isLongPressingRef.current = false; // Fixed name mismatch typo
+    isLongPressingRef.current = false; 
 
     timerRef.current = setInterval(() => {
       const freshItem = items.find((i) => i.id === itemId);
@@ -135,7 +135,7 @@ export default function ItemDetails({ route, navigation }) {
       <Text style={styles.genText}>Left in the fridge: </Text>
 
       <View style={styles.counterRow}>
-        <Text style={styles.quantityText}>{item.qty}</Text>
+        <Text style={styles.quantityText}>{`${item.qty} ${item.unit || 'pcs'}`}</Text>
         <Pressable
           style={({ pressed }) => [
             styles.counterButton,
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   quantityText: {
-    fontSize: 50,
+    fontSize: 40,
     fontWeight: '700',
     color: '#333',
   },

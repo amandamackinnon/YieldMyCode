@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useState, useContext, useEffect, useRef } from 'react'; 
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView, Image, Modal } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -24,7 +24,7 @@ const SPOONACULAR_API_KEY = Constants.expoConfig?.extra?.spoonacularApiKey || Co
 
 export default function AddToFridge({ navigation }) {
   const { addItem } = useContext(FridgeContext);
-  const webDatePickerRef = useRef(null); 
+  const webDatePickerRef = useRef(null);
   const [name, setName] = useState('');
   const [qty, setQty] = useState('');
   const [unit, setUnit] = useState('pcs');
@@ -60,7 +60,7 @@ export default function AddToFridge({ navigation }) {
     { label: 'oz', value: 'oz' },
     { label: 'lb', value: 'lb' },
     { label: 'pkg', value: 'pkg' },
-    { label: 'pcs', value: 'pcs' }, 
+    { label: 'pcs', value: 'pcs' },
   ];
 
   const onDateChange = (event, selectedDate) => {
@@ -121,6 +121,7 @@ export default function AddToFridge({ navigation }) {
       id: Date.now().toString(),
       name: name.trim(),
       qty: Number(qty),
+      unit: unit && unit.trim() !== '' ? unit : 'pcs',
       category: category,
       imageUrl: finalImageUrl,
       addedAt: europeanAddedAt,
@@ -130,6 +131,7 @@ export default function AddToFridge({ navigation }) {
     addItem(newItem);
     setName('');
     setQty('');
+    setUnit('pcs');
     setCategory(null);
     setExpiryDate(new Date());
     setDisplayDateString(`${todayDay}/${todayMonth}/${todayYear}`);
@@ -178,42 +180,41 @@ export default function AddToFridge({ navigation }) {
         />
 
         <View style={styles.formRow}>
-  {/* Left Half: Numeric Text Entry */}
-  <TextInput
-    placeholder="Quantity..."
-    placeholderTextColor="#666"
-    style={styles.halfInput}
-    keyboardType="numeric"
-    value={qty}
-    onChangeText={setQty}
-  />
+          <TextInput
+            placeholder="Quantity..."
+            placeholderTextColor="#000000"
+            style={styles.halfInput}
+            keyboardType="numeric"
+            value={qty}
+            onChangeText={setQty}
+          />
 
-<Dropdown
-  style={styles.halfDropdown}
-  placeholderStyle={styles.placeholderStyle}
-  selectedTextStyle={styles.selectedTextStyle}
-  containerStyle={styles.dropdownOverlayMenu}
-  data={unitData}
-  labelField="label"
-  valueField="value"
-  placeholder="UNIT"
-  value={unit}
-  onChange={item => {
-    setUnit(item.value);
-  }}
-  flatListProps={{
-    persistentScrollbar: true,
-  }}
-/>
-</View>
+          <Dropdown
+            style={styles.halfDropdown}
+            placeholderStyle={styles.placeholderStyle}
+            selectedTextStyle={styles.selectedTextStyle}
+            containerStyle={styles.dropdownOverlayMenu}
+            data={unitData}
+            labelField="label"
+            valueField="value"
+            placeholder="UNIT"
+            value={unit}
+            onChange={item => {
+              setUnit(item.value);
+            }}
+            flatListProps={{
+              persistentScrollbar: true,
+            }}
+          />
+        </View>
 
         {Platform.OS === 'web' ? (
           <View style={{ width: '100%', position: 'relative' }}>
             <TouchableOpacity style={styles.input} onPress={() => {
-                if (webDatePickerRef.current) {
-                  webDatePickerRef.current.showPicker(); 
-                }
-              }}
+              if (webDatePickerRef.current) {
+                webDatePickerRef.current.showPicker();
+              }
+            }}
             >
               <Text style={styles.dateText}> Expires: {displayDateString} </Text>
             </TouchableOpacity>
@@ -423,19 +424,19 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textTransform: 'uppercase',
   },
-formRow: {
+  formRow: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
     marginVertical: 8,
-    gap: 12, 
+    gap: 12,
   },
 
   halfInput: {
-    flex: 1, 
+    flex: 1,
     height: 50,
     borderWidth: 2,
-    borderColor: '#EC6039', 
+    borderColor: '#EC6039',
     borderRadius: 4,
     paddingHorizontal: 12,
     backgroundColor: '#FFFFFF',
@@ -445,7 +446,7 @@ formRow: {
   },
 
   halfDropdown: {
-    flex: 1, 
+    flex: 1,
     height: 50,
     borderWidth: 2,
     borderColor: '#EC6039',
@@ -458,14 +459,14 @@ formRow: {
   dropdownOverlayMenu: {
     borderRadius: 4,
     marginTop: 4,
-    width: '46%', 
+    width: '46%',
   },
 
   placeholderStyle: {
     fontSize: 16,
-    color: '#EC6039', 
-    textAlign: 'center', 
-    
+    color: '#EC6039',
+    textAlign: 'center',
+
 
   },
   selectedTextStyle: {

@@ -169,7 +169,8 @@ export default function Fridge({ navigation }) {
 
           <View style={styles.tileFooterRow}>
             <View style={styles.qtyBox}>
-              <Text style={styles.qtyText}>{item.qty}</Text>
+              <Text style={styles.qtyText}> {`${item.qty} ${item.unit || 'pcs'}`} </Text>
+  
             </View>
             <View style={styles.expiryBadgeContainer}>
               <Text style={[styles.cleanExpiryText, itemHasExpired && styles.expiredText]} numberOfLines={1}>
