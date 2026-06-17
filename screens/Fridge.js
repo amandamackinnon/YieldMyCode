@@ -131,10 +131,10 @@ export default function Fridge({ navigation }) {
 
     let statusColor = '#FFFFFF';
 
-      if (info.days < 0) {
+    if (info.days < 0) {
       statusColor = 'grey';
-      }
-     else if (info.days >= 0 && info.days <= 3) {
+    }
+    else if (info.days >= 0 && info.days <= 3) {
       statusColor = '#FF3800';
     } else if (info.days >= 4 && info.days <= 5) {
       statusColor = '#FFC700';
@@ -146,6 +146,7 @@ export default function Fridge({ navigation }) {
       : TILE_COLORS[index % TILE_COLORS.length];
 
     return (
+
       <View style={[styles.tileContainer, itemHasExpired && styles.expiredTile]}>
         <View style={styles.tile}>
           <TouchableOpacity
@@ -170,7 +171,7 @@ export default function Fridge({ navigation }) {
           <View style={styles.tileFooterRow}>
             <View style={styles.qtyBox}>
               <Text style={styles.qtyText}> {`${item.qty} ${item.unit || 'pcs'}`} </Text>
-  
+
             </View>
             <View style={styles.expiryBadgeContainer}>
               <Text style={[styles.cleanExpiryText, itemHasExpired && styles.expiredText]} numberOfLines={1}>
@@ -202,16 +203,20 @@ export default function Fridge({ navigation }) {
         renderLeftIcon={() => (
           <Ionicons name="search" size={25} color="white" style={{ marginRight: 10 }} />
         )}
-        renderRightIcon={() => null}
+
+        renderRightIcon={null}
       />
 
       <FlatList
+        style={{ flex: 1 }}
         data={filteredInventory}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
         numColumns={2}
-        columnWrapperStyle={styles.row} 
-        contentContainerStyle={styles.listContainer} 
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={[styles.listContainer, { flexGrow: 1 }]}
+        alwaysBounceVertical={true}
+        showsVerticalScrollIndicator={true}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Image source={require('../assets/empty-fridge-image.png')} style={styles.emptyImage} resizeMode="contain" />
@@ -220,6 +225,7 @@ export default function Fridge({ navigation }) {
         }
       />
     </View>
+
   );
 }
 
@@ -228,10 +234,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
     paddingHorizontal: 10,
-    paddingTop: 0,
+    paddingRight: -20,
   },
+
+
+
   row: {
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     marginBottom: 12,
   },
   dropdown: {
@@ -242,12 +251,13 @@ const styles = StyleSheet.create({
   },
 
   tileContainer: {
-    flex: 1,
-    maxWidth: '48%',
-    marginHorizontal: 4,
+    width: '48%',
+    marginHorizontal: '1%',
     backgroundColor: '#FFFFFF',
     borderRadius: 4,
     overflow: 'hidden',
+    paddingRight: 15,
+    paddingLeft: 7,
   },
 
   emptyContainer: {
@@ -261,7 +271,7 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     marginBottom: 20,
-    opacity: 0.8, // Blends beautifully with your minimalist empty design theme
+    opacity: 0.8,
   },
   emptyText: {
     fontSize: 16,
@@ -280,7 +290,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
-    overflowY: 'scroll',
+
   },
 
   placeholderStyle: {
@@ -326,7 +336,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#333',
     borderRadius: 4,
-    paddingVertical: 6,
+    paddingVertical: 4,
     width: 65,
     alignItems: 'center',
     justifyContent: 'center',
@@ -367,7 +377,7 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 10,
     top: -5,
-    right: -5,
+    right: -4,
     borderWidth: 1,
     borderColor: '#292929',
   },
@@ -429,7 +439,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     overflow: 'hidden',
-    position: 'relative',
     paddingVertical: 10,
     marginBottom: 5,
     paddingTop: 25,
@@ -500,18 +509,18 @@ const styles = StyleSheet.create({
   },
 
   expiredInnerCircle: {
-  backgroundColor: '#D9D9D9',
-  opacity: 0.7,
-},
+    backgroundColor: '#D9D9D9',
+    opacity: 0.7,
+  },
 
-expiredImage: {
-  opacity: 0.35,
-},
+  expiredImage: {
+    opacity: 0.35,
+  },
 
-expiredText: {
-  opacity: 0.45,
-  textDecorationLine: 'line-through'
-},
+  expiredText: {
+    opacity: 0.45,
+    textDecorationLine: 'line-through'
+  },
 
 
 });

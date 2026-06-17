@@ -70,30 +70,27 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
         )}
       </Stack.Screen>
 
-      <Stack.Screen
-        name="ItemDetails"
+      <Stack.Screen name="ItemDetails"
         component={ItemDetails}
         options={{
-          title: 'yield',
-          headerShadowVisible: false,
-          headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 32 },
-        }} />
+          headerShown: false, 
+        }}/>
+      
 
-      <Stack.Screen
-        name="RecipeDetails"
+      <Stack.Screen name="RecipeDetails"
         component={RecipeDetails}
         options={{
           title: 'Recipe Cooking Guide',
           headerShadowVisible: false,
           headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 20 }
-        }}
-      />
+        }}/>
+      
     </Stack.Navigator>
   );
 }
 
 function MainAppContent() {
-  const insets = useSafeAreaInsets(); 
+  const insets = useSafeAreaInsets();
 
   const [inventory, setInventory] = useState([]);
 

@@ -2,8 +2,10 @@ import React, { useContext, useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Pressable, Image, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { FridgeContext } from '../context/FridgeContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ItemDetails({ route, navigation }) {
+  const insets = useSafeAreaInsets();
   const { itemId } = route.params;
   const { items, decreaseQty, removeItem } = useContext(FridgeContext);
 
@@ -106,6 +108,14 @@ export default function ItemDetails({ route, navigation }) {
 
   return (
     <ScrollView style={styles.container}>
+            <View style={[styles.headerRow, { paddingTop: insets.top }]}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={28} color="#000" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>yield</Text>
+        <View style={styles.headerSpacer} />
+      </View>
+      
       <View style={styles.mainCard}>
         <Image source={{ uri: item.imageUrl }} style={styles.largeImage} resizeMode="contain" />
         <Text style={styles.titleText}>{item.name}</Text>
@@ -113,25 +123,22 @@ export default function ItemDetails({ route, navigation }) {
       </View>
 
       <View style={styles.timelineContainer}>
-        <View style={styles.timelineRow}>
-          <Ionicons name="calendar-outline" size={20} color="#555" style={styles.timelineIcon} />
-          <View>
-            <Text style={styles.timelineLabel}>Shopping Date: </Text>
-            <Text style={styles.timelineValue}>{item.addedAt || 'Not specified'}</Text>
-          </View>
-        </View>
+  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+    
+    <View style={[styles.timelineRow, { flex: 1, borderBottomWidth: 0 }]}>
+      <Text style={styles.timelineLabel}>Shopping Date: </Text>
+      <Text style={styles.timelineValue}>{item.addedAt || 'Not specified'}</Text>
+    </View>
 
-        <View style={[styles.timelineRow, { borderBottomWidth: 0 }]}>
-          <Ionicons name="time-outline" size={20} color="#EF4E23" style={styles.timelineIcon} />
-          <View>
+    <View style={[styles.timelineRow, { flex: 1, borderBottomWidth: 0 }]}>
+      <Text style={styles.timelineLabel}>Expiry Date: </Text>
+      <Text style={[styles.timelineValue, { color: '#EF4E23', fontFamily: 'NunitoBold' }]}>
+        {item.expiryDate || 'No date set'}
+      </Text>
+    </View>
 
-            <Text style={styles.timelineLabel}>Expiration Date: </Text>
-            <Text style={[styles.timelineValue, { color: '#EF4E23', fontFamily: 'NunitoBold' }]}>
-              {item.expiryDate || 'No date set'}
-            </Text>
-          </View>
-        </View>
-      </View>
+  </View>
+</View>
 
       <Text style={styles.genText}>Left in the fridge: </Text>
 
@@ -145,21 +152,20 @@ export default function ItemDetails({ route, navigation }) {
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}
         >
-          <Ionicons name="remove-sharp" size={48} color="#FFF" />
+          <Ionicons name="remove-sharp" size={30} color="#FFF" />
         </Pressable>
          <TouchableOpacity style={styles.removeButton} onPress={() => {removeItem(item.id); navigation.goBack();}}>
         <Ionicons name="trash-outline" size={40} color="#EF4E23" style={{ marginRight: 6 }} />
       </TouchableOpacity>
       </View>
 
-     
-
-      <TouchableOpacity style={styles.recipeButton} onPress={findRecipes} disabled={loading}>
-        <Ionicons name="restaurant-outline" size={20} color="white" style={{ marginRight: 8 }} />
+           <TouchableOpacity style={styles.recipeButton} onPress={findRecipes} disabled={loading}>
         <Text style={styles.recipeButtonText}>
-          {loading ? 'Searching...' : `Find Recipes with ${item.name}`}
+          {loading ? 'Searching...' : `Check Recipes`}
         </Text>
       </TouchableOpacity>
+
+    
 
 
 
@@ -171,9 +177,6 @@ export default function ItemDetails({ route, navigation }) {
               <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
               <View style={styles.recipeInfo}>
                 <Text style={styles.recipeTitle} numberOfLines={2}>{recipe.title}</Text>
-                <Text style={styles.recipeMatchText}>
-                  Uses {recipe.usedIngredientCount} of your ingredients
-                </Text>
               </View>
             </TouchableOpacity>
           ))}
@@ -187,7 +190,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     paddingLeft: 50,
-    paddingTop: 40,
     paddingBottom: 60,
   },
   mainCard: {
@@ -203,9 +205,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   titleText: {
-    fontSize: 26,
+    fontSize: 30,
     fontWeight: '700',
     color: '#333',
+    fontFamily: 'NunitoMedium',
   },
   genText: {
     marginTop: 35,
@@ -218,17 +221,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#888',
     marginTop: 4,
+    fontFamily: 'NunitoMedium',
   },
   counterRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    marginVertical: 30,
-    gap: 20,
+    marginVertical: 20,
+    gap: 30,
+    marginLeft: -15,
   },
   counterButton: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     borderRadius: 25,
     borderWidth: 1,
     borderColor: '#E7B1A6',
@@ -237,7 +242,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   quantityText: {
-    fontSize: 40,
+    fontSize: 30,
     fontWeight: '700',
     color: '#333',
   },
@@ -250,24 +255,22 @@ const styles = StyleSheet.create({
 
   recipeButton: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(236, 96, 57, 1)',
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 25,
+    backgroundColor: '#F6CA5E',
+    paddingVertical: 12,
+    borderRadius: 4,
+    borderColor: '#292929',
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    width: '85%',
+    width: '45%',
     marginVertical: 15,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
+    marginLeft: -12,
+  
   },
   recipeButtonText: {
-    color: '#fff',
-    fontFamily: 'NunitoBold',
-    fontSize: 16,
+    color: '#292929',
+    fontFamily: 'NunitoMedium',
+    fontSize: 15,
   },
 
   recipeListContainer: {
@@ -319,5 +322,27 @@ const styles = StyleSheet.create({
     fontSize: 20  ,
 
   },
+  headerRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  paddingHorizontal: 16,
+  paddingBottom: 10,
+  backgroundColor: '#fff',
+},
+backButton: {
+  width: 40,
+  alignItems: 'flex-start',
+},
+headerTitle: {
+  fontSize: 32,
+  fontFamily: 'NunitoSemiBold',
+  color: '#000',
+  textAlign: 'center',
+  flex: 1,
+},
+headerSpacer: {
+  width: 40, 
+},
 
 });

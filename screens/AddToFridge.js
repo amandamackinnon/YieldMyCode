@@ -481,19 +481,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20, // Prevents card edges from touching the glass frame
+    paddingHorizontal: 20, 
   },
 
-  // FIX: Added solid backgrounds, exact padding boundaries, and clip handling
   iosModalContent: {
-    backgroundColor: '#FFFFFF', // Blocks out underlying form fields completely
+    backgroundColor: '#FFFFFF', 
     borderRadius: 24,
     padding: 20,
     width: '100%',
-    maxWidth: 340, // Keeps the calendar box mathematically structured and sharp
+    maxWidth: 340, 
     alignItems: 'center',
-    
-    // Shadow structures to give the element visual elevation over background fields
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.15,
@@ -501,9 +498,8 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
 
-  // Clean layout separating the confirm button safely away from grid elements
   iosDoneButton: {
-    backgroundColor: '#EC6039', // Your orange color theme asset match
+    backgroundColor: '#EC6039', 
     paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 12,
@@ -515,7 +511,7 @@ const styles = StyleSheet.create({
   iosDoneButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontFamily: 'NunitoBold', // Replaces thin overlapping text styles
+    fontFamily: 'NunitoBold', 
   },
 
 });
