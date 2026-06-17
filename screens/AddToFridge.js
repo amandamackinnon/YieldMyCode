@@ -62,7 +62,7 @@ export default function AddToFridge({ navigation }) {
     { label: 'l', value: 'l' },
     { label: 'oz', value: 'oz' },
     { label: 'lb', value: 'lb' },
-    
+
   ];
 
   const onDateChange = (event, selectedDate) => {
@@ -139,9 +139,9 @@ export default function AddToFridge({ navigation }) {
     setDisplayDateString(`${todayDay}/${todayMonth}/${todayYear}`);
     setIsSaving(false);
 
-      setTimeout(() => {
-  navigation.popToTop();  // Goes to FridgeHome, clearing modal + any intermediate screens
-}, Platform.OS === 'android' ? 300 : 0);
+    setTimeout(() => {
+      navigation.popToTop();
+    }, Platform.OS === 'android' ? 300 : 0);
   };
 
   return (
@@ -483,15 +483,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20, 
+    paddingHorizontal: 20,
   },
 
   iosModalContent: {
-    backgroundColor: '#FFFFFF', 
+    backgroundColor: '#FFFFFF',
     borderRadius: 24,
     padding: 20,
     width: '100%',
-    maxWidth: 340, 
+    maxWidth: 340,
     alignItems: 'center',
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 10 },
@@ -501,7 +501,7 @@ const styles = StyleSheet.create({
   },
 
   iosDoneButton: {
-    backgroundColor: '#EC6039', 
+    backgroundColor: '#EC6039',
     paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 12,
@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
   iosDoneButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontFamily: 'NunitoBold', 
+    fontFamily: 'NunitoBold',
   },
 
 });

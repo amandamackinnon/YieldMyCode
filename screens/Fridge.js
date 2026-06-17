@@ -186,7 +186,6 @@ export default function Fridge({ navigation }) {
   };
 
   return (
-
     <View style={styles.container}>
       <Dropdown
         style={styles.dropdown}
@@ -203,7 +202,6 @@ export default function Fridge({ navigation }) {
         renderLeftIcon={() => (
           <Ionicons name="search" size={25} color="white" style={{ marginRight: 10 }} />
         )}
-
         renderRightIcon={null}
       />
 
@@ -218,15 +216,20 @@ export default function Fridge({ navigation }) {
         alwaysBounceVertical={true}
         showsVerticalScrollIndicator={true}
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Your fridge is empty. Click Add icon to restock</Text>
-            <Image source={require('../assets/empty-fridge-image.png')} style={styles.emptyImage} resizeMode="contain" />
-            
-          </View>
+          items.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>Your fridge is empty. Click Add icon to restock</Text>
+              <Image source={require('../assets/empty-fridge-image.png')} style={styles.emptyImage} resizeMode="contain" />
+            </View>
+          ) : (
+
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No items found in this category</Text>
+            </View>
+          )
         }
       />
     </View>
-
   );
 }
 
@@ -274,7 +277,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: 'NunitoMedium',
     color: '#757575',
     textAlign: 'center',
