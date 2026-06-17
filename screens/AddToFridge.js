@@ -53,14 +53,16 @@ export default function AddToFridge({ navigation }) {
   }
 
   const unitData = [
+    { label: 'pcs', value: 'pcs' },
+    { label: 'pkg', value: 'pkg' },
+    { label: 'carton', value: 'carton' },
     { label: 'g', value: 'g' },
     { label: 'kg', value: 'kg' },
     { label: 'ml', value: 'ml' },
     { label: 'l', value: 'l' },
     { label: 'oz', value: 'oz' },
     { label: 'lb', value: 'lb' },
-    { label: 'pkg', value: 'pkg' },
-    { label: 'pcs', value: 'pcs' },
+    
   ];
 
   const onDateChange = (event, selectedDate) => {
@@ -474,6 +476,46 @@ const styles = StyleSheet.create({
     color: '#000000',
     textAlign: 'center',
     fontFamily: 'NunitoMedium',
+  },
+  iosModalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20, // Prevents card edges from touching the glass frame
+  },
+
+  // FIX: Added solid backgrounds, exact padding boundaries, and clip handling
+  iosModalContent: {
+    backgroundColor: '#FFFFFF', // Blocks out underlying form fields completely
+    borderRadius: 24,
+    padding: 20,
+    width: '100%',
+    maxWidth: 340, // Keeps the calendar box mathematically structured and sharp
+    alignItems: 'center',
+    
+    // Shadow structures to give the element visual elevation over background fields
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+
+  // Clean layout separating the confirm button safely away from grid elements
+  iosDoneButton: {
+    backgroundColor: '#EC6039', // Your orange color theme asset match
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    borderRadius: 12,
+    marginTop: 20,
+    width: '100%',
+    alignItems: 'center',
+  },
+
+  iosDoneButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'NunitoBold', // Replaces thin overlapping text styles
   },
 
 });

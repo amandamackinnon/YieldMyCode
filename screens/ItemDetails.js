@@ -11,12 +11,12 @@ export default function ItemDetails({ route, navigation }) {
   const [loading, setLoading] = useState(false);
 
   const timerRef = useRef(null);
-  const isLongPressingRef = useRef(false); 
+  const isLongPressingRef = useRef(false);
   const touchStartTimeRef = useRef(0);
 
   const item = items.find((i) => i.id === itemId);
 
-  
+
   if (!item) {
     return (
       <View style={styles.container}>
@@ -25,18 +25,18 @@ export default function ItemDetails({ route, navigation }) {
     );
   }
 
-  
+
   const handlePressIn = () => {
     if (timerRef.current) return;
 
     touchStartTimeRef.current = Date.now();
-    isLongPressingRef.current = false; 
+    isLongPressingRef.current = false;
 
     timerRef.current = setInterval(() => {
       const freshItem = items.find((i) => i.id === itemId);
 
       if (freshItem && freshItem.qty > 1) {
-        isLongPressingRef.current = true; 
+        isLongPressingRef.current = true;
         decreaseQty(itemId);
       } else {
         cleanUpTimer();
@@ -116,7 +116,7 @@ export default function ItemDetails({ route, navigation }) {
         <View style={styles.timelineRow}>
           <Ionicons name="calendar-outline" size={20} color="#555" style={styles.timelineIcon} />
           <View>
-            <Text style={styles.timelineLabel}>Added to Fridge</Text>
+            <Text style={styles.timelineLabel}>Shopping Date: </Text>
             <Text style={styles.timelineValue}>{item.addedAt || 'Not specified'}</Text>
           </View>
         </View>
@@ -124,7 +124,8 @@ export default function ItemDetails({ route, navigation }) {
         <View style={[styles.timelineRow, { borderBottomWidth: 0 }]}>
           <Ionicons name="time-outline" size={20} color="#EF4E23" style={styles.timelineIcon} />
           <View>
-            <Text style={styles.timelineLabel}>Expiration Date</Text>
+
+            <Text style={styles.timelineLabel}>Expiration Date: </Text>
             <Text style={[styles.timelineValue, { color: '#EF4E23', fontFamily: 'NunitoBold' }]}>
               {item.expiryDate || 'No date set'}
             </Text>
@@ -141,12 +142,17 @@ export default function ItemDetails({ route, navigation }) {
             styles.counterButton,
             { opacity: pressed ? 0.7 : 1.0 }
           ]}
-          onPressIn={handlePressIn}   
-          onPressOut={handlePressOut} 
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
         >
           <Ionicons name="remove-sharp" size={48} color="#FFF" />
         </Pressable>
+         <TouchableOpacity style={styles.removeButton} onPress={() => {removeItem(item.id); navigation.goBack();}}>
+        <Ionicons name="trash-outline" size={40} color="#EF4E23" style={{ marginRight: 6 }} />
+      </TouchableOpacity>
       </View>
+
+     
 
       <TouchableOpacity style={styles.recipeButton} onPress={findRecipes} disabled={loading}>
         <Ionicons name="restaurant-outline" size={20} color="white" style={{ marginRight: 8 }} />
@@ -154,6 +160,8 @@ export default function ItemDetails({ route, navigation }) {
           {loading ? 'Searching...' : `Find Recipes with ${item.name}`}
         </Text>
       </TouchableOpacity>
+
+
 
       {recipes.length > 0 && (
         <View style={styles.recipeListContainer}>
@@ -303,6 +311,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#777',
     marginTop: 4,
+  },
+
+  removeButtonText: {
+    color: "#EF4E23",
+    fontFamily: 'NunitoBold',
+    fontSize: 20  ,
+
   },
 
 });
