@@ -219,8 +219,9 @@ export default function Fridge({ navigation }) {
         showsVerticalScrollIndicator={true}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Image source={require('../assets/empty-fridge-image.png')} style={styles.emptyImage} resizeMode="contain" />
             <Text style={styles.emptyText}>Your fridge is empty. Click Add icon to restock</Text>
+            <Image source={require('../assets/empty-fridge-image.png')} style={styles.emptyImage} resizeMode="contain" />
+            
           </View>
         }
       />
@@ -264,7 +265,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 60,
     paddingHorizontal: 20,
   },
   emptyImage: {

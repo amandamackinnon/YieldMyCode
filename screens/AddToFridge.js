@@ -139,7 +139,9 @@ export default function AddToFridge({ navigation }) {
     setDisplayDateString(`${todayDay}/${todayMonth}/${todayYear}`);
     setIsSaving(false);
 
-    navigation.navigate('FridgeHome');
+      setTimeout(() => {
+  navigation.popToTop();  // Goes to FridgeHome, clearing modal + any intermediate screens
+}, Platform.OS === 'android' ? 300 : 0);
   };
 
   return (
