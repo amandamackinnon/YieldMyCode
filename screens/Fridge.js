@@ -145,6 +145,12 @@ export default function Fridge({ navigation }) {
       ? EXPIRED_TILE_COLORS[index % EXPIRED_TILE_COLORS.length]
       : TILE_COLORS[index % TILE_COLORS.length];
 
+    const getImageSource = () => {
+  if (!item.imageUrl || item.imageUrl.trim() === '' || item.imageUrl.includes('no.jpg')) {
+    return require('../assets/modal-tile-image.png'); 
+  } return { uri: item.imageUrl };
+};
+
     return (
 
       <View style={[styles.tileContainer, itemHasExpired && styles.expiredTile]}>
@@ -155,11 +161,7 @@ export default function Fridge({ navigation }) {
           >
             <View style={[styles.imageBackgroundCircle, { backgroundColor }]}>
               <View style={[styles.innerWhiteCircle, itemHasExpired && styles.expiredInnerCircle]}>
-                <Image
-                  source={{ uri: item.imageUrl || 'https://spoonacular.com/cdn/ingredients_250x250/apple.png' }}
-                  style={[styles.foodImage, itemHasExpired && styles.expiredImage]}
-                  resizeMode="contain"
-                />
+                <Image source={getImageSource()} style={[styles.foodImage, itemHasExpired && styles.expiredImage]} resizeMode="contain"/>
               </View>
               {bannerElement}
               <Text style={[styles.itemName, itemHasExpired && styles.expiredText]}>

@@ -55,6 +55,7 @@ export default function AddToFridge({ navigation }) {
   const unitData = [
     { label: 'pcs', value: 'pcs' },
     { label: 'pkg', value: 'pkg' },
+    { label: 'jar', value: 'jar' },
     { label: 'carton', value: 'carton' },
     { label: 'g', value: 'g' },
     { label: 'kg', value: 'kg' },
@@ -88,8 +89,7 @@ export default function AddToFridge({ navigation }) {
       return;
     }
     setIsSaving(true);
-
-    let finalImageUrl = 'https://spoonacular.com/cdn/ingredients_250x250/apple.png';
+    let finalImageUrl = null;
 
     try {
       const cleanSearchQuery = name.trim().toLowerCase();
@@ -103,7 +103,7 @@ export default function AddToFridge({ navigation }) {
           const [targetIngredient] = data.results;
           const foundImageFilename = targetIngredient?.image || targetIngredient?.['image'];
 
-          if (foundImageFilename) {
+          if (foundImageFilename && foundImageFilename !== 'no.jpg' && String(foundImageFilename).trim() !== '') {
             const cleanFilename = String(foundImageFilename).replace(/["'\s]/g, '');
             finalImageUrl = `https://spoonacular.com/cdn/ingredients_250x250/${cleanFilename}`;
           }
@@ -111,8 +111,8 @@ export default function AddToFridge({ navigation }) {
       }
     } catch (error) {
       console.log('❌ Core Spoonacular Engine Crash:', error);
-    }
-
+    } 
+    try {
     const today = new Date();
     const todayDay = String(today.getDate()).padStart(2, '0');
     const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
@@ -137,12 +137,17 @@ export default function AddToFridge({ navigation }) {
     setCategory(null);
     setExpiryDate(new Date());
     setDisplayDateString(`${todayDay}/${todayMonth}/${todayYear}`);
+    
     setIsSaving(false);
-
     setTimeout(() => {
       navigation.popToTop();
     }, Platform.OS === 'android' ? 300 : 0);
-  };
+  } catch (err) {
+    console.log('❌ Error saving product to local state:', err);
+    Alert.alert('Save Failed', 'Could not save the item to your fridge. Please try again.');
+    setIsSaving(false);
+  }
+};
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
@@ -150,7 +155,7 @@ export default function AddToFridge({ navigation }) {
         <TouchableOpacity style={styles.dismissOverlay} activeOpacity={1} onPress={() => navigation.goBack()} />
       </BlurView>
 
-      <View style={styles.modalCard}>
+      <View style={styles.modalCard}> 
         <View style={styles.illustrationBadge}>
           <Image source={require('../assets/modal-tile-image.png')} style={styles.illustrationImage} resizeMode="contain" />
         </View>
