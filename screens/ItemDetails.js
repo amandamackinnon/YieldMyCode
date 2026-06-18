@@ -106,39 +106,45 @@ export default function ItemDetails({ route, navigation }) {
     }
   };
 
+  const getImageSource = () => {
+    if (!item.imageUrl || item.imageUrl.trim() === '' || item.imageUrl.includes('no.jpg')) {
+      return require('../assets/modal-tile-image.png');
+    } return { uri: item.imageUrl };
+  };
+
   return (
     <ScrollView style={styles.container}>
-            <View style={[styles.headerRow, { paddingTop: insets.top }]}>
+      <View style={[styles.headerRow, { paddingTop: insets.top }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={28} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>yield</Text>
         <View style={styles.headerSpacer} />
       </View>
-      
+
       <View style={styles.mainCard}>
-        <Image source={{ uri: item.imageUrl }} style={styles.largeImage} resizeMode="contain" />
+        <Image source= {getImageSource()} style={styles.largeImage} resizeMode="contain" />
         <Text style={styles.titleText}>{item.name}</Text>
         <Text style={styles.categoryText}>{item.category}</Text>
       </View>
 
       <View style={styles.timelineContainer}>
-  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-    
-    <View style={[styles.timelineRow, { flex: 1, borderBottomWidth: 0 }]}>
-      <Text style={styles.timelineLabel}>Shopping Date: </Text>
-      <Text style={styles.timelineValue}>{item.addedAt || 'Not specified'}</Text>
-    </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
 
-    <View style={[styles.timelineRow, { flex: 1, borderBottomWidth: 0 }]}>
-      <Text style={styles.timelineLabel}>Expiry Date: </Text>
-      <Text style={[styles.timelineValue, { color: '#EF4E23', fontFamily: 'NunitoBold' }]}>
-        {item.expiryDate || 'No date set'}
-      </Text>
-    </View>
+          <View style={[styles.timelineRow, { flex: 1, borderBottomWidth: 0 }]}>
+            <Text style={styles.timelineLabel}>Shopping Date: </Text>
+            <Text style={styles.timelineValue}>{item.addedAt || 'Not specified'}</Text>
+          </View>
 
-  </View>
-</View>
+          <View style={[styles.timelineRow, { flex: 1, borderBottomWidth: 0 }]}>
+            <Text style={styles.timelineLabel}>Expiry Date: </Text>
+            <Text style={[styles.timelineValue, { color: '#EF4E23', fontFamily: 'NunitoBold' }]}>
+              {item.expiryDate || 'No date set'}
+            </Text>
+          </View>
+
+        </View>
+      </View>
 
       <Text style={styles.genText}>Left in the fridge: </Text>
 
@@ -154,18 +160,18 @@ export default function ItemDetails({ route, navigation }) {
         >
           <Ionicons name="remove-sharp" size={30} color="#FFF" />
         </Pressable>
-         <TouchableOpacity style={styles.removeButton} onPress={() => {removeItem(item.id); navigation.goBack();}}>
-        <Ionicons name="trash-outline" size={40} color="#EF4E23" style={{ marginRight: 6 }} />
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.removeButton} onPress={() => { removeItem(item.id); navigation.goBack(); }}>
+          <Ionicons name="trash-outline" size={40} color="#EF4E23" style={{ marginRight: 6 }} />
+        </TouchableOpacity>
       </View>
 
-           <TouchableOpacity style={styles.recipeButton} onPress={findRecipes} disabled={loading}>
+      <TouchableOpacity style={styles.recipeButton} onPress={findRecipes} disabled={loading}>
         <Text style={styles.recipeButtonText}>
           {loading ? 'Searching...' : `Check Recipes`}
         </Text>
       </TouchableOpacity>
 
-    
+
 
 
 
@@ -265,7 +271,7 @@ const styles = StyleSheet.create({
     width: '45%',
     marginVertical: 15,
     marginLeft: -12,
-  
+
   },
   recipeButtonText: {
     color: '#292929',
@@ -319,30 +325,30 @@ const styles = StyleSheet.create({
   removeButtonText: {
     color: "#EF4E23",
     fontFamily: 'NunitoBold',
-    fontSize: 20  ,
+    fontSize: 20,
 
   },
   headerRow: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  paddingHorizontal: 16,
-  paddingBottom: 10,
-  backgroundColor: '#fff',
-},
-backButton: {
-  width: 40,
-  alignItems: 'flex-start',
-},
-headerTitle: {
-  fontSize: 32,
-  fontFamily: 'NunitoSemiBold',
-  color: '#000',
-  textAlign: 'center',
-  flex: 1,
-},
-headerSpacer: {
-  width: 40, 
-},
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+    backgroundColor: '#fff',
+  },
+  backButton: {
+    width: 40,
+    alignItems: 'flex-start',
+  },
+  headerTitle: {
+    fontSize: 32,
+    fontFamily: 'NunitoSemiBold',
+    color: '#000',
+    textAlign: 'center',
+    flex: 1,
+  },
+  headerSpacer: {
+    width: 40,
+  },
 
 });
