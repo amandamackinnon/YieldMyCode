@@ -105,10 +105,17 @@ const getDaysLeft = (expiryDateStr) => {
 const TILE_COLORS = ['#4F6BB7', '#E7B1A6', '#B2DFE8', '#EC6039', '#E7C665', '#699966'];
 const EXPIRED_TILE_COLORS = ['#4F6BB780', '#E7B1A680', '#B2DFE880', '#EC603980', '#E7C66580', '#69996680'];
 
-export default function Fridge({ navigation }) {  
+export default function Fridge({ navigation, route }) {  
   const { items, removeItem, decreaseQty } = useContext(FridgeContext);
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
+
+  React.useEffect(() => {
+    if (route.params?.toggleNotifications) {
+      setShowNotifications(true);
+      navigation.setParams({ toggleNotifications: undefined });
+    }
+  }, [route.params?.toggleNotifications]);
 
   const activeNotifications = getNotificationData(items);
   const totalNotifications = activeNotifications.length;
@@ -198,18 +205,6 @@ export default function Fridge({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.logoText}>yield</Text>
-        <TouchableOpacity onPress={() => setShowNotifications(true)} style={styles.bellContainer}>
-          <Ionicons name="notifications" size={28} color="#E07A5F" />
-          {totalNotifications > 0 && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{totalNotifications}</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      </View>
-
       
       <Modal
         visible={showNotifications}
@@ -256,7 +251,7 @@ export default function Fridge({ navigation }) {
         renderRightIcon={null}
       />
 
-      <FlatList
+    <FlatList
         style={{ flex: 1 }}
         data={filteredInventory}
         renderItem={renderItem}
@@ -289,6 +284,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     paddingHorizontal: 10,
     paddingRight: -20,
+    paddingTop: 15,
   },
 
   row: {

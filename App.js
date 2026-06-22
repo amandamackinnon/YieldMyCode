@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 import React, { useState, useCallback } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, Platform } from 'react-native'; // Added Platform
+import { StyleSheet, Text, View, TouchableOpacity, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -43,17 +43,30 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
         ),
       })}>
 
-      <Stack.Screen name="FridgeHome" options={{
-        title: 'yield',
-        headerShadowVisible: false,
-        headerTitleStyle: { fontSize: 32, fontFamily: 'NunitoSemiBold' }
-      }}>
+      <Stack.Screen
+        name="FridgeHome"
+        options={({ navigation }) => ({
+          title: 'yield',
+          headerShadowVisible: false,
+          headerTitleAlign: 'left',
+          headerTitleStyle: { fontSize: 32, fontFamily: 'NunitoSemiBold' },
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => navigation.setParams({ toggleNotifications: true })}
+              style={{ marginRight: 20 }}
+            >
+              <Ionicons name="notifications" size={28} color="#E07A5F" />
+            </TouchableOpacity>
+          ),
+        })}
+      >
         {(props) => (
           <Fridge
             {...props}
             inventory={inventory}
             onDeleteItem={deleteItem}
-            onDecreaseQty={decreaseQty} />
+            onDecreaseQty={decreaseQty}
+          />
         )}
       </Stack.Screen>
 
@@ -73,9 +86,9 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
       <Stack.Screen name="ItemDetails"
         component={ItemDetails}
         options={{
-          headerShown: false, 
-        }}/>
-      
+          headerShown: false,
+        }} />
+
 
       <Stack.Screen name="RecipeDetails"
         component={RecipeDetails}
@@ -83,8 +96,8 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
           title: 'Recipe Cooking Guide',
           headerShadowVisible: false,
           headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 20 }
-        }}/>
-      
+        }} />
+
     </Stack.Navigator>
   );
 }
