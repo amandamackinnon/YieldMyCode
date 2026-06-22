@@ -1,12 +1,11 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ScrollView, Image, Modal } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useFonts } from 'expo-font';
 import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold } from '@expo-google-fonts/nunito';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FridgeContext } from '../context/FridgeContext';
-
 
 const categories = [
   { label: 'All Categories', value: 'All' },
@@ -20,25 +19,70 @@ const categories = [
   { label: 'Other', value: 'Other' },
 ];
 
+const getNotificationData = (fridgeItems) => {
+  if (!fridgeItems) return [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const threeDaysFromNow = new Date(today);
+  threeDaysFromNow.setDate(today.getDate() + 3);
+
+  const notifications = [];
+
+  fridgeItems.forEach((item) => {
+    if (!item.expiryDate) return;
+    try {
+      const cleanStr = item.expiryDate.replace(/Expires:\s*/i, '').trim();
+      const [day, month, year] = cleanStr.split('/');
+      const expiryDateObj = new Date(year, month - 1, day);
+      expiryDateObj.setHours(0, 0, 0, 0);
+
+      if (expiryDateObj <= threeDaysFromNow) {
+        const daysLeft = Math.round((expiryDateObj - today) / (1000 * 60 * 60 * 24));
+        let message = `Your ${item.name.toLowerCase()} expires soon!`;
+        if (daysLeft === 0) message = `The ${item.name.toLowerCase()} expires today`;
+        if (daysLeft === 1) message = `The ${item.name.toLowerCase()} expires tomorrow`;
+        if (daysLeft < 0) message = `The ${item.name.toLowerCase()} has expired!`;
+
+        notifications.push({
+          id: `expire-${item.id}`,
+          text: message,
+          type: 'expiry',
+          urgent: daysLeft <= 1
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  });
+
+  if (fridgeItems.length > 0) {
+    const randomItem = fridgeItems[Math.floor(Math.random() * fridgeItems.length)].name.toLowerCase();
+    notifications.push({
+      id: 'recipe-suggest',
+      text: `Got extra ${randomItem}? Use them to prepare a milkshake!`,
+      type: 'recipe',
+      urgent: false
+    });
+  }
+
+  return notifications;
+};
+
 const getDaysLeft = (expiryDateStr) => {
   if (!expiryDateStr || typeof expiryDateStr !== 'string' || expiryDateStr.trim() === '') {
     return { text: 'No Expiry Set', days: 999 };
   }
-
   try {
     const cleanStr = expiryDateStr.replace(/Expires:\s*/i, '').trim();
     const dateParts = cleanStr.split('/');
-    if (dateParts.length !== 3) {
-      return { text: 'Invalid Format', days: 999 };
-    }
+    if (dateParts.length !== 3) return { text: 'Invalid Format', days: 999 };
     const [dayStr, monthStr, yearStr] = dateParts;
     const expDay = parseInt(dayStr, 10);
     const expMonth = parseInt(monthStr, 10) - 1;
     const expYear = parseInt(yearStr, 10);
 
-    if (isNaN(expDay) || isNaN(expMonth) || isNaN(expYear)) {
-      return { text: 'Invalid Numbers', days: 999 };
-    }
+    if (isNaN(expDay) || isNaN(expMonth) || isNaN(expYear)) return { text: 'Invalid Numbers', days: 999 };
 
     const expiryDate = new Date(expYear, expMonth, expDay, 12, 0, 0);
     const now = new Date();
@@ -46,46 +90,28 @@ const getDaysLeft = (expiryDateStr) => {
     const diffTime = expiryDate.getTime() - today.getTime();
     const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
-
-    if (diffDays === 0) {
-      return { text: 'Expires today', days: diffDays };
-    } else if (diffDays === 1) {
-      return { text: '1 day left', days: diffDays };
-    } else if (diffDays < 0) {
+    if (diffDays === 0) return { text: 'Expires today', days: diffDays };
+    if (diffDays === 1) return { text: '1 day left', days: diffDays };
+    if (diffDays < 0) {
       const positiveDays = Math.abs(diffDays);
-      return {
-        text: `${positiveDays} ${positiveDays === 1 ? 'day' : 'days'} ago`,
-        days: diffDays
-      };
-    } else {
-      return { text: `${diffDays} days left`, days: diffDays };
+      return { text: `${positiveDays} ${positiveDays === 1 ? 'day' : 'days'} ago`, days: diffDays };
     }
-
+    return { text: `${diffDays} days left`, days: diffDays };
   } catch (error) {
     return { text: 'Calc Error', days: 999 };
   }
 };
 
-const TILE_COLORS = [
-  '#4F6BB7',
-  '#E7B1A6',
-  '#B2DFE8',
-  '#EC6039',
-  '#E7C665',
-  '#699966',
-];
+const TILE_COLORS = ['#4F6BB7', '#E7B1A6', '#B2DFE8', '#EC6039', '#E7C665', '#699966'];
+const EXPIRED_TILE_COLORS = ['#4F6BB780', '#E7B1A680', '#B2DFE880', '#EC603980', '#E7C66580', '#69996680'];
 
-const EXPIRED_TILE_COLORS = [
-  '#4F6BB780',
-  '#E7B1A680',
-  '#B2DFE880',
-  '#EC603980',
-  '#E7C66580',
-  '#69996680',
-];
-export default function Fridge({ navigation }) {
+export default function Fridge({ navigation }) {  
   const { items, removeItem, decreaseQty } = useContext(FridgeContext);
+  const [showNotifications, setShowNotifications] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const activeNotifications = getNotificationData(items);
+  const totalNotifications = activeNotifications.length;
 
   const [fontsLoaded, fontError] = useFonts({
     NunitoRegular: Nunito_400Regular,
@@ -94,34 +120,25 @@ export default function Fridge({ navigation }) {
     NunitoBold: Nunito_700Bold,
   });
 
-  if (!fontsLoaded && !fontError) {
-    return null;
-  }
+  if (!fontsLoaded && !fontError) return null;
 
   const filteredInventory = items.filter(item => {
-    if (selectedCategory === 'All') {
-      return true;
-    }
+    if (selectedCategory === 'All') return true;
     return item.category === selectedCategory;
   });
 
   const renderItem = ({ item, index }) => {
     const info = getDaysLeft(item.expiryDate);
-
     const itemHasExpired = info.days < 0;
 
-    let statusStyle = null;
     let bannerElement = null;
-
     if (info.days >= 0 && info.days <= 3) {
-      statusStyle = styles.urgentRed;
       bannerElement = (
         <View style={[styles.bannerOverlay, styles.bannerRed1]}>
           <Text style={styles.bannerText}>⏰ PLEASE HURRY!</Text>
         </View>
       );
     } else if (info.days >= 4 && info.days <= 5) {
-      statusStyle = styles.warningYellow;
       bannerElement = (
         <View style={[styles.bannerOverlay, styles.bannerOrange]}>
           <Text style={styles.bannerText}>⏳ SLOWLY DYING...</Text>
@@ -130,29 +147,22 @@ export default function Fridge({ navigation }) {
     }
 
     let statusColor = '#FFFFFF';
-
-    if (info.days < 0) {
-      statusColor = 'grey';
-    }
-    else if (info.days >= 0 && info.days <= 3) {
-      statusColor = '#FF3800';
-    } else if (info.days >= 4 && info.days <= 5) {
-      statusColor = '#FFC700';
-    }
-
+    if (info.days < 0) statusColor = 'grey';
+    else if (info.days >= 0 && info.days <= 3) statusColor = '#FF3800';
+    else if (info.days >= 4 && info.days <= 5) statusColor = '#FFC700';
 
     const backgroundColor = itemHasExpired
       ? EXPIRED_TILE_COLORS[index % EXPIRED_TILE_COLORS.length]
       : TILE_COLORS[index % TILE_COLORS.length];
 
     const getImageSource = () => {
-  if (!item.imageUrl || item.imageUrl.trim() === '' || item.imageUrl.includes('no.jpg')) {
-    return require('../assets/modal-tile-image.png'); 
-  } return { uri: item.imageUrl };
-};
+      if (!item.imageUrl || item.imageUrl.trim() === '' || item.imageUrl.includes('no.jpg')) {
+        return require('../assets/modal-tile-image.png'); 
+      } 
+      return { uri: item.imageUrl };
+    };
 
     return (
-
       <View style={[styles.tileContainer, itemHasExpired && styles.expiredTile]}>
         <View style={styles.tile}>
           <TouchableOpacity
@@ -172,8 +182,7 @@ export default function Fridge({ navigation }) {
 
           <View style={styles.tileFooterRow}>
             <View style={styles.qtyBox}>
-              <Text style={styles.qtyText}> {`${item.qty} ${item.unit || 'pcs'}`} </Text>
-
+              <Text style={styles.qtyText}>{`${item.qty} ${item.unit || 'pcs'}`}</Text>
             </View>
             <View style={styles.expiryBadgeContainer}>
               <Text style={[styles.cleanExpiryText, itemHasExpired && styles.expiredText]} numberOfLines={1}>
@@ -189,6 +198,48 @@ export default function Fridge({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.logoText}>yield</Text>
+        <TouchableOpacity onPress={() => setShowNotifications(true)} style={styles.bellContainer}>
+          <Ionicons name="notifications" size={28} color="#E07A5F" />
+          {totalNotifications > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{totalNotifications}</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
+
+      
+      <Modal
+        visible={showNotifications}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowNotifications(false)}
+      >
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowNotifications(false)}>
+          <View style={styles.notificationDropdown}>
+            <View style={styles.dropdownHeader}>
+              <Text style={styles.dropdownTitle}>Notifications</Text>
+              <TouchableOpacity onPress={() => setShowNotifications(false)}>
+                <Text style={styles.markAsRead}>Mark all as read</Text>
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={activeNotifications}
+              keyExtractor={(item) => item.id}
+              ListEmptyComponent={<Text style={styles.emptyNotificationText}>Your fridge is fully restocked and stable!</Text>}
+              renderItem={({ item }) => (
+                <View style={styles.notificationItem}>
+                  <View style={[styles.indicatorDot, { backgroundColor: item.urgent ? '#E07A5F' : 'transparent', borderColor: '#E07A5F' }]} />
+                  <Text style={styles.notificationText}>{item.text}</Text>
+                </View>
+              )}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
       <Dropdown
         style={styles.dropdown}
         placeholderStyle={styles.placeholderStyle}
@@ -201,9 +252,7 @@ export default function Fridge({ navigation }) {
         valueField="value"
         value={selectedCategory}
         onChange={item => setSelectedCategory(item.value)}
-        renderLeftIcon={() => (
-          <Ionicons name="search" size={25} color="white" style={{ marginRight: 10 }} />
-        )}
+        renderLeftIcon={() => <Ionicons name="search" size={25} color="white" style={{ marginRight: 10 }} />}
         renderRightIcon={null}
       />
 
@@ -224,7 +273,6 @@ export default function Fridge({ navigation }) {
               <Image source={require('../assets/empty-fridge-image.png')} style={styles.emptyImage} resizeMode="contain" />
             </View>
           ) : (
-
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>No items found in this category</Text>
             </View>
@@ -242,8 +290,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingRight: -20,
   },
-
-
 
   row: {
     justifyContent: 'space-between',
@@ -525,6 +571,30 @@ const styles = StyleSheet.create({
   expiredText: {
     opacity: 0.45,
     textDecorationLine: 'line-through'
+  },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'transparent', 
+  },
+  
+  notificationDropdown: {
+    position: 'absolute',
+    top: 95, // Adjust this number slightly depending on your top phone status-bar spacing
+    right: 25, 
+    width: 290,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#E07A5F',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    maxHeight: 380,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
 
 
