@@ -106,10 +106,31 @@ const getDaysLeft = (expiryDateStr) => {
 const TILE_COLORS = ['#4F6BB7', '#E7B1A6', '#B2DFE8', '#EC6039', '#E7C665', '#699966'];
 const EXPIRED_TILE_COLORS = ['#4F6BB780', '#E7B1A680', '#B2DFE880', '#EC603980', '#E7C66580', '#69996680'];
 
-export default function Fridge({ navigation, route }) {  
+export default function Fridge({ navigation, route }) {
   const { items, removeItem, decreaseQty } = useContext(FridgeContext);
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [notifications, setNotifications] = useState([]);
+
+  const toggleMarkAsRead = (id) => {
+    setNotifications(prevNotifications =>
+      prevNotifications.map(notification =>
+        notification.id === id
+          ? { ...notification, isRead: true }
+          : notification
+      )
+    );
+  };
+
+  const markAllAsRead = () => {
+    setNotifications(prevNotifications =>
+      prevNotifications.map(notification => ({
+        ...notification,
+        isRead: true
+      }))
+    );
+  };
+
 
   React.useEffect(() => {
     if (route.params?.toggleNotifications) {
@@ -117,6 +138,21 @@ export default function Fridge({ navigation, route }) {
       navigation.setParams({ toggleNotifications: undefined });
     }
   }, [route.params?.toggleNotifications]);
+
+  React.useEffect(() => {
+    if (items) {
+      const freshAlerts = getNotificationData(items);
+      setNotifications(prevNotifications => {
+        return freshAlerts.map(newAlert => {
+          const existingAlert = prevNotifications.find(p => p.id === newAlert.id);
+          return {
+            ...newAlert,
+            isRead: existingAlert ? existingAlert.isRead : false
+          };
+        });
+      });
+    }
+  }, [items]);
 
   const activeNotifications = getNotificationData(items);
   const totalNotifications = activeNotifications.length;
@@ -165,8 +201,8 @@ export default function Fridge({ navigation, route }) {
 
     const getImageSource = () => {
       if (!item.imageUrl || item.imageUrl.trim() === '' || item.imageUrl.includes('no.jpg')) {
-        return require('../assets/modal-tile-image.png'); 
-      } 
+        return require('../assets/modal-tile-image.png');
+      }
       return { uri: item.imageUrl };
     };
 
@@ -179,7 +215,7 @@ export default function Fridge({ navigation, route }) {
           >
             <View style={[styles.imageBackgroundCircle, { backgroundColor }]}>
               <View style={[styles.innerWhiteCircle, itemHasExpired && styles.expiredInnerCircle]}>
-                <Image source={getImageSource()} style={[styles.foodImage, itemHasExpired && styles.expiredImage]} resizeMode="contain"/>
+                <Image source={getImageSource()} style={[styles.foodImage, itemHasExpired && styles.expiredImage]} resizeMode="contain" />
               </View>
               {bannerElement}
               <Text style={[styles.itemName, itemHasExpired && styles.expiredText]}>
@@ -206,40 +242,61 @@ export default function Fridge({ navigation, route }) {
 
   return (
     <View style={styles.container}>
-      
-      <Modal visible={showNotifications} transparent={true} animationType="fade" onRequestClose={() => setShowNotifications(false)}>
-        <TouchableOpacity 
-    style={StyleSheet.absoluteFill} 
-    activeOpacity={1} 
-    onPress={() => setShowNotifications(false)}
-  >
-    <BlurView 
-      intensity={10} // Adjust how blurry it gets (0 to 100)
-      tint="dark"    // Can be 'light', 'dark', or 'default'
-      style={StyleSheet.absoluteFill} 
-    />
-  </TouchableOpacity>
-         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowNotifications(false)}>
 
-          <View style={styles.notificationDropdown}>
-            <View style={styles.dropdownHeader}>
-              <Text style={styles.dropdownTitle}>Notifications</Text>
-              <TouchableOpacity onPress={() => setShowNotifications(false)}>
-                <Text style={styles.markAsRead}>Mark all as read</Text>
-              </TouchableOpacity>
-            </View>
-
-            <FlatList data={activeNotifications} keyExtractor={(item) => item.id}
-              ListEmptyComponent={<Text style={styles.emptyNotificationText}>Your fridge is fully restocked and stable!</Text>}
-              renderItem={({ item }) => (
-                <View style={styles.notificationItem}>
-                  <View style={[styles.indicatorDot, { backgroundColor: item.urgent ? '#E07A5F' : 'transparent', borderColor: '#E07A5F' }]} />
-                  <Text style={styles.notificationText}>{item.text}</Text>
-                </View>
-              )}
-            />
-          </View>
+      <Modal
+        visible={showNotifications}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowNotifications(false)}
+      >
+        <TouchableOpacity
+          style={StyleSheet.absoluteFill}
+          activeOpacity={1}
+          onPress={() => setShowNotifications(false)}
+        >
+          <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
         </TouchableOpacity>
+
+        <View style={styles.notificationDropdown}>
+          <View style={styles.dropdownHeader}>
+            <Text style={styles.dropdownTitle}>Notifications</Text>
+
+            
+            <TouchableOpacity onPress={markAllAsRead}>
+              <Text style={styles.markAsRead}>Mark all as read</Text>
+            </TouchableOpacity>
+          </View>
+
+          <FlatList
+            data={notifications} 
+            keyExtractor={(item) => item.id}
+            ListEmptyComponent={
+              <Text style={styles.emptyNotificationText}>Your fridge is fully restocked and stable!</Text>
+            }
+            renderItem={({ item }) => (
+              <View style={styles.notificationItem}>
+
+                <TouchableOpacity onPress={() => toggleMarkAsRead(item.id)}>
+                  <View style={[
+                    styles.indicatorDot,
+                    { backgroundColor: item.isRead ? '#FFFFFF' : '#E07A5F', borderColor: '#E07A5F'}
+                    ]} />
+                </TouchableOpacity>
+
+                <Text style={[
+                  styles.notificationText,
+                  {
+                    color: item.isRead ? '#999999' : '#2D3142',
+                    fontFamily: item.isRead ? 'NunitoRegular' : 'NunitoMedium'
+                  }
+                ]}>
+                  {item.text}
+                </Text>
+
+              </View>
+            )}
+          />
+        </View>
       </Modal>
 
       <Dropdown
@@ -258,7 +315,7 @@ export default function Fridge({ navigation, route }) {
         renderRightIcon={null}
       />
 
-    <FlatList
+      <FlatList
         style={{ flex: 1 }}
         data={filteredInventory}
         renderItem={renderItem}
@@ -578,13 +635,13 @@ const styles = StyleSheet.create({
 
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'transparent', 
+    backgroundColor: 'transparent',
   },
-  
+
   notificationDropdown: {
     position: 'absolute',
     top: 100,
-    right: 20, 
+    right: 20,
     width: 300,
     backgroundColor: '#FFFFFF',
     borderRadius: 5,
@@ -598,6 +655,26 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 8,
+  },
+
+  notificationItem: {
+    flexDirection: 'row',
+    alignItems: 'center', // Keeps items completely aligned horizontally
+    paddingVertical: 12,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#EAEAEA',
+  },
+  indicatorDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    marginRight: 12,
+  },
+  notificationText: {
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 18,
   },
 
 
