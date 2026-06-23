@@ -97,7 +97,7 @@ export default function ItemDetails({ route, navigation }) {
       if (data && data.length > 0) {
         setRecipes(data);
       } else {
-        Alert.alert("No Recipes Found", `Couldn't find any recipes starring ${item.name}.`);
+        Alert.alert("No Recipes Found", `Couldn't find any recipes containing ${item.name}.`);
       }
     } catch (error) {
       Alert.alert("Error", "Could not fetch recipes. Check your network link.");

@@ -6,6 +6,7 @@ import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FridgeContext } from '../context/FridgeContext';
+import { BlurView } from 'expo-blur';
 
 const categories = [
   { label: 'All Categories', value: 'All' },
@@ -206,13 +207,20 @@ export default function Fridge({ navigation, route }) {
   return (
     <View style={styles.container}>
       
-      <Modal
-        visible={showNotifications}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowNotifications(false)}
-      >
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowNotifications(false)}>
+      <Modal visible={showNotifications} transparent={true} animationType="fade" onRequestClose={() => setShowNotifications(false)}>
+        <TouchableOpacity 
+    style={StyleSheet.absoluteFill} 
+    activeOpacity={1} 
+    onPress={() => setShowNotifications(false)}
+  >
+    <BlurView 
+      intensity={10} // Adjust how blurry it gets (0 to 100)
+      tint="dark"    // Can be 'light', 'dark', or 'default'
+      style={StyleSheet.absoluteFill} 
+    />
+  </TouchableOpacity>
+         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowNotifications(false)}>
+
           <View style={styles.notificationDropdown}>
             <View style={styles.dropdownHeader}>
               <Text style={styles.dropdownTitle}>Notifications</Text>
@@ -220,9 +228,8 @@ export default function Fridge({ navigation, route }) {
                 <Text style={styles.markAsRead}>Mark all as read</Text>
               </TouchableOpacity>
             </View>
-            <FlatList
-              data={activeNotifications}
-              keyExtractor={(item) => item.id}
+
+            <FlatList data={activeNotifications} keyExtractor={(item) => item.id}
               ListEmptyComponent={<Text style={styles.emptyNotificationText}>Your fridge is fully restocked and stable!</Text>}
               renderItem={({ item }) => (
                 <View style={styles.notificationItem}>
@@ -576,21 +583,21 @@ const styles = StyleSheet.create({
   
   notificationDropdown: {
     position: 'absolute',
-    top: 95, // Adjust this number slightly depending on your top phone status-bar spacing
-    right: 25, 
-    width: 290,
+    top: 100,
+    right: 20, 
+    width: 300,
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    borderWidth: 2,
+    borderRadius: 5,
+    borderWidth: 4,
     borderColor: '#E07A5F',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    maxHeight: 380,
+    maxHeight: 400,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
   },
 
 
