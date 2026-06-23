@@ -261,14 +261,14 @@ export default function Fridge({ navigation, route }) {
           <View style={styles.dropdownHeader}>
             <Text style={styles.dropdownTitle}>Notifications</Text>
 
-            
+
             <TouchableOpacity onPress={markAllAsRead}>
               <Text style={styles.markAsRead}>Mark all as read</Text>
             </TouchableOpacity>
           </View>
 
           <FlatList
-            data={notifications} 
+            data={notifications}
             keyExtractor={(item) => item.id}
             ListEmptyComponent={
               <Text style={styles.emptyNotificationText}>Your fridge is fully restocked and stable!</Text>
@@ -279,8 +279,8 @@ export default function Fridge({ navigation, route }) {
                 <TouchableOpacity onPress={() => toggleMarkAsRead(item.id)}>
                   <View style={[
                     styles.indicatorDot,
-                    { backgroundColor: item.isRead ? '#FFFFFF' : '#E07A5F', borderColor: '#E07A5F'}
-                    ]} />
+                    { backgroundColor: item.isRead ? '#FFFFFF' : '#E07A5F', borderColor: '#E07A5F' }
+                  ]} />
                 </TouchableOpacity>
 
                 <Text style={[
@@ -657,9 +657,28 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
 
+  dropdownHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between', 
+    alignItems: 'center',      
+    marginBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+    paddingBottom: 8,
+  },
+
+  markAsRead: {
+     fontFamily: "NunitoBold", 
+     textDecorationLine: "underline",
+  },
+
+  dropdownTitle: {
+    fontFamily: "NunitoBold",
+  },
+
   notificationItem: {
     flexDirection: 'row',
-    alignItems: 'center', // Keeps items completely aligned horizontally
+    alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 0.5,
     borderBottomColor: '#EAEAEA',
