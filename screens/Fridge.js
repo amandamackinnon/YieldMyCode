@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FridgeContext } from '../context/FridgeContext';
 import { BlurView } from 'expo-blur';
+import Constants from 'expo-constants';
 
 const categories = [
   { label: 'All Categories', value: 'All' },
@@ -19,6 +20,44 @@ const categories = [
   { label: 'Preserves & Sauces', value: 'Preserves & Sauces' },
   { label: 'Other', value: 'Other' },
 ];
+
+const SPOONACULAR_API_KEY = Constants.expoConfig?.extra?.spoonacularApiKey || Constants.manifest?.extra?.spoonacularApiKey;
+
+const fetchFoodTrivia = async () => {
+  try {
+    const response = await fetch(
+      `https://api.spoonacular.com/food/trivia/random?apiKey=${SPOONACULAR_API_KEY}`
+    );
+    if (response.ok) {
+      const data = await response.json();
+      return data.text;
+    }
+  } catch (error) {
+    console.log("❌ Trivia Fetch Error:", error);
+  }
+  return "Did you know storing food properly extends its shelf life?"; // Fallback
+};
+
+// Fetch a quick recipe suggestion based on the specific expiring ingredient (e.g., "Pork")
+const fetchRecipeIdea = async (ingredientName) => {
+  try {
+    const cleanName = encodeURIComponent(ingredientName.trim().toLowerCase());
+    const response = await fetch(
+      `https://api.spoonacular.com/food/ingredients/search?query=${cleanName}&number=1&apiKey=${SPOONACULAR_API_KEY}`
+    );
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data.results && data.results.length > 0) {
+        // You can link them or show the title of a trending recipe matching this item!
+        return `Got extra ${ingredientName}? Try whipping up a quick skillet meal with it tonight!`;
+      }
+    }
+  } catch (error) {
+    console.log("❌ Recipe Suggestion Error:", error);
+  }
+  return `Your ${ingredientName} is expiring soon. Time to cook it up!`; // Fallback
+};
 
 const getNotificationData = (fridgeItems) => {
   if (!fridgeItems) return [];
@@ -127,6 +166,7 @@ export default function Fridge({ navigation, route }) {
   const [notifications, setNotifications] = useState([]);
   const flatListRef = useRef(null);
 
+
   const toggleMarkAsRead = (id) => {
     setNotifications(prevNotifications =>
       prevNotifications.map(notification =>
@@ -146,9 +186,56 @@ export default function Fridge({ navigation, route }) {
     );
   };
 
+React.useEffect(() => {
+    const processNotificationAlerts = async () => {
+      if (!items || items.length === 0) {
+        setNotifications([]);
+        return;
+      }
+
+      // 1. Generate standard date notifications locally first
+      const baselineAlerts = getNotificationData(items);
+
+      // 2. Loop through and enhance with Spoonacular API calls if missing
+      const enhancedAlertPromises = baselineAlerts.map(async (alert) => {
+        // Check if we have already compiled this exact notification to avoid duplicate hits
+        const historicalMatch = notifications.find(n => n.id === alert.id);
+        if (historicalMatch) {
+          return historicalMatch; // Keep existing data and read/unread state intact
+        }
+
+        // It's a brand new alert! Let's fetch dynamic text for it
+        let customizedMessage = alert.text;
+        
+        // Find corresponding item properties
+        const itemOrigin = items.find(i => `expire-${i.id}` === alert.id || i.id === alert.id);
+        
+        if (itemOrigin) {
+          const lowerName = itemOrigin.name.toLowerCase();
+          if (lowerName.includes('pork') || itemOrigin.category === 'Fish & Meat') {
+            customizedMessage = await fetchRecipeIdea(itemOrigin.name);
+          } else if (alert.type === 'expiry') {
+            const funFact = await fetchFoodTrivia();
+            customizedMessage = `⚠️ ${itemOrigin.name} expires soon! Trivia: ${funFact}`;
+          }
+        }
+
+        return {
+          ...alert,
+          text: customizedMessage,
+          isRead: false
+        };
+      });
+
+      const finalizedAlertsList = await Promise.all(enhancedAlertPromises);
+      setNotifications(finalizedAlertsList);
+    };
+
+    processNotificationAlerts();
+  }, [items]); // Only triggers when item counts or product traits alter
+
   React.useEffect(() => {
     if (showNotifications) {
-      // Give iOS a brief millisecond to render the layout structure first
       setTimeout(() => {
         if (flatListRef.current) {
           flatListRef.current.flashScrollIndicators();
@@ -157,29 +244,13 @@ export default function Fridge({ navigation, route }) {
     }
   }, [showNotifications]);
 
-
   React.useEffect(() => {
     if (route.params?.toggleNotifications) {
       setShowNotifications(true);
       navigation.setParams({ toggleNotifications: undefined });
     }
   }, [route.params?.toggleNotifications]);
-
-  React.useEffect(() => {
-    if (items) {
-      const freshAlerts = getNotificationData(items);
-      setNotifications(prevNotifications => {
-        return freshAlerts.map(newAlert => {
-          const existingAlert = prevNotifications.find(p => p.id === newAlert.id);
-          return {
-            ...newAlert,
-            isRead: existingAlert ? existingAlert.isRead : false
-          };
-        });
-      });
-    }
-  }, [items]);
-
+  
   const activeNotifications = getNotificationData(items);
   const totalNotifications = activeNotifications.length;
 
@@ -201,6 +272,10 @@ export default function Fridge({ navigation, route }) {
     const info = getDaysLeft(item.expiryDate);
     const itemHasExpired = info.days < 0;
 
+     const backgroundColor = itemHasExpired
+      ? EXPIRED_TILE_COLORS[index % EXPIRED_TILE_COLORS.length]
+      : TILE_COLORS[index % TILE_COLORS.length];
+
     let bannerElement = null;
     if (info.days >= 0 && info.days <= 3) {
       bannerElement = (
@@ -221,9 +296,6 @@ export default function Fridge({ navigation, route }) {
     else if (info.days >= 0 && info.days <= 3) statusColor = '#FF3800';
     else if (info.days >= 4 && info.days <= 5) statusColor = '#FFC700';
 
-    const backgroundColor = itemHasExpired
-      ? EXPIRED_TILE_COLORS[index % EXPIRED_TILE_COLORS.length]
-      : TILE_COLORS[index % TILE_COLORS.length];
 
     const getImageSource = () => {
       if (!item.imageUrl || item.imageUrl.trim() === '' || item.imageUrl.includes('no.jpg')) {
@@ -231,6 +303,8 @@ export default function Fridge({ navigation, route }) {
       }
       return { uri: item.imageUrl };
     };
+
+    
 
     return (
       <View style={[styles.tileContainer, itemHasExpired && styles.expiredTile]}>
