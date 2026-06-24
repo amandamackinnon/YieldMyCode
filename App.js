@@ -72,9 +72,10 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
 
       <Stack.Screen name="AddToFridge"
         options={{
-          presentation: 'modal',
+          presentation: 'transparentModal',
           headerShown: false,
           cardStyle: { backgroundColor: 'transparent' },
+          animation: 'fade',
         }} >
         {(props) => (
           <AddToFridge

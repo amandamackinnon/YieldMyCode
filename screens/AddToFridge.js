@@ -153,7 +153,7 @@ export default function AddToFridge({ navigation }) {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
-      <BlurView intensity={70} tint="light" style={StyleSheet.absoluteFillObject}>
+       <BlurView intensity={40} tint="light" style={StyleSheet.absoluteFillObject}>
         <TouchableOpacity style={styles.dismissOverlay} activeOpacity={1} onPress={() => navigation.goBack()} />
       </BlurView>
 
@@ -179,16 +179,16 @@ export default function AddToFridge({ navigation }) {
           valueField="value"
           placeholder="Select Category"
           value={category}
-          onChange={item => setCategory(item.value)}
-        />
+          onChange={item => setCategory(item.value)} />
+
 
         <TextInput
           placeholder="Product Name..."
           placeholderTextColor="#000000"
           style={styles.input}
           value={name}
-          onChangeText={setName}
-        />
+          onChangeText={setName} />
+
 
         <View style={styles.formRow}>
           <TextInput
@@ -197,15 +197,15 @@ export default function AddToFridge({ navigation }) {
             style={styles.halfInput}
             keyboardType="numeric"
             value={qty}
-            onChangeText={setQty}
-          />
+            onChangeText={setQty} />
+
 
           <Dropdown
             style={styles.halfDropdown}
             placeholderStyle={styles.placeholderStyle}
             selectedTextStyle={styles.selectedTextStyle}
             maxHeight={155}
-            containerStyle={[styles.dropdownOverlayMenu, { borderTopWidth: 0 }]}
+            containerStyle={[styles.dropdownOverlayMenu]}
             data={unitData}
             labelField="label"
             valueField="value"
@@ -215,9 +215,10 @@ export default function AddToFridge({ navigation }) {
               setUnit(item.value);
             }}
             flatListProps={{
-              persistentScrollbar: true,
-            }}
-          />
+              showsVerticalScrollIndicator: true,
+              persistentScrollbar: Platform.OS === 'android',
+              indicatorStyle: 'black',
+            }} />
         </View>
 
         {Platform.OS === 'web' ? (
@@ -226,8 +227,8 @@ export default function AddToFridge({ navigation }) {
               if (webDatePickerRef.current) {
                 webDatePickerRef.current.showPicker();
               }
-            }}
-            >
+            }}>
+
               <Text style={styles.dateText}> Expires: {displayDateString} </Text>
             </TouchableOpacity>
 
@@ -251,8 +252,8 @@ export default function AddToFridge({ navigation }) {
                 height: '100%',
                 opacity: 0,
                 pointerEvents: 'none'
-              }}
-            />
+              }} />
+
           </View>
         ) : (
           <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker(true)}>
@@ -470,11 +471,9 @@ const styles = StyleSheet.create({
 
   dropdownOverlayMenu: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#E07A5F',
-    maxHeight: 200,
-    
+    overflow: Platform.OS === 'ios' ? 'hidden' : 'visible',
+    maxHeight: 250,
+
   },
 
   placeholderStyle: {
