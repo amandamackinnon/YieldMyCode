@@ -40,10 +40,24 @@ const getNotificationData = (fridgeItems) => {
 
       if (expiryDateObj <= threeDaysFromNow) {
         const daysLeft = Math.round((expiryDateObj - today) / (1000 * 60 * 60 * 24));
-        let message = `Your ${item.name.toLowerCase()} expires soon!`;
-        if (daysLeft === 0) message = `The ${item.name.toLowerCase()} expires today`;
-        if (daysLeft === 1) message = `The ${item.name.toLowerCase()} expires tomorrow`;
-        if (daysLeft < 0) message = `The ${item.name.toLowerCase()} has expired!`;
+        const itemName = item.name.toLowerCase();
+        const isPlural = itemName.endsWith('s');
+        const hasHave = isPlural ? 'have' : 'has';
+        const expireExpires = isPlural ? 'expire' : 'expires';
+
+        let message = `Your ${itemName} ${expireExpires} soon!`;
+
+        if (daysLeft === 0) {
+          message = `The ${itemName} ${expireExpires} today`;
+        }
+
+        if (daysLeft === 1) {
+          message = `The ${itemName} ${expireExpires} tomorrow`;
+        }
+
+        if (daysLeft < 0) {
+          message = `The ${itemName} ${hasHave} expired!`;
+        }
 
         notifications.push({
           id: `expire-${item.id}`,
@@ -265,7 +279,7 @@ export default function Fridge({ navigation, route }) {
           style={StyleSheet.absoluteFill}
           activeOpacity={1}
           onPress={() => setShowNotifications(false)}>
-         <BlurView intensity={20} tint="dark"  style={[StyleSheet.absoluteFill, Platform.OS === 'android' && { backgroundColor: 'rgba(0, 0, 0, 0.05)' } ]}/>
+          <BlurView intensity={20} tint="dark" style={[StyleSheet.absoluteFill, Platform.OS === 'android' && { backgroundColor: 'rgba(0, 0, 0, 0.05)' }]} />
         </TouchableOpacity>
 
         <View style={styles.notificationDropdown}>
@@ -282,8 +296,8 @@ export default function Fridge({ navigation, route }) {
             ref={flatListRef}
             data={notifications}
             keyExtractor={(item) => item.id}
-            persistentScrollbar={true}       
-            showsVerticalScrollIndicator={true} 
+            persistentScrollbar={true}
+            showsVerticalScrollIndicator={true}
             scrollIndicatorInsets={{ right: 1 }}
             ListEmptyComponent={
               <Text style={styles.emptyNotificationText}>Your fridge is fully restocked and stable!</Text>
