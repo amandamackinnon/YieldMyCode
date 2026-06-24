@@ -265,7 +265,7 @@ export default function Fridge({ navigation, route }) {
           style={StyleSheet.absoluteFill}
           activeOpacity={1}
           onPress={() => setShowNotifications(false)}>
-         <BlurView intensity={20} tint="dark"  style={[StyleSheet.absoluteFill, Platform.OS === 'android' && { backgroundColor: 'rgba(0, 0, 0, 0.55)' } ]}/>
+         <BlurView intensity={20} tint="dark"  style={[StyleSheet.absoluteFill, Platform.OS === 'android' && { backgroundColor: 'rgba(0, 0, 0, 0.05)' } ]}/>
         </TouchableOpacity>
 
         <View style={styles.notificationDropdown}>
