@@ -1,5 +1,5 @@
-import React, { useState, useContext } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, ScrollView, Image, Modal } from 'react-native';
+import React, { useState, useContext, useRef } from 'react';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ScrollView, Image, Modal, Platform } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useFonts } from 'expo-font';
 import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold } from '@expo-google-fonts/nunito';
@@ -111,6 +111,7 @@ export default function Fridge({ navigation, route }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [notifications, setNotifications] = useState([]);
+  const flatListRef = useRef(null);
 
   const toggleMarkAsRead = (id) => {
     setNotifications(prevNotifications =>
@@ -130,6 +131,17 @@ export default function Fridge({ navigation, route }) {
       }))
     );
   };
+
+  React.useEffect(() => {
+    if (showNotifications) {
+      // Give iOS a brief millisecond to render the layout structure first
+      setTimeout(() => {
+        if (flatListRef.current) {
+          flatListRef.current.flashScrollIndicators();
+        }
+      }, 150);
+    }
+  }, [showNotifications]);
 
 
   React.useEffect(() => {
@@ -252,9 +264,8 @@ export default function Fridge({ navigation, route }) {
         <TouchableOpacity
           style={StyleSheet.absoluteFill}
           activeOpacity={1}
-          onPress={() => setShowNotifications(false)}
-        >
-          <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
+          onPress={() => setShowNotifications(false)}>
+         <BlurView intensity={20} tint="dark"  style={[StyleSheet.absoluteFill, Platform.OS === 'android' && { backgroundColor: 'rgba(0, 0, 0, 0.55)' } ]}/>
         </TouchableOpacity>
 
         <View style={styles.notificationDropdown}>
@@ -268,8 +279,12 @@ export default function Fridge({ navigation, route }) {
           </View>
 
           <FlatList
+            ref={flatListRef}
             data={notifications}
             keyExtractor={(item) => item.id}
+            persistentScrollbar={true}       
+            showsVerticalScrollIndicator={true} 
+            scrollIndicatorInsets={{ right: 1 }}
             ListEmptyComponent={
               <Text style={styles.emptyNotificationText}>Your fridge is fully restocked and stable!</Text>
             }
@@ -649,7 +664,8 @@ const styles = StyleSheet.create({
     borderColor: '#E07A5F',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    maxHeight: 400,
+    maxHeight: 300,
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.2,
@@ -659,8 +675,8 @@ const styles = StyleSheet.create({
 
   dropdownHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between', 
-    alignItems: 'center',      
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
@@ -668,8 +684,8 @@ const styles = StyleSheet.create({
   },
 
   markAsRead: {
-     fontFamily: "NunitoBold", 
-     textDecorationLine: "underline",
+    fontFamily: "NunitoBold",
+    textDecorationLine: "underline",
   },
 
   dropdownTitle: {

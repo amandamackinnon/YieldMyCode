@@ -38,6 +38,8 @@ export default function AddToFridge({ navigation }) {
     return `${day}/${month}/${year}`;
   });
 
+  const unitListRef = useRef(null);
+
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -111,43 +113,43 @@ export default function AddToFridge({ navigation }) {
       }
     } catch (error) {
       console.log('❌ Core Spoonacular Engine Crash:', error);
-    } 
+    }
     try {
-    const today = new Date();
-    const todayDay = String(today.getDate()).padStart(2, '0');
-    const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
-    const todayYear = today.getFullYear();
-    const europeanAddedAt = `${todayDay}/${todayMonth}/${todayYear}`;
+      const today = new Date();
+      const todayDay = String(today.getDate()).padStart(2, '0');
+      const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
+      const todayYear = today.getFullYear();
+      const europeanAddedAt = `${todayDay}/${todayMonth}/${todayYear}`;
 
-    const newItem = {
-      id: Date.now().toString(),
-      name: name.trim(),
-      qty: Number(qty),
-      unit: unit && unit.trim() !== '' ? unit : 'pcs',
-      category: category,
-      imageUrl: finalImageUrl,
-      addedAt: europeanAddedAt,
-      expiryDate: displayDateString,
-    };
+      const newItem = {
+        id: Date.now().toString(),
+        name: name.trim(),
+        qty: Number(qty),
+        unit: unit && unit.trim() !== '' ? unit : 'pcs',
+        category: category,
+        imageUrl: finalImageUrl,
+        addedAt: europeanAddedAt,
+        expiryDate: displayDateString,
+      };
 
-    addItem(newItem);
-    setName('');
-    setQty('');
-    setUnit('pcs');
-    setCategory(null);
-    setExpiryDate(new Date());
-    setDisplayDateString(`${todayDay}/${todayMonth}/${todayYear}`);
-    
-    setIsSaving(false);
-    setTimeout(() => {
-      navigation.popToTop();
-    }, Platform.OS === 'android' ? 300 : 0);
-  } catch (err) {
-    console.log('❌ Error saving product to local state:', err);
-    Alert.alert('Save Failed', 'Could not save the item to your fridge. Please try again.');
-    setIsSaving(false);
-  }
-};
+      addItem(newItem);
+      setName('');
+      setQty('');
+      setUnit('pcs');
+      setCategory(null);
+      setExpiryDate(new Date());
+      setDisplayDateString(`${todayDay}/${todayMonth}/${todayYear}`);
+
+      setIsSaving(false);
+      setTimeout(() => {
+        navigation.goBack();
+      }, Platform.OS === 'android' ? 300 : 0);
+    } catch (err) {
+      console.log('❌ Error saving product to local state:', err);
+      Alert.alert('Save Failed', 'Could not save the item to your fridge. Please try again.');
+      setIsSaving(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
@@ -155,7 +157,7 @@ export default function AddToFridge({ navigation }) {
         <TouchableOpacity style={styles.dismissOverlay} activeOpacity={1} onPress={() => navigation.goBack()} />
       </BlurView>
 
-      <View style={styles.modalCard}> 
+      <View style={styles.modalCard}>
         <View style={styles.illustrationBadge}>
           <Image source={require('../assets/modal-tile-image.png')} style={styles.illustrationImage} resizeMode="contain" />
         </View>
@@ -202,7 +204,8 @@ export default function AddToFridge({ navigation }) {
             style={styles.halfDropdown}
             placeholderStyle={styles.placeholderStyle}
             selectedTextStyle={styles.selectedTextStyle}
-            containerStyle={styles.dropdownOverlayMenu}
+            maxHeight={155}
+            containerStyle={[styles.dropdownOverlayMenu, { borderTopWidth: 0 }]}
             data={unitData}
             labelField="label"
             valueField="value"
@@ -466,9 +469,12 @@ const styles = StyleSheet.create({
   },
 
   dropdownOverlayMenu: {
-    borderRadius: 4,
-    marginTop: 4,
-    width: '46%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#E07A5F',
+    maxHeight: 200,
+    
   },
 
   placeholderStyle: {
