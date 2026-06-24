@@ -140,10 +140,16 @@ export default function AddToFridge({ navigation }) {
       setExpiryDate(new Date());
       setDisplayDateString(`${todayDay}/${todayMonth}/${todayYear}`);
 
-      setIsSaving(false);
       setTimeout(() => {
+      // --- BULLETPROOF NAVIGATION FALLBACK ---
+      // Checks if the navigator actually has a page behind it to drop back into
+      if (navigation.canGoBack()) {
         navigation.goBack();
-      }, Platform.OS === 'android' ? 300 : 0);
+      } else {
+        // If a hot-reload wiped the stack history, safely jump straight back home
+        navigation.navigate('Fridge'); 
+      }
+    }, Platform.OS === 'android' ? 300 : 0);
     } catch (err) {
       console.log('❌ Error saving product to local state:', err);
       Alert.alert('Save Failed', 'Could not save the item to your fridge. Please try again.');
