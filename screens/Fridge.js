@@ -1,5 +1,5 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image, Modal, Platform } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image, Modal, Platform, Alert } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useFonts } from 'expo-font';
 import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold } from '@expo-google-fonts/nunito';
@@ -10,68 +10,85 @@ import { categories, getNotificationData } from '../utils/fridgeHelpers';
 import { fetchFoodTrivia, fetchRecipeIdea } from '../services/spoonacular';
 import FridgeTile from '../components/FridgeTile';
 
+
 export default function Fridge({ navigation, route }) {
   const { items } = useContext(FridgeContext);
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [notifications, setNotifications] = useState([]);
+
+const handleJokePress = async (ingredientName) => {
+  console.log("🎯 Joke clicked for:", ingredientName); // Debug log to verify string passes through
+  if (!ingredientName) {
+    Alert.alert("Oops", "We couldn't verify this ingredient name.");
+    return;
+  }
   
-  // NEW: History state snapshot to allow users to "Undo" marking all as read
+  try {
+    const rawJokeText = await fetchFoodTrivia(ingredientName); 
+    const punchyJoke = limitSentences(rawJokeText, 2); 
+    Alert.alert("Food Fun!", punchyJoke, [{ text: "Awesome" }]);
+  } catch (err) {
+    console.log("Error running joke helper:", err);
+  }
+};
+
+const handleRecipePress = (ingredientName) => {
+  if (!ingredientName) return;
+
+  setShowNotifications(false);
+
+  navigation.navigate('RecipeDetails', { 
+    ingredient: ingredientName,
+    autoLoad: true 
+  });
+};
+
   const [previousNotificationState, setPreviousNotificationState] = useState(null);
   const flatListRef = useRef(null);
 
-  // FIX: Toggling text or the indicator dot directly reverses the read/unread state
   const toggleMarkAsRead = (id) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: !n.isRead } : n));
   };
 
-  // FIX: Smart master toggle. If all are read, it serves as an Undo button restoring histories
   const handleMarkAllOrUndo = () => {
     const allAreRead = notifications.length > 0 && notifications.every(n => n.isRead);
     
     if (allAreRead && previousNotificationState) {
-      // Undo operation: restore snapshot
       setNotifications(previousNotificationState);
       setPreviousNotificationState(null);
     } else {
-      // Save current state snapshot before modifying
       setPreviousNotificationState([...notifications]);
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     }
   };
 
   useEffect(() => {
-    const syncAlerts = async () => {
-      if (!items || items.length === 0) {
-        setNotifications([]);
-        return;
-      }
+  const syncAlerts = () => {
+    if (!items || items.length === 0) {
+      setNotifications([]);
+      return;
+    }
+    
+    const baseline = getNotificationData(items);
+    const enhanced = baseline.map((alert) => {
+      const cached = notifications.find(n => n.id === alert.id);
+      if (cached) return cached;
+
+      const origin = items.find(i => `expire-${i.id}` === alert.id);
       
-      const baseline = getNotificationData(items);
-      const enhanced = baseline.map(async (alert) => {
-        const cached = notifications.find(n => n.id === alert.id);
-        if (cached) return cached;
+      return { 
+        ...alert, 
+        text: origin ? `${origin.name} expires soon!` : alert.text,
+        ingredientName: origin ? origin.name : null,
+        isRead: false 
+      };
+    });
 
-        let txt = alert.text;
-        const origin = items.find(i => `expire-${i.id}` === alert.id);
-        
-        if (origin) {
-          if (origin.name.toLowerCase().includes('pork') || origin.category === 'Fish & Meat') {
-            txt = await fetchRecipeIdea(origin.name);
-          } else if (alert.type === 'expiry') {
-            // FIX: Pass the item name to make the API call context-dependent
-            const fact = await fetchFoodTrivia(origin.name); 
-            // FIX: Stripped out the '⚠️' triangle emoji as requested
-            txt = `${origin.name} expires soon! Trivia: ${fact}`; 
-          }
-        }
-        return { ...alert, text: txt, isRead: false };
-      });
-
-      setNotifications(await Promise.all(enhanced));
-    };
-    syncAlerts();
-  }, [items]);
+    setNotifications(enhanced);
+  };
+  syncAlerts();
+}, [items]);
 
   useEffect(() => {
     if (showNotifications) {
@@ -95,7 +112,6 @@ export default function Fridge({ navigation, route }) {
 
   const filteredInventory = items.filter(i => selectedCategory === 'All' || i.category === selectedCategory);
   
-  // Dynamic header text computation for notification read status panel
   const allRead = notifications.length > 0 && notifications.every(n => n.isRead);
 
   return (
@@ -112,7 +128,7 @@ export default function Fridge({ navigation, route }) {
         <View style={styles.notificationDropdown}>
           <View style={styles.dropdownHeader}>
             <Text style={styles.dropdownTitle}>Notifications</Text>
-            {/* FIX: Dynamically alters string based on state. Orange buttons act as undo switches */}
+            
             <TouchableOpacity onPress={handleMarkAllOrUndo}>
               <Text style={styles.markAsRead}>
                 {allRead && previousNotificationState ? "Undo Mark All" : "Mark all as read"}
@@ -126,27 +142,46 @@ export default function Fridge({ navigation, route }) {
             keyExtractor={item => item.id}
             persistentScrollbar
             showsVerticalScrollIndicator
-            renderItem={({ item }) => (
-              <View style={styles.notificationItem}>
-                {/* Orange Dot Interactive Target Area */}
-                <TouchableOpacity onPress={() => toggleMarkAsRead(item.id)}>
-                  {/* FIX: Keeps beautiful color profiles (#E07A5F is your orange tone) without extra warning triangles */}
-                  <View style={[styles.indicatorDot, { backgroundColor: item.isRead ? '#FFFFFF' : '#E07A5F', borderColor: '#E07A5F' }]} />
-                </TouchableOpacity>
-                
-                {/* FIX: Wrapped text in an interactive link too, letting the user tap anywhere on the row to toggle read status back and forth */}
-                <TouchableOpacity style={{ flex: 1 }} onPress={() => toggleMarkAsRead(item.id)}>
-                  <Text style={[styles.notificationText, { color: item.isRead ? '#999999' : '#2D3142', fontFamily: item.isRead ? 'NunitoRegular' : 'NunitoMedium' }]}>
-                    {item.text}
-                  </Text>
-                </TouchableOpacity>
-              </View>
+           renderItem={({ item }) => (
+    <View style={styles.notificationContainerCell}>
+      <View style={styles.notificationItem}>
+        <TouchableOpacity onPress={() => toggleMarkAsRead(item.id)}>
+          <View style={[styles.indicatorDot, { backgroundColor: item.isRead ? '#FFFFFF' : '#E07A5F', borderColor: '#E07A5F' }]} />
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={{ flex: 1 }} onPress={() => toggleMarkAsRead(item.id)}>
+          <Text style={[styles.notificationText, { color: item.isRead ? '#999999' : '#2D3142', fontFamily: item.isRead ? 'NunitoRegular' : 'NunitoMedium' }]}>
+            {item.text}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {item.ingredientName && !item.isRead && (
+        <View style={styles.actionLinksContainer}>
+          <TouchableOpacity 
+            onPress={() => handleJokePress(item.ingredientName)} 
+            style={styles.linkTouchTarget}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} 
+          >
+            <Text style={styles.actionLinkText}>Would you like to see a joke?</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            onPress={() => handleRecipePress(item.ingredientName)} 
+            style={styles.linkTouchTarget}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Text style={styles.actionLinkText}>Would you like to see a recipe?</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
             )}
           />
         </View>
       </Modal>
 
-      {/* Dropdown & Grid Inventory logic remains intact underneath */}
+      
       <Dropdown
         style={styles.dropdown}
         placeholderStyle={styles.placeholderStyle}
