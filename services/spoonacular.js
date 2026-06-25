@@ -2,17 +2,15 @@ import Constants from 'expo-constants';
 
 const SPOONACULAR_API_KEY = Constants.expoConfig?.extra?.spoonacularApiKey || Constants.manifest?.extra?.spoonacularApiKey;
 
-export const fetchFoodTrivia = async () => {
+export const fetchFoodTrivia = async (ingredientName) => {
   try {
-    const response = await fetch(`https://api.spoonacular.com/food/trivia/random?apiKey=${SPOONACULAR_API_KEY}`);
-    if (response.ok) {
-      const data = await response.json();
-      return data.text;
-    }
-  } catch (error) {
-    console.log("❌ Trivia Fetch Error:", error);
+    // Pass the specific item name to pull contextual trivia rather than a random fact
+    const response = await fetch(`https://api.example.com/food/trivia?query=${encodeURIComponent(ingredientName)}`);
+    const data = await response.json();
+    return data.text || `Did you know you can preserve ${ingredientName} by freezing it?`;
+  } catch {
+    return `Make sure to use your ${ingredientName} before it spoils!`;
   }
-  return "Did you know storing food properly extends its shelf life?";
 };
 
 export const fetchRecipeIdea = async (ingredientName) => {

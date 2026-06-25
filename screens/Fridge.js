@@ -15,14 +15,29 @@ export default function Fridge({ navigation, route }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [notifications, setNotifications] = useState([]);
+  
+  // NEW: History state snapshot to allow users to "Undo" marking all as read
+  const [previousNotificationState, setPreviousNotificationState] = useState(null);
   const flatListRef = useRef(null);
 
+  // FIX: Toggling text or the indicator dot directly reverses the read/unread state
   const toggleMarkAsRead = (id) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: !n.isRead } : n));
   };
 
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+  // FIX: Smart master toggle. If all are read, it serves as an Undo button restoring histories
+  const handleMarkAllOrUndo = () => {
+    const allAreRead = notifications.length > 0 && notifications.every(n => n.isRead);
+    
+    if (allAreRead && previousNotificationState) {
+      // Undo operation: restore snapshot
+      setNotifications(previousNotificationState);
+      setPreviousNotificationState(null);
+    } else {
+      // Save current state snapshot before modifying
+      setPreviousNotificationState([...notifications]);
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    }
   };
 
   useEffect(() => {
@@ -31,6 +46,7 @@ export default function Fridge({ navigation, route }) {
         setNotifications([]);
         return;
       }
+      
       const baseline = getNotificationData(items);
       const enhanced = baseline.map(async (alert) => {
         const cached = notifications.find(n => n.id === alert.id);
@@ -38,12 +54,15 @@ export default function Fridge({ navigation, route }) {
 
         let txt = alert.text;
         const origin = items.find(i => `expire-${i.id}` === alert.id);
+        
         if (origin) {
           if (origin.name.toLowerCase().includes('pork') || origin.category === 'Fish & Meat') {
             txt = await fetchRecipeIdea(origin.name);
           } else if (alert.type === 'expiry') {
-            const fact = await fetchFoodTrivia();
-            txt = `⚠️ ${origin.name} expires soon! Trivia: ${fact}`;
+            // FIX: Pass the item name to make the API call context-dependent
+            const fact = await fetchFoodTrivia(origin.name); 
+            // FIX: Stripped out the '⚠️' triangle emoji as requested
+            txt = `${origin.name} expires soon! Trivia: ${fact}`; 
           }
         }
         return { ...alert, text: txt, isRead: false };
@@ -75,22 +94,30 @@ export default function Fridge({ navigation, route }) {
   if (!fontsLoaded) return null;
 
   const filteredInventory = items.filter(i => selectedCategory === 'All' || i.category === selectedCategory);
+  
+  // Dynamic header text computation for notification read status panel
+  const allRead = notifications.length > 0 && notifications.every(n => n.isRead);
 
   return (
     <View style={styles.container}>
       <Modal visible={showNotifications} transparent animationType="fade">
         <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setShowNotifications(false)}>
           {Platform.OS === 'ios' ? (
-  <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
-) : (
-  <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]} />
-)}
+            <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
+          ) : (
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]} />
+          )}
         </TouchableOpacity>
 
         <View style={styles.notificationDropdown}>
           <View style={styles.dropdownHeader}>
             <Text style={styles.dropdownTitle}>Notifications</Text>
-            <TouchableOpacity onPress={markAllAsRead}><Text style={styles.markAsRead}>Mark all as read</Text></TouchableOpacity>
+            {/* FIX: Dynamically alters string based on state. Orange buttons act as undo switches */}
+            <TouchableOpacity onPress={handleMarkAllOrUndo}>
+              <Text style={styles.markAsRead}>
+                {allRead && previousNotificationState ? "Undo Mark All" : "Mark all as read"}
+              </Text>
+            </TouchableOpacity>
           </View>
 
           <FlatList
@@ -101,18 +128,25 @@ export default function Fridge({ navigation, route }) {
             showsVerticalScrollIndicator
             renderItem={({ item }) => (
               <View style={styles.notificationItem}>
+                {/* Orange Dot Interactive Target Area */}
                 <TouchableOpacity onPress={() => toggleMarkAsRead(item.id)}>
+                  {/* FIX: Keeps beautiful color profiles (#E07A5F is your orange tone) without extra warning triangles */}
                   <View style={[styles.indicatorDot, { backgroundColor: item.isRead ? '#FFFFFF' : '#E07A5F', borderColor: '#E07A5F' }]} />
                 </TouchableOpacity>
-                <Text style={[styles.notificationText, { color: item.isRead ? '#999999' : '#2D3142', fontFamily: item.isRead ? 'NunitoRegular' : 'NunitoMedium' }]}>
-                  {item.text}
-                </Text>
+                
+                {/* FIX: Wrapped text in an interactive link too, letting the user tap anywhere on the row to toggle read status back and forth */}
+                <TouchableOpacity style={{ flex: 1 }} onPress={() => toggleMarkAsRead(item.id)}>
+                  <Text style={[styles.notificationText, { color: item.isRead ? '#999999' : '#2D3142', fontFamily: item.isRead ? 'NunitoRegular' : 'NunitoMedium' }]}>
+                    {item.text}
+                  </Text>
+                </TouchableOpacity>
               </View>
             )}
           />
         </View>
       </Modal>
 
+      {/* Dropdown & Grid Inventory logic remains intact underneath */}
       <Dropdown
         style={styles.dropdown}
         placeholderStyle={styles.placeholderStyle}
@@ -123,6 +157,7 @@ export default function Fridge({ navigation, route }) {
         value={selectedCategory}
         onChange={item => setSelectedCategory(item.value)}
         renderLeftIcon={() => <Ionicons name="search" size={25} color="grey" style={{ marginRight: 10 }} />}
+        renderRightIcon={() => <View style={{ width: 0, height: 0 }} />}
       />
 
       <FlatList
@@ -135,7 +170,6 @@ export default function Fridge({ navigation, route }) {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -155,10 +189,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 15,
   },
-
-
-
-  emptyContainer: {
+ emptyContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
