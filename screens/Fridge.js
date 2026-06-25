@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { FridgeContext } from '../context/FridgeContext';
 import { categories, getNotificationData } from '../utils/fridgeHelpers';
-import { fetchFoodTrivia, fetchRecipeIdea } from '../services/spoonacular';
+import { fetchIngredientFact, fetchRecipeIdea } from '../services/spoonacular';
 import FridgeTile from '../components/FridgeTile';
 
 
@@ -17,21 +17,26 @@ export default function Fridge({ navigation, route }) {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [notifications, setNotifications] = useState([]);
 
-const handleJokePress = async (ingredientName) => {
-  console.log("🎯 Joke clicked for:", ingredientName); // Debug log to verify string passes through
-  if (!ingredientName) {
-    Alert.alert("Oops", "We couldn't verify this ingredient name.");
-    return;
-  }
-  
-  try {
-    const rawJokeText = await fetchFoodTrivia(ingredientName); 
-    const punchyJoke = limitSentences(rawJokeText, 2); 
-    Alert.alert("Food Fun!", punchyJoke, [{ text: "Awesome" }]);
-  } catch (err) {
-    console.log("Error running joke helper:", err);
-  }
-};
+const handleFactPress = async (ingredientName) => {
+    console.log("ℹ️ Food Fact clicked for:", ingredientName); 
+    if (!ingredientName) {
+      Alert.alert("Oops", "We couldn't verify this ingredient name.");
+      return;
+    }
+    
+    try {
+      // Calls your new Spoonacular encyclopedia pipeline
+      const foodFactText = await fetchIngredientFact(ingredientName); 
+      
+      Alert.alert(
+        `${ingredientName.charAt(0).toUpperCase() + ingredientName.slice(1)} Fact`, 
+        foodFactText, 
+        [{ text: "Cool!" }]
+      );
+    } catch (err) {
+      console.log("Error running food fact helper:", err);
+    }
+  };
 
 const handleRecipePress = (ingredientName) => {
   if (!ingredientName) return;
@@ -158,13 +163,13 @@ const handleRecipePress = (ingredientName) => {
 
       {item.ingredientName && !item.isRead && (
         <View style={styles.actionLinksContainer}>
-          <TouchableOpacity 
-            onPress={() => handleJokePress(item.ingredientName)} 
-            style={styles.linkTouchTarget}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} 
-          >
-            <Text style={styles.actionLinkText}>Would you like to see a joke?</Text>
-          </TouchableOpacity>
+         <TouchableOpacity 
+      onPress={() => handleFactPress(item.ingredientName)} 
+      style={styles.linkTouchTarget}
+      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} 
+    >
+      <Text style={styles.actionLinkText}>Would you like to see a food fact?</Text>
+    </TouchableOpacity>
           
           <TouchableOpacity 
             onPress={() => handleRecipePress(item.ingredientName)} 

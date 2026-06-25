@@ -1,31 +1,45 @@
-
 import Constants from 'expo-constants';
-
 
 const SPOONACULAR_API_KEY = Constants.expoConfig?.extra?.spoonacularApiKey || Constants.manifest?.extra?.spoonacularApiKey;
 
-export const fetchFoodTrivia = async (ingredientName) => {
-  const cleanName = ingredientName.trim().toLowerCase();
+export const fetchIngredientFact = async (ingredientName) => {
+  const cleanName = encodeURIComponent(ingredientName.trim().toLowerCase());
 
   try {
-    const jokeResponse = await fetch(`https://api.spoonacular.com/food/jokes/random?apiKey=${SPOONACULAR_API_KEY}`);
-    
-    if (jokeResponse.ok) {
-      const jokeData = await jokeResponse.ok ? await jokeResponse.json() : null;
-      if (jokeData && jokeData.text) {
-        return `Food Joke! ${jokeData.text}`;
+    const searchResponse = await fetch(
+      `https://api.spoonacular.com/food/ingredients/search?query=${cleanName}&number=1&apiKey=${SPOONACULAR_API_KEY}`
+    );
+
+    if (searchResponse.ok) {
+      const searchData = await searchResponse.json();
+      
+      if (searchData.results && searchData.results.length > 0) {
+        const ingredientId = searchData.results.id;
+
+        const infoResponse = await fetch(
+          `https://api.spoonacular.com/food/ingredients/${ingredientId}/information?amount=1&apiKey=${SPOONACULAR_API_KEY}`
+        );
+
+        if (infoResponse.ok) {
+          const infoData = await infoResponse.json();
+
+          if (infoData.description) {
+            return infoData.description.charAt(0).toUpperCase() + infoData.description.slice(1);
+          }
+        }
       }
     }
   } catch (error) {
-    console.log("⚠️ Joke API missed, cascading to recipe finder...");
+    console.log("❌ Food Fact API Error:", error);
   }
 
-  const recipeFallback = await fetchRecipeIdea(cleanName);
-  if (recipeFallback) {
-    return recipeFallback;
-  }
-
-  return `Your ${ingredientName} is due to expire soon. Let's make sure it doesn't go to waste!`;
+  const localBackups = [
+    `Storing your ${ingredientName} away from moisture keeps it crisp and extends its shelf life significantly.`,
+    `Proper temperature control is key to preserving the natural nutrients and vibrant color of ${ingredientName}.`,
+    `Keeping ${ingredientName} in an airtight container helps preserve its flavor profile for future meals.`
+  ];
+  
+  return localBackups[Math.floor(Math.random() * localBackups.length)];
 };
 
 export const fetchRecipeIdea = async (ingredientName) => {
@@ -38,6 +52,7 @@ export const fetchRecipeIdea = async (ingredientName) => {
 
     if (response.ok) {
       const recipes = await response.json();
+
       if (recipes && recipes.length > 0) {
         const recipeTitle = recipes.title;
         return `Recipe Suggestion: Turn your extra ${ingredientName} into a delicious "${recipeTitle}" tonight!`;
@@ -47,28 +62,6 @@ export const fetchRecipeIdea = async (ingredientName) => {
     console.log("❌ Recipe Suggestion Error:", error);
   }
 
- const limitSentences = (text, maxSentences = 2) => {
-  if (!text) return '';
-
-  // Matches sentence endings (. ! ?) followed by spaces or end of string
-  const sentenceEndRegex = /([.!?]\s+)/;
-  const tokens = text.split(sentenceEndRegex);
-  
-  const sentences = [];
-  // Reconstruct sentences with their punctuation intact
-  for (let i = 0; i < tokens.length; i += 2) {
-    if (tokens[i]) {
-      const punct = tokens[i + 1] || '';
-      sentences.push(tokens[i].trim() + punct.trim());
-    }
-  }
-
-  // If the joke is within limits, return it as-is
-  if (sentences.length <= maxSentences) {
-    return text;
-  }
-
-  // Otherwise, join up to the limit and append a clean trailing indicator
-  return sentences.slice(0, maxSentences).join(' ') + '...';
+  return `Your ${ingredientName} is expiring soon. Time to cook it up!`;
 };
-};
+ 

@@ -141,12 +141,10 @@ export default function AddToFridge({ navigation }) {
       setDisplayDateString(`${todayDay}/${todayMonth}/${todayYear}`);
 
       setTimeout(() => {
-      // --- BULLETPROOF NAVIGATION FALLBACK ---
-      // Checks if the navigator actually has a page behind it to drop back into
       if (navigation.canGoBack()) {
         navigation.goBack();
       } else {
-        // If a hot-reload wiped the stack history, safely jump straight back home
+  
         navigation.navigate('Fridge'); 
       }
     }, Platform.OS === 'android' ? 300 : 0);
