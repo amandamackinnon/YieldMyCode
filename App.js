@@ -27,7 +27,7 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
       screenOptions={({ navigation }) => ({
         headerRight: () => (
           <TouchableOpacity
-            onPress={() => navigation.navigate('Notifications')}
+            onPress={() => navigation.navigate('Fridge', { toggleNotifications: Date.now() })}
             style={{ marginRight: 16 }}>
             <Ionicons name="notifications" size={32} color="rgba(236, 96, 57, 1)" />
             <View

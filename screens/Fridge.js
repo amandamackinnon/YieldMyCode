@@ -154,7 +154,7 @@ const handleRecipePress = async (ingredientName) => {
 
   useEffect(() => {
     if (route.params?.toggleNotifications) {
-      setShowNotifications(true);
+      setShowNotifications(prev => !prev);
       navigation.setParams({ toggleNotifications: undefined });
     }
   }, [route.params?.toggleNotifications]);

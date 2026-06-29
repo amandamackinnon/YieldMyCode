@@ -90,7 +90,7 @@ export const itemDetailsStyles = StyleSheet.create({
 
   recipeButtonText: {
     color: '#292929',
-    fontFamily: 'NunitoMedium',
+    fontFamily: 'NunitoBold',
     fontSize: 15,
   },
 
@@ -109,12 +109,12 @@ export const itemDetailsStyles = StyleSheet.create({
 
   recipeCard: {
     flexDirection: 'row',
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#F6CA5E',
     borderRadius: 12,
     marginBottom: 12,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: '#292929',
     alignItems: 'center',
   },
 
