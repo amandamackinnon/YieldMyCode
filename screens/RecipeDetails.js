@@ -11,13 +11,18 @@ export default function RecipeDetails({ route }) {
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  
+  useEffect(() => {
+    if (route.params?.recipeId) {
+      setRecipeId(route.params.recipeId);
+    }
+  }, [route.params?.clickId, route.params?.recipeId]); 
 
   useEffect(() => {
     const handleIncomingParams = async () => {
 
       if (!recipeId && ingredient) {
         setLoading(true);
-        
         try {
           const apiKey = 'e7de26d39bf344c88aaf33e8ee08eda4';
           const cleanName = encodeURIComponent(ingredient.trim().toLowerCase());
@@ -29,23 +34,37 @@ export default function RecipeDetails({ route }) {
           if (searchResponse.ok) {
             const searchResults = await searchResponse.json();
             if (searchResults && searchResults.length > 0) {
-
               setRecipeId(searchResults[0].id);
               return; 
             }
           }
-          
-          
-          Alert.alert("Notice", `We couldn't find a recipe for ${ingredient}`);
-          setLoading(false);
-        } catch (error) {
+        } catch (err) {
+          console.log("Error in fallback lookup:", err);
+        }
+      }
+
+      if (recipeId) {
+        setLoading(true);
+        try {
+          const apiKey = 'e7de26d39bf344c88aaf33e8ee08eda4';
+          const detailsResponse = await fetch(
+            `https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=${apiKey}`
+          );
+          if (detailsResponse.ok) {
+            const detailsData = await detailsResponse.json();
+            setDetails(detailsData);
+          }
+        } catch (err) {
+          console.log("Error fetching details data:", err);
+        } finally {
           setLoading(false);
         }
       }
     };
 
     handleIncomingParams();
-  }, [ingredient, recipeId]);
+  }, [recipeId, ingredient]); 
+
 
   useEffect(() => {
     const fetchRecipeDetails = async () => {

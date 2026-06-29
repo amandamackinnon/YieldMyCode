@@ -49,6 +49,5 @@ export const getDynamicFridgeContent = async (currentFridgeItems = [], targetIte
     };
   }
 
-  console.log(`🎲 No local fact for "${cleanTarget}". Shifting to live quiz game.`);
   return await fetchLiveFoodQuiz();
 };

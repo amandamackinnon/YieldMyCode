@@ -20,7 +20,6 @@ export default function Fridge({ navigation, route }) {
   const [notifications, setNotifications] = useState([]);
 
 const handleFactPress = async (ingredientName) => {
-  console.log("ℹ️ Food Content interactive link clicked for:", ingredientName); 
   if (!ingredientName) {
     Alert.alert("Oops", "We couldn't verify this ingredient name.");
     return;
@@ -74,20 +73,31 @@ const handleFactPress = async (ingredientName) => {
       );
     }
   } catch (err) {
-    console.log("❌ Error running personalized content pipeline on screen interface:", err);
     Alert.alert("Error", "Could not load food content at this moment.");
   }
 };
 
-const handleRecipePress = (ingredientName) => {
+const handleRecipePress = async (ingredientName) => {
   if (!ingredientName) return;
 
   setShowNotifications(false);
 
-  navigation.navigate('RecipeDetails', { 
-    ingredient: ingredientName,
-    autoLoad: true 
-  });
+  try {
+    const randomRecipe = await fetchRecipeIdea(ingredientName);
+    
+    if (randomRecipe && randomRecipe.id) {
+      navigation.navigate('RecipeDetails', { 
+        ingredient: ingredientName,
+        recipeId: randomRecipe.id, 
+        autoLoad: true,
+        clickId: Date.now() 
+      });
+    } else {
+      navigation.navigate('RecipeDetails', { ingredient: ingredientName, autoLoad: true });
+    }
+  } catch (err) {
+    console.log("Error during recipe navigation routing:", err);
+  }
 };
 
   const [previousNotificationState, setPreviousNotificationState] = useState(null);
