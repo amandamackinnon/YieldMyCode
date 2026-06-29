@@ -1,5 +1,5 @@
 {
-"expo": {
+  "expo": {
     "name": "myStuff",
     "slug": "myStuff",
     "version": "1.0.0",
@@ -11,9 +11,6 @@
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
-    },
-    "extra": {
-      "spoonacularApiKey": "e7de26d39bf344c88aaf33e8ee08eda4"
     },
     "ios": {
       "supportsTablet": true

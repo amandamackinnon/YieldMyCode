@@ -7,7 +7,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { FridgeContext } from '../context/FridgeContext';
 import { categories, getNotificationData } from '../utils/fridgeHelpers';
-import { fetchIngredientFact, fetchRecipeIdea } from '../services/spoonacular';
+import { fetchRecipeIdea } from '../services/spoonacular';
+import { getDynamicFridgeContent } from '../services/foodContentService';
 import FridgeTile from '../components/FridgeTile';
 import { fridgeStyles as styles } from '../Styles/fridgeStyles';
 
@@ -19,23 +20,62 @@ export default function Fridge({ navigation, route }) {
   const [notifications, setNotifications] = useState([]);
 
 const handleFactPress = async (ingredientName) => {
-  console.log("ℹ️ Food Fact interactive link clicked for:", ingredientName); 
+  console.log("ℹ️ Food Content interactive link clicked for:", ingredientName); 
   if (!ingredientName) {
     Alert.alert("Oops", "We couldn't verify this ingredient name.");
     return;
   }
   
   try {
-    // Connects directly to your dynamic metadata builder function
-    const factText = await fetchIngredientFact(ingredientName); 
     
-    Alert.alert(
-      `${ingredientName.charAt(0).toUpperCase() + ingredientName.slice(1)} Fact`, 
-      factText, 
-      [{ text: "Awesome" }]
-    );
+    const activeFridgeNames = items ? items.map(i => i.name) : [];
+    
+    
+    const content = await getDynamicFridgeContent(activeFridgeNames, ingredientName); 
+    
+
+    if (content.type === 'fact') {
+      Alert.alert(
+        `${ingredientName.charAt(0).toUpperCase() + ingredientName.slice(1)} Insight`, 
+        content.text, 
+        [{ text: "And that's a fact!", style: "cancel" }]
+      );
+    } 
+
+    else if (content.type === 'quiz') {
+      const sanitize = (str) => str.replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
+      
+      const cleanQuestion = sanitize(content.question);
+      const cleanCorrect = sanitize(content.correctAnswer);
+      
+      const choicePool = [content.correctAnswer, ...content.incorrectAnswers]
+        .map(ans => sanitize(ans))
+        .sort(() => Math.random() - 0.5);
+
+  
+      const alertButtons = choicePool.map(choice => ({
+        text: choice,
+        onPress: () => {
+          if (choice === cleanCorrect) {
+            Alert.alert("🎉 Correct!", "You really know your food science!", [{ text: "Now you're cooking!" }]);
+          } else {
+            Alert.alert("❌ Not Quite", `Good try! The correct answer was actually: ${cleanCorrect}`, [{ text: "Food for thought!" }]);
+          }
+        }
+      }));
+
+      if (alertButtons.length > 3) alertButtons.splice(3);
+
+      Alert.alert(
+        "🍎 Daily Kitchen Quiz",
+        cleanQuestion,
+        alertButtons,
+        { cancelable: true }
+      );
+    }
   } catch (err) {
-    console.log("❌ Error running food fact helper on screen interface:", err);
+    console.log("❌ Error running personalized content pipeline on screen interface:", err);
+    Alert.alert("Error", "Could not load food content at this moment.");
   }
 };
 
@@ -169,7 +209,7 @@ const handleRecipePress = (ingredientName) => {
       style={styles.linkTouchTarget}
       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} 
     >
-      <Text style={styles.actionLinkText}>Would you like to see a food fact?</Text>
+      <Text style={styles.actionLinkText}>Would you like some food trivia?</Text>
     </TouchableOpacity>
           
           <TouchableOpacity 
