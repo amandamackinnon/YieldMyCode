@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { FridgeContext } from '../context/FridgeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { itemDetailsStyles as styles } from '../Styles/itemDetailsStyles';
+import { TILE_COLORS } from '../Styles/fridgeStyles';
 
 export default function ItemDetails({ route, navigation }) {
   const insets = useSafeAreaInsets();
@@ -19,6 +20,7 @@ export default function ItemDetails({ route, navigation }) {
 
   const item = items.find((i) => i.id === itemId);
 
+  // 🎯 LINE 21 HAS BEEN REMOVED FROM HERE!
 
   if (!item) {
     return (
@@ -27,7 +29,6 @@ export default function ItemDetails({ route, navigation }) {
       </View>
     );
   }
-
 
   const handlePressIn = () => {
     if (timerRef.current) return;
@@ -172,20 +173,32 @@ export default function ItemDetails({ route, navigation }) {
         </Text>
       </TouchableOpacity>
 
-      {recipes.length > 0 && (
+     {recipes.length > 0 && (
         <View style={styles.recipeListContainer}>
           <Text style={styles.recipeSectionTitle}>Recipe Ideas:</Text>
-          {recipes.map((recipe) => (
-            <TouchableOpacity key={recipe.id} style={styles.recipeCard} onPress={() => navigation.navigate('RecipeDetails', { recipeId: recipe.id })} >
-              <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
-              <View style={styles.recipeInfo}>
-                <Text style={styles.recipeTitle} numberOfLines={2}>{recipe.title}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+          
+          {recipes.map((recipe, index) => {
+            // 🛡️ Safe Fallback: If the import resolves as undefined, use the array locally!
+            const colorsArray = TILE_COLORS || ['#4F6BB7', '#E7B1A6', '#B2DFE8', '#EC6039', '#E7C665', '#699966'];
+            
+            // 🎨 Safely loop through your 6 colors
+            const cardBgColor = colorsArray[index % colorsArray.length];
+
+            return (
+              <TouchableOpacity 
+                key={recipe.id} 
+                style={[styles.recipeCard, { backgroundColor: cardBgColor }]} 
+                onPress={() => navigation.navigate('RecipeDetails', { recipeId: recipe.id })}
+              >
+                <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
+                <View style={styles.recipeInfo}>
+                  <Text style={styles.recipeTitle} numberOfLines={2}>{recipe.title}</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       )}
     </ScrollView>
   );
 }
-

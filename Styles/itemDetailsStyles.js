@@ -114,7 +114,7 @@ export const itemDetailsStyles = StyleSheet.create({
     marginBottom: 12,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#292929',
+    borderColor: 'white',
     alignItems: 'center',
   },
 
@@ -133,7 +133,7 @@ export const itemDetailsStyles = StyleSheet.create({
   recipeTitle: {
     fontFamily: 'NunitoBold',
     fontSize: 14,
-    color: '#333',
+    color: 'white',
   },
 
   recipeMatchText: {
