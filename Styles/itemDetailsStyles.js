@@ -110,7 +110,7 @@ export const itemDetailsStyles = StyleSheet.create({
   recipeCard: {
     flexDirection: 'row',
     backgroundColor: '#F6CA5E',
-    borderRadius: 12,
+    borderRadius: 4,
     marginBottom: 12,
     overflow: 'hidden',
     borderWidth: 1,

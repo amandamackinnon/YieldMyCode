@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Image, ActivityIndicator, Alert } f
 import { fetchRecipeIdea } from '../services/spoonacular';
 import { recipeDetailsStyles as styles } from '../Styles/recipeDetailsStyles';
 
-export default function RecipeDetails({ route }) {
+export default function RecipeDetails({ route, navigation }) {
   
   const { ingredient, recipeId: initialRecipeId } = route.params || {};
   
@@ -66,27 +66,17 @@ export default function RecipeDetails({ route }) {
   }, [recipeId, ingredient]); 
 
 
+  
+
   useEffect(() => {
-    const fetchRecipeDetails = async () => {
-      if (!recipeId) return; 
-
-      setLoading(true);
-      const apiKey = 'e7de26d39bf344c88aaf33e8ee08eda4';
-      const url = `https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=${apiKey}`;
-
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-        setDetails(data);
-      } catch (error) {
-        Alert.alert("Error", "Could not load recipe steps.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRecipeDetails();
-  }, [recipeId]);
+    if (route.params?.toggleNotifications) {
+      navigation.goBack();
+      navigation.navigate({
+        merge: true, 
+        params: { toggleNotifications: route.params.toggleNotifications },
+      });
+    }
+  }, [route.params?.toggleNotifications]);
 
   if (loading) {
     return (

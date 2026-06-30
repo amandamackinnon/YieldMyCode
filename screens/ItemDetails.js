@@ -20,7 +20,6 @@ export default function ItemDetails({ route, navigation }) {
 
   const item = items.find((i) => i.id === itemId);
 
-  // 🎯 LINE 21 HAS BEEN REMOVED FROM HERE!
 
   if (!item) {
     return (
@@ -178,10 +177,8 @@ export default function ItemDetails({ route, navigation }) {
           <Text style={styles.recipeSectionTitle}>Recipe Ideas:</Text>
           
           {recipes.map((recipe, index) => {
-            // 🛡️ Safe Fallback: If the import resolves as undefined, use the array locally!
             const colorsArray = TILE_COLORS || ['#4F6BB7', '#E7B1A6', '#B2DFE8', '#EC6039', '#E7C665', '#699966'];
             
-            // 🎨 Safely loop through your 6 colors
             const cardBgColor = colorsArray[index % colorsArray.length];
 
             return (

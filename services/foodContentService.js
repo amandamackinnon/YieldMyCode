@@ -42,7 +42,6 @@ export const getDynamicFridgeContent = async (currentFridgeItems = [], targetIte
   }
 
   if (LOCAL_FRIDGE_DB[cleanTarget]) {
-    console.log(`🎯 Exact target match found: ${cleanTarget}`);
     return { 
       type: 'fact', 
       text: LOCAL_FRIDGE_DB[cleanTarget] 

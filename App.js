@@ -26,9 +26,13 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
     <Stack.Navigator
       screenOptions={({ navigation }) => ({
         headerRight: () => (
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Fridge', { toggleNotifications: Date.now() })}
-            style={{ marginRight: 16 }}>
+   <TouchableOpacity
+            onPress={() => {
+              navigation.popToTop();
+              navigation.navigate('FridgeHome', { toggleNotifications: true });
+            }}
+            style={{ marginRight: 16 }}
+          >
             <Ionicons name="notifications" size={32} color="rgba(236, 96, 57, 1)" />
             <View
               style={{
