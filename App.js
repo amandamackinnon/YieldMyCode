@@ -18,6 +18,7 @@ import { FridgeProvider } from './context/FridgeContext';
 import ItemDetails from './screens/ItemDetails';
 import RecipeDetails from './screens/RecipeDetails';
 
+
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 

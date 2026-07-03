@@ -37,7 +37,7 @@ const handleFactPress = async (ingredientName) => {
       Alert.alert(
         `${ingredientName.charAt(0).toUpperCase() + ingredientName.slice(1)} Insight`, 
         content.text, 
-        [{ text: "And that's a fact!", style: "cancel" }]
+        [{ text: "The more you know!", style: "cancel" }]
       );
     } 
 
@@ -56,7 +56,7 @@ const handleFactPress = async (ingredientName) => {
         text: choice,
         onPress: () => {
           if (choice === cleanCorrect) {
-            Alert.alert("🎉 Correct!", "You really know your food science!", [{ text: "Now you're cooking!" }]);
+            Alert.alert("🎉 Correct!", "You really know your food facts!", [{ text: "Now you're cooking!" }]);
           } else {
             Alert.alert("❌ Not Quite", `Good try! The correct answer was actually: ${cleanCorrect}`, [{ text: "Food for thought!" }]);
           }

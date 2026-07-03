@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, FlatList, 
 import { Ionicons } from '@expo/vector-icons';
 import { LineChart, ProgressChart } from 'react-native-chart-kit';
 import { FridgeContext } from '../context/FridgeContext';
-import { getTotalItemsAdded, getWeeklyActivity, getItemsByCategory, getTopFoods } from '../services/analyticsService';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -12,48 +11,65 @@ export default function Profile() {
   const [selectedFilter, setSelectedFilter] = useState('All statistics');
   const [showDetailModal, setShowDetailModal] = useState(false);
 
-  // 📈 Parse dynamic data through your custom service functions
-  const weeklyActivity = getWeeklyActivity(activityLog);
-  const weeklyPoints = Object.values(weeklyActivity);
+  // --- 📊 Data Pipeline Syncing ---
+  const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const weeklyActivity = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
   
-  const categoryData = getItemsByCategory(activityLog);
-  const topFoods = getTopFoods(activityLog); // Returns sorted array format: [[itemName, count]]
+  activityLog.forEach(log => {
+    const date = new Date(log.timestamp);
+    const dayName = weekdayNames[date.getDay()];
+    if (weeklyActivity[dayName] !== undefined) {
+      weeklyActivity[dayName] += Number(log.qty) || 1;
+    }
+  });
+  const weeklyPoints = Object.values(weeklyActivity);
 
-  // --- 1. Line Chart Data Preparation ---
+  const categoryCounts = {};
+  activityLog.forEach(log => {
+    if (log.action === 'added') {
+      const category = log.category || 'Other';
+      categoryCounts[category] = (categoryCounts[category] || 0) + (Number(log.qty) || 1);
+    }
+  });
+
+  const foodCounts = {};
+  activityLog.forEach(log => {
+    if (log.action === 'added' && log.itemName) {
+      foodCounts[log.itemName] = (foodCounts[log.itemName] || 0) + (Number(log.qty) || 1);
+    }
+  });
+  const topFoods = Object.entries(foodCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  // --- 📈 Chart Configurations ---
+  const hasLineData = weeklyPoints.some(v => v > 0);
   const lineChartData = {
     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     datasets: [{
-      // Fallback points match designer's placeholder if user hasn't added logs yet
-      data: weeklyPoints.every(val => val === 0) ? [10, 35, 12, 55, 20, 25, 18] : weeklyPoints,
+      data: hasLineData ? weeklyPoints : [0, 0, 0, 0, 0, 0, 0],
       strokeWidth: 3
     }]
   };
 
-  // --- 2. Chart Layouts & Mappings for Breakdown Wheel ---
-  const colorPalette = {
-    'Core fruits': '#EC6039',
-    'Berries': '#E7B1A6',
-    'Citrus': '#E7C665',
-    'Tropical': '#B2DFE8',
-    'Other': '#A8C3A4'
-  };
+  const categoriesPresent = Object.keys(categoryCounts);
+  const totalItemsTracked = Object.values(categoryCounts).reduce((sum, v) => sum + v, 0);
 
-  const categoriesPresent = Object.keys(categoryData);
-  const totalItemsTracked = Object.values(categoryData).reduce((sum, v) => sum + v, 0);
-
-  // ProgressChart needs a normalized fractional float list [0.0 - 1.0]
+  // ProgressChart requires an object structure matching this: { labels: [], data: [0.0 - 1.0] }
   const progressChartData = {
-    labels: categoriesPresent.length > 0 ? categoriesPresent.slice(0, 4) : ['Core fruits', 'Berries', 'Citrus', 'Tropical'],
+    labels: categoriesPresent.length > 0 ? categoriesPresent.slice(0, 3) : ['No Logs'],
     data: categoriesPresent.length > 0 
-      ? categoriesPresent.slice(0, 4).map(cat => totalItemsTracked > 0 ? categoryData[cat] / totalItemsTracked : 0)
-      : [0.37, 0.26, 0.23, 0.14] // Fallback values matching layout mockup
+      ? categoriesPresent.slice(0, 3).map(cat => totalItemsTracked > 0 ? categoryCounts[cat] / totalItemsTracked : 0)
+      : [0]
   };
+
+  const colorPalette = ['#EC6039', '#E7B1A6', '#E7C665', '#B2DFE8', '#A8C3A4'];
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
-        {/* Filter Category Header Pills */}
+        {/* Navigation Tabs */}
         <View style={styles.filterContainer}>
           {['Veggies', 'Fruits', 'All statistics'].map((tab) => (
             <TouchableOpacity
@@ -68,7 +84,7 @@ export default function Profile() {
           ))}
         </View>
 
-        {/* Consumption Line Graph */}
+        {/* Weekly Consumption Graph */}
         <Text style={styles.sectionTitle}>Your weekly food consumption</Text>
         <LineChart
           data={lineChartData}
@@ -81,8 +97,8 @@ export default function Profile() {
           withOuterLines={false}
         />
 
-        {/* Waste Breakdown Section */}
-        <Text style={styles.sectionTitle}>Your food waste</Text>
+        {/* Corrected Progress Chart Element */}
+        <Text style={styles.sectionTitle}>Your food statistics breakdown</Text>
         <View style={styles.chartWrapper}>
           <ProgressChart
             data={progressChartData}
@@ -95,14 +111,13 @@ export default function Profile() {
           />
         </View>
 
-        {/* Action Button */}
         <TouchableOpacity style={styles.seeMoreButton} onPress={() => setShowDetailModal(true)}>
           <Text style={styles.seeMoreButtonText}>SEE MORE</Text>
         </TouchableOpacity>
 
       </ScrollView>
 
-      {/* Modal Breakdown sheet */}
+      {/* Details Sheet Overlay */}
       <Modal visible={showDetailModal} animationType="slide" presentationStyle="pageSheet">
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
@@ -111,15 +126,18 @@ export default function Profile() {
             </TouchableOpacity>
           </View>
           
-          <Text style={styles.modalTitle}>What you wasted?</Text>
+          <Text style={styles.modalTitle}>Most Added Foods</Text>
           
           <FlatList
-            data={topFoods.length > 0 ? topFoods : [['Avocado', 3], ['Oranges', 9], ['Lemons', 3], ['Tomatoes', 2], ['Apple', 8]]}
+            data={topFoods}
             keyExtractor={(item) => item[0]}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>Add some items to your fridge to populate your charts! 🎉</Text>
+            }
             renderItem={({ item, index }) => (
               <View style={styles.listItem}>
                 <View style={styles.listItemLeft}>
-                  <View style={[styles.colorDot, { backgroundColor: Object.values(colorPalette)[index] || '#4F6BB7' }]} />
+                  <View style={[styles.colorDot, { backgroundColor: colorPalette[index] || '#4F6BB7' }]} />
                   <Text style={styles.itemNameText}>{item[0]}</Text>
                 </View>
                 <Text style={styles.itemCountText}>{item[1]}</Text>
@@ -132,7 +150,6 @@ export default function Profile() {
   );
 }
 
-// Chart Aesthetics Setup
 const lineChartConfig = {
   backgroundGradientFrom: '#ffffff',
   backgroundGradientTo: '#ffffff',
@@ -147,7 +164,7 @@ const progressChartConfig = {
   backgroundGradientFrom: '#ffffff',
   backgroundGradientTo: '#ffffff',
   color: (opacity = 1, index) => {
-    const scheme = ['#EC6039', '#E7B1A6', '#E7C665', '#B2DFE8'];
+    const scheme = ['#EC6039', '#E7B1A6', '#E7C665'];
     return scheme[index] || `rgba(79, 107, 183, ${opacity})`;
   },
   labelColor: (opacity = 1) => `rgba(60, 60, 60, ${opacity})`
@@ -173,5 +190,6 @@ const styles = StyleSheet.create({
   listItemLeft: { flexDirection: 'row', alignItems: 'center' },
   colorDot: { width: 14, height: 14, borderRadius: 7, marginRight: 14 },
   itemNameText: { fontSize: 17, color: '#333', textTransform: 'capitalize' },
-  itemCountText: { fontSize: 17, fontWeight: '700', color: '#333' }
+  itemCountText: { fontSize: 17, fontWeight: '700', color: '#333' },
+  emptyText: { textAlign: 'center', color: '#666', marginTop: 40, fontSize: 16, paddingHorizontal: 20 }
 });

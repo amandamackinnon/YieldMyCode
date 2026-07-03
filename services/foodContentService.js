@@ -1,9 +1,9 @@
 const LOCAL_FRIDGE_DB = {
-  yogurt: "Because you have Yogurt in your fridge: Did you know that the word 'yogurt' comes from a Turkish word meaning 'to curdle or thicken'?",
-  salmon: "Based on your taste for Salmon: Wild salmon get their distinct pink color naturally from eating a steady diet of shrimp and krill!",
-  egg: "Egg Tracker Tip: To check if your eggs are still fresh, drop them in water. Fresh eggs sink completely, while old ones float!",
-  potato: "Fun fact for your Potatoes: They were the very first vegetable to be successfully grown in microgravity in space back in 1995.",
-  apple: "Apple Trivia: Apples float in water because 25% of their total volume is actually pure air!"
+  yogurt: "Did you know that the word 'yogurt' comes from a Turkish word meaning 'to curdle or thicken'?",
+  salmon: "Wild salmon get their distinct pink color naturally from eating a steady diet of shrimp and krill!",
+  egg: "To check if your eggs are still fresh, drop them in water. Fresh eggs sink completely, while old ones float!",
+  potato: "Did you know that potatoes were the very first vegetable to be successfully grown in microgravity in space back in 1995?",
+  apple: "Apples float in water because 25% of their total volume is actually pure air!"
 };
 
 const fetchLiveFoodQuiz = async () => {
