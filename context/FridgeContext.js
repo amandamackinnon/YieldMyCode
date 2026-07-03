@@ -26,7 +26,7 @@ export const FridgeProvider = ({ children }) => {
   const logActivity = (action, item) => {
     const logEntry = {
       id: Date.now().toString(),
-      action,
+      action, // Will now be dynamically captured as 'added', 'consumed', or 'wasted'
       itemId: item.id,
       itemName: item.name,
       category: item.category,
@@ -82,12 +82,23 @@ export const FridgeProvider = ({ children }) => {
     logActivity('added', newItem);
   };
 
-  const removeItem = (id) => {
+  // ✅ ENHANCED: Accept a custom action type like 'consumed' or 'wasted'
+  const removeItem = (id, reason = 'removed') => {
     const itemToRemove = items.find(item => item.id === id);
     if (itemToRemove) {
-      logActivity('removed', itemToRemove);
+      logActivity(reason, itemToRemove);
     }
     setItems(prevItems => prevItems.filter(item => item.id !== id));
+  };
+
+  // ✅ HELPER: Call this when user finishes their food
+  const consumeItem = (id) => {
+    removeItem(id, 'consumed');
+  };
+
+  // ✅ HELPER: Call this when food expires or is thrown away
+  const wasteItem = (id) => {
+    removeItem(id, 'wasted');
   };
 
   const updateItem = (updatedItem) => {
@@ -109,12 +120,24 @@ export const FridgeProvider = ({ children }) => {
     ));
   };
 
+  const clearActivityLog = async () => {
+    try {
+      await AsyncStorage.removeItem(ACTIVITY_KEY);
+      setActivityLog([]);
+    } catch (error) {
+      console.log('Error clearing logs:', error);
+    }
+  };
+
   return (
     <FridgeContext.Provider
       value={{
         items,
         addItem,
         removeItem,
+        consumeItem,
+        wasteItem,
+        clearActivityLog, 
         updateItem,
         increaseQty,
         decreaseQty,

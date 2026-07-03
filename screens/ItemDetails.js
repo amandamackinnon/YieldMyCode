@@ -9,7 +9,9 @@ import { TILE_COLORS } from '../Styles/fridgeStyles';
 export default function ItemDetails({ route, navigation }) {
   const insets = useSafeAreaInsets();
   const { itemId } = route.params;
-  const { items, decreaseQty, removeItem } = useContext(FridgeContext);
+  
+  // ✅ Destructure the new specific functions along with the clear log function for debugging
+  const { items, decreaseQty, consumeItem, wasteItem, clearActivityLog } = useContext(FridgeContext);
 
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -19,7 +21,6 @@ export default function ItemDetails({ route, navigation }) {
   const touchStartTimeRef = useRef(0);
 
   const item = items.find((i) => i.id === itemId);
-
 
   if (!item) {
     return (
@@ -56,6 +57,7 @@ export default function ItemDetails({ route, navigation }) {
       if (item.qty <= 1) {
         triggerDeleteAlert();
       } else {
+        // ✅ If decreasing items one by one, you might want to prompt them or assume consumption
         decreaseQty(item.id);
       }
     }
@@ -68,18 +70,49 @@ export default function ItemDetails({ route, navigation }) {
     }
   };
 
+  // ✅ Updated Choice Alert routing data straight to the correct graphs
   const triggerDeleteAlert = () => {
     Alert.alert(
       "Remove Item?",
-      `Are you sure you want to remove ${item.name} from the fridge?`,
+      `Did you finish eating ${item.name} or was it wasted/expired?`,
       [
         { text: "Cancel", style: "cancel" },
         {
-          text: "Remove",
+          text: "🗑️ Wasted",
           style: "destructive",
           onPress: () => {
-            removeItem(item.id);
+            wasteItem(item.id);
             navigation.goBack();
+          }
+        },
+        {
+          text: "🎉 Eaten",
+          onPress: () => {
+            consumeItem(item.id);
+            navigation.goBack();
+          }
+        }
+      ]
+    );
+  };
+
+  // ✅ Dev Helper to clean out polluted local states during testing
+  const triggerClearLogAlert = () => {
+    Alert.alert(
+      "Reset Statistics?",
+      "This will wipe your chart history data so you can test fresh tracking.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Reset", 
+          style: "destructive", 
+          onPress: () => {
+            if (clearActivityLog) {
+              clearActivityLog();
+              Alert.alert("Success", "Logs cleared! Restart your app.");
+            } else {
+              Alert.alert("Error", "Add clearActivityLog to FridgeContext first.");
+            }
           }
         }
       ]
@@ -120,18 +153,21 @@ export default function ItemDetails({ route, navigation }) {
           <Ionicons name="arrow-back" size={28} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>yield</Text>
-        <View style={styles.headerSpacer} />
+        
+        {/* ✅ Added a secret diagnostic reset gear button in the top right header */}
+        <TouchableOpacity onPress={triggerClearLogAlert} style={{ padding: 4 }}>
+          <Ionicons name="settings-outline" size={22} color="#999" />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.mainCard}>
-        <Image source= {getImageSource()} style={styles.largeImage} resizeMode="contain" />
+        <Image source={getImageSource()} style={styles.largeImage} resizeMode="contain" />
         <Text style={styles.titleText}>{item.name}</Text>
         <Text style={styles.categoryText}>{item.category}</Text>
       </View>
 
       <View style={styles.timelineContainer}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-
           <View style={[styles.timelineRow, { flex: 1, borderBottomWidth: 0 }]}>
             <Text style={styles.timelineLabel}>Shopping Date: </Text>
             <Text style={styles.timelineValue}>{item.addedAt || 'Not specified'}</Text>
@@ -143,7 +179,6 @@ export default function ItemDetails({ route, navigation }) {
               {item.expiryDate || 'No date set'}
             </Text>
           </View>
-
         </View>
       </View>
 
@@ -158,10 +193,11 @@ export default function ItemDetails({ route, navigation }) {
           ]}
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}>
-        
           <Ionicons name="remove-sharp" size={30} color="#FFF" />
         </Pressable>
-        <TouchableOpacity style={styles.removeButton} onPress={() => { removeItem(item.id); navigation.goBack(); }}>
+        
+        {/* ✅ Triggers the decision alert instead of silently deleting */}
+        <TouchableOpacity style={styles.removeButton} onPress={triggerDeleteAlert}>
           <Ionicons name="trash-outline" size={40} color="#EF4E23" style={{ marginRight: 6 }} />
         </TouchableOpacity>
       </View>
@@ -172,13 +208,11 @@ export default function ItemDetails({ route, navigation }) {
         </Text>
       </TouchableOpacity>
 
-     {recipes.length > 0 && (
+      {recipes.length > 0 && (
         <View style={styles.recipeListContainer}>
           <Text style={styles.recipeSectionTitle}>Recipe Ideas:</Text>
-          
           {recipes.map((recipe, index) => {
             const colorsArray = TILE_COLORS || ['#4F6BB7', '#E7B1A6', '#B2DFE8', '#EC6039', '#E7C665', '#699966'];
-            
             const cardBgColor = colorsArray[index % colorsArray.length];
 
             return (
