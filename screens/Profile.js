@@ -91,21 +91,6 @@ export default function Profile() {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        
-        {/* Navigation Tabs */}
-        <View style={styles.filterContainer}>
-          {['Veggies', 'Fruits', 'All statistics'].map((tab) => (
-            <TouchableOpacity
-              key={tab}
-              style={[styles.filterButton, selectedFilter === tab && styles.activeFilterButton]}
-              onPress={() => setSelectedFilter(tab)}
-            >
-              <Text style={[styles.filterText, selectedFilter === tab && styles.activeFilterText]}>
-                {tab}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
 
         {/* 📈 Chart 1: Over-time Tracking */}
         <Text style={styles.sectionTitle}>Your weekly food consumption</Text>
@@ -122,55 +107,63 @@ export default function Profile() {
           />
         </View>
 
-        {/* 🥗 Chart 2: Food Eaten Breakdown */}
-        <Text style={styles.sectionTitle}>Food saved</Text>
-        <View style={styles.donutCardContainer}>
-          <GiftedPieChart
-            donut
-            data={eatenDonutData || emptyEatenFallback}
-            radius={85}
-            innerRadius={55}
-            showText={!!eatenDonutData}
-            labelsPosition="outward"
-            strokeWidth={3}
-            strokeColor="#ffffff"
-          />
-          <View style={styles.legendContainer}>
-            {(eatenDonutData || emptyEatenFallback).map((item, idx) => (
-              <View key={idx} style={styles.legendRow}>
-                <View style={[styles.legendDot, { backgroundColor: item.color }]} />
-                <Text style={styles.legendLabel}>
-                  {item.value === 1 && !eatenDonutData ? "" : `${item.value} `}{item.label}
-                </Text>
+        {/* 📊 SIDE-BY-SIDE DONUT GRAPHS WRAPPER */}
+        <View style={styles.chartsRow}>
+          
+          {/* 🥗 Left Column: Food Eaten */}
+          <View style={styles.halfColumn}>
+            <Text style={styles.smallSectionTitle}>Food saved</Text>
+            <View style={styles.donutCardContainer}>
+              <GiftedPieChart
+                donut
+                data={eatenDonutData || emptyEatenFallback}
+                radius={45}       
+                innerRadius={30}  
+                showText={false}   
+                strokeWidth={2}
+                strokeColor="#ffffff"
+              />
+              <View style={styles.legendContainer}>
+                {(eatenDonutData || emptyEatenFallback).map((item, idx) => (
+                  <View key={idx} style={styles.legendRow}>
+                    <View style={[styles.legendDot, { backgroundColor: item.color }]} />
+                    <Text style={styles.legendLabel} numberOfLines={1}>
+                      {item.value === 1 && !eatenDonutData ? "" : `${item.value} `}{item.label}
+                    </Text>
+                  </View>
+                ))}
               </View>
-            ))}
+            </View>
           </View>
-        </View>
 
-        {/* 🍩 Chart 3: Food Wasted Breakdown */}
-        <Text style={styles.sectionTitle}>Your food waste</Text>
-        <View style={styles.donutCardContainer}>
-          <GiftedPieChart
-            donut
-            data={wastedDonutData || emptyWastedFallback}
-            radius={85}
-            innerRadius={55}
-            showText={!!wastedDonutData}
-            labelsPosition="outward"
-            strokeWidth={3}
-            strokeColor="#ffffff"
-          />
-          <View style={styles.legendContainer}>
-            {(wastedDonutData || emptyWastedFallback).map((item, idx) => (
-              <View key={idx} style={styles.legendRow}>
-                <View style={[styles.legendDot, { backgroundColor: item.color }]} />
-                <Text style={styles.legendLabel}>
-                  {item.value === 1 && !wastedDonutData ? "" : `${item.value} `}{item.label}
-                </Text>
+          {/* 🍩 Right Column: Food Wasted */}
+          <View style={styles.halfColumn}>
+            <Text style={styles.smallSectionTitle}>Your food waste</Text>
+            <View style={styles.donutCardContainer}>
+              <GiftedPieChart
+                donut
+                data={wastedDonutData || emptyWastedFallback}
+                radius={45}       
+                innerRadius={30}
+                showText={false}
+                strokeWidth={0}
+                strokeColor="#ffffff"
+              />
+              <View style={styles.legendContainer}>
+                {(wastedDonutData || emptyWastedFallback).map((item, idx) => (
+                  <View key={idx} style={styles.legendRow}>
+                    <View style={[styles.legendDot, { backgroundColor: item.color }]} />
+                    <Text style={styles.legendLabel} numberOfLines={1}>
+                      {item.value === 1 && !wastedDonutData ? "" : `${item.value} `}{item.label}
+                    </Text>
+                  </View>
+                ))}
               </View>
-            ))}
+            </View>
           </View>
+
         </View>
+      
 
         {/* Info Detail Toggle Button */}
         <TouchableOpacity style={styles.seeMoreButton} onPress={() => setShowDetailModal(true)}>
@@ -224,7 +217,7 @@ const lineChartConfig = {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFF', paddingTop: 20 },
+  container: { flex: 1, backgroundColor: '#FFF', paddingTop: 50 },
   scrollContent: { paddingHorizontal: 16, paddingBottom: 40 },
   filterContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
   filterButton: { flex: 1, paddingVertical: 10, marginHorizontal: 4, borderRadius: 24, borderWidth: 1, borderColor: '#4F6BB7', alignItems: 'center', backgroundColor: '#FFF' },
@@ -234,7 +227,7 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 18, fontWeight: '700', color: '#222', marginTop: 28, marginBottom: 14 },
   lineChartWrapper: { backgroundColor: '#FFF', borderRadius: 16, overflow: 'hidden' },
   chartStyle: { marginVertical: 8, borderRadius: 16, paddingRight: 40 },
-  donutCardContainer: { backgroundColor: '#FFF', borderRadius: 16, paddingVertical: 24, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#F2F2F2', marginBottom: 8 },
+  donutCardContainer: { backgroundColor: '#FFF', borderRadius: 16, paddingVertical: 24, alignItems: 'center', justifyContent: 'center', borderWidth: 0, borderColor: '#F2F2F2', marginBottom: 8 },
   legendContainer: { flexDirection: 'column', width: '80%', marginTop: 20, paddingHorizontal: 10 },
   legendRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 6 },
   legendDot: { width: 14, height: 14, borderRadius: 7, marginRight: 12 },
@@ -249,5 +242,54 @@ const styles = StyleSheet.create({
   colorDot: { width: 14, height: 14, borderRadius: 7, marginRight: 14 },
   itemNameText: { fontSize: 17, color: '#333', textTransform: 'capitalize' },
   itemCountText: { fontSize: 17, fontWeight: '700', color: '#333' },
-  emptyText: { textAlign: 'center', color: '#666', marginTop: 40, fontSize: 16 }
+  emptyText: { textAlign: 'center', color: '#666', marginTop: 40, fontSize: 16 },
+  chartsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    width: '100%',
+  },
+  halfColumn: {
+    width: '48%', // Leaves a tiny 4% gap right down the middle
+  },
+  smallSectionTitle: { 
+    fontSize: 14, 
+    fontWeight: '700', 
+    color: '#222', 
+    marginBottom: 8,
+    textAlign: 'center' 
+  },
+  donutCardContainer: { 
+    backgroundColor: '#FFF', 
+    borderRadius: 16, 
+    paddingVertical: 16, 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    borderWidth: 0, 
+    borderColor: '#F2F2F2',
+    minHeight: 200 // Ensures both containers stay perfectly uniform in height
+  },
+  legendContainer: { 
+    flexDirection: 'column', 
+    width: '90%', 
+    marginTop: 12, 
+    paddingHorizontal: 4 
+  },
+  legendRow: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginVertical: 4 
+  },
+  legendDot: { 
+    width: 10, 
+    height: 10, 
+    borderRadius: 5, 
+    marginRight: 6 
+  },
+  legendLabel: { 
+    fontSize: 12, 
+    color: '#444', 
+    fontWeight: '500',
+    flex: 1 // Prevents long text names from breaking onto new lines unexpectedly
+  },
 });

@@ -13,7 +13,6 @@ import TabBarIcon from './components/icons/TabBarIcon';
 import Fridge from './screens/Fridge';
 import AddToFridge from './screens/AddToFridge';
 import Profile from './screens/Profile';
-import Shopping from './screens/Shopping';
 import { FridgeProvider } from './context/FridgeContext';
 import ItemDetails from './screens/ItemDetails';
 import RecipeDetails from './screens/RecipeDetails';
@@ -137,7 +136,6 @@ function MainAppContent() {
             const config = {
               Profile: { name: 'profile', label: 'Profile' },
               FridgeTab: { name: 'fridge', label: 'Fridge' },
-              Shopping: { name: 'shopping', label: 'Shopping' },
               Add: { name: 'add', label: 'Add' },
             };
             const { name, label } = config[route.name];
@@ -170,8 +168,6 @@ function MainAppContent() {
             />
           )}
         </Tab.Screen>
-
-        <Tab.Screen name="Shopping" component={Shopping} />
 
         <Tab.Screen
           name="Add"
