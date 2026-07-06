@@ -1,8 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, FlatList, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LineChart } from 'react-native-chart-kit'; // Engine for the weekly consumption line chart
-import { PieChart as GiftedPieChart } from 'react-native-gifted-charts'; // Engine for the waste donut chart
+import { LineChart } from 'react-native-chart-kit'; 
+import { PieChart as GiftedPieChart } from 'react-native-gifted-charts'; 
 import { FridgeContext } from '../context/FridgeContext';
 
 const screenWidth = Dimensions.get('window').width;
@@ -12,20 +12,33 @@ export default function Profile() {
   const [selectedFilter, setSelectedFilter] = useState('All statistics');
   const [showDetailModal, setShowDetailModal] = useState(false);
 
-  // --- 📈 1. WEEKLY CONSUMPTION LINE CHART PIPELINE ---
   const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const weeklyActivity = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
-  
-  activityLog.forEach(log => {
-  const date = new Date(log.timestamp);
-  const dayName = weekdayNames[date.getDay()];
-  if (weeklyActivity[dayName] !== undefined) {
-    // ⚠️ CRITICAL: It is adding up EVERY SINGLE log entry, completely ignoring whether it's an "added" or "removed" action!
-    weeklyActivity[dayName] += Number(log.qty) || 1; 
-  }
-});
-  const weeklyPoints = Object.values(weeklyActivity);
+  const wastedCategoryCounts = {};
+  const eatenCategoryCounts = {};
 
+  activityLog.forEach(log => {
+    const action = log.action ? log.action.toLowerCase() : '';
+    const category = log.category || 'Other';
+    const qty = Number(log.qty) || 1;
+
+    if (action === 'consumed') {
+      const date = new Date(log.timestamp);
+      const dayName = weekdayNames[date.getDay()];
+      if (weeklyActivity[dayName] !== undefined) {
+        weeklyActivity[dayName] += qty;
+      }
+      // Eaten categories breakdown
+      eatenCategoryCounts[category] = (eatenCategoryCounts[category] || 0) + qty;
+    } 
+    else if (action === 'wasted' || action === 'removed') {
+      // Wasted categories breakdown
+      wastedCategoryCounts[category] = (wastedCategoryCounts[category] || 0) + qty;
+    }
+  });
+
+  // Assemble Line Chart Data
+  const weeklyPoints = Object.values(weeklyActivity);
   const hasLineData = weeklyPoints.some(v => v > 0);
   const lineChartData = {
     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
@@ -35,55 +48,45 @@ export default function Profile() {
     }]
   };
 
-  // --- 🍩 2. WASTED FOOD DONUT CHART PIPELINE ---
-  const categoryCounts = {};
-  activityLog.forEach(log => {
-    const action = log.action ? log.action.toLowerCase() : '';
-    
-    // Catch 'removed', 'wasted', 'deleted', 'expired'—or simply anything that isn't 'added'
-    if (action === 'removed' || action === 'wasted' || action === 'expired' || action === 'deleted') {
-      const category = log.category || 'Other';
-      categoryCounts[category] = (categoryCounts[category] || 0) + (Number(log.qty) || 1);
-    }
-  });
+  // Helper function to map category tallies to Gifted Charts data format
+  const generateDonutData = (countsMap, colorsPalette) => {
+    const totalItems = Object.values(countsMap).reduce((sum, v) => sum + v, 0);
+    if (totalItems === 0) return null;
 
-  const totalItemsTracked = Object.values(categoryCounts).reduce((sum, v) => sum + v, 0);
-  const categoryColors = ['#EC6039', '#E7C665', '#E7B1A6', '#B2DFE8', '#A8C3A4'];
-  
-  const donutData = Object.keys(categoryCounts).map((category, index) => {
-    const value = categoryCounts[category];
-    const percentage = totalItemsTracked > 0 ? Math.round((value / totalItemsTracked) * 100) : 0;
-    
-    return {
-      value: value,
-      color: categoryColors[index % categoryColors.length],
-      label: category.charAt(0).toUpperCase() + category.slice(1),
-      text: `${percentage}%`,
-      textColor: '#222222',
-      fontWeight: 'bold',
-      fontSize: 12
-    };
-  });
+    return Object.keys(countsMap).map((category, index) => {
+      const value = countsMap[category];
+      const percentage = Math.round((value / totalItems) * 100);
+      return {
+        value,
+        color: colorsPalette[index % colorsPalette.length],
+        label: category.charAt(0).toUpperCase() + category.slice(1),
+        text: `${percentage}%`,
+        textColor: '#222222',
+        fontWeight: 'bold',
+        fontSize: 12
+      };
+    });
+  };
 
-  const displayDonutData = donutData.length > 0 ? donutData : [
-    { 
-      value: 1, 
-      color: '#EAEAEA', 
-      label: 'No Waste Recorded', 
-      text: '0%',
-    }
-  ];
+  // Palettes (Warm tones for waste, Fresh/Cool tones for consumption)
+  const wasteColors = ['#EC6039', '#E7C665', '#E7B1A6', '#B2DFE8', '#A8C3A4'];
+  const eatenColors = ['#4A9B6B', '#5FA8D3', '#9BC53D', '#2A6F97', '#A3C1AD'];
 
-  // --- 📊 3. MOST ADDED LEADERBOARD DATA PIPELINE ---
+  const wastedDonutData = generateDonutData(wastedCategoryCounts, wasteColors);
+  const eatenDonutData = generateDonutData(eatenCategoryCounts, eatenColors);
+
+  // Fallbacks for empty states
+  const emptyWastedFallback = [{ value: 1, color: '#EAEAEA', label: 'No Waste', text: '0%' }];
+  const emptyEatenFallback = [{ value: 1, color: '#EAEAEA', label: 'No Data Yet', text: '0%' }];
+
+  // --- 📊 4. MOST ADDED LEADERBOARD PIPELINE ---
   const foodCounts = {};
   activityLog.forEach(log => {
     if (log.itemName) {
       foodCounts[log.itemName] = (foodCounts[log.itemName] || 0) + (Number(log.qty) || 1);
     }
   });
-  const topFoods = Object.entries(foodCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5);
+  const topFoods = Object.entries(foodCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
 
   return (
     <View style={styles.container}>
@@ -104,7 +107,7 @@ export default function Profile() {
           ))}
         </View>
 
-        {/* 📈 Chart 1: Food Consumed */}
+        {/* 📈 Chart 1: Over-time Tracking */}
         <Text style={styles.sectionTitle}>Your weekly food consumption</Text>
         <View style={styles.lineChartWrapper}>
           <LineChart
@@ -119,27 +122,50 @@ export default function Profile() {
           />
         </View>
 
-        {/* 🍩 Chart 2: Food Wasted */}
-        <Text style={styles.sectionTitle}>What you wasted?</Text>
-        <View style={styles.donutContainer}>
+        {/* 🥗 Chart 2: Food Eaten Breakdown */}
+        <Text style={styles.sectionTitle}>Food saved</Text>
+        <View style={styles.donutCardContainer}>
           <GiftedPieChart
             donut
-            data={displayDonutData}
+            data={eatenDonutData || emptyEatenFallback}
             radius={85}
             innerRadius={55}
-            showText
+            showText={!!eatenDonutData}
             labelsPosition="outward"
             strokeWidth={3}
             strokeColor="#ffffff"
           />
-
-          {/* Connected Legend Panels */}
           <View style={styles.legendContainer}>
-            {displayDonutData.map((item, idx) => (
+            {(eatenDonutData || emptyEatenFallback).map((item, idx) => (
               <View key={idx} style={styles.legendRow}>
                 <View style={[styles.legendDot, { backgroundColor: item.color }]} />
                 <Text style={styles.legendLabel}>
-                  {item.value} {item.label}
+                  {item.value === 1 && !eatenDonutData ? "" : `${item.value} `}{item.label}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* 🍩 Chart 3: Food Wasted Breakdown */}
+        <Text style={styles.sectionTitle}>Your food waste</Text>
+        <View style={styles.donutCardContainer}>
+          <GiftedPieChart
+            donut
+            data={wastedDonutData || emptyWastedFallback}
+            radius={85}
+            innerRadius={55}
+            showText={!!wastedDonutData}
+            labelsPosition="outward"
+            strokeWidth={3}
+            strokeColor="#ffffff"
+          />
+          <View style={styles.legendContainer}>
+            {(wastedDonutData || emptyWastedFallback).map((item, idx) => (
+              <View key={idx} style={styles.legendRow}>
+                <View style={[styles.legendDot, { backgroundColor: item.color }]} />
+                <Text style={styles.legendLabel}>
+                  {item.value === 1 && !wastedDonutData ? "" : `${item.value} `}{item.label}
                 </Text>
               </View>
             ))}
@@ -153,7 +179,7 @@ export default function Profile() {
 
       </ScrollView>
 
-      {/* Leaderboard Details Overlay Panel */}
+      {/* Leaderboard Detail Overlay Panel */}
       <Modal visible={showDetailModal} animationType="slide" presentationStyle="pageSheet">
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
@@ -173,7 +199,7 @@ export default function Profile() {
             renderItem={({ item, index }) => (
               <View style={styles.listItem}>
                 <View style={styles.listItemLeft}>
-                  <View style={[styles.colorDot, { backgroundColor: categoryColors[index] || '#4F6BB7' }]} />
+                  <View style={[styles.colorDot, { backgroundColor: wasteColors[index] || '#4F6BB7' }]} />
                   <Text style={styles.itemNameText}>{item[0]}</Text>
                 </View>
                 <Text style={styles.itemCountText}>{item[1]}</Text>
@@ -186,12 +212,12 @@ export default function Profile() {
   );
 }
 
-// --- 🎨 Styled Palette Theme Parameters ---
+
 const lineChartConfig = {
   backgroundGradientFrom: '#ffffff',
   backgroundGradientTo: '#ffffff',
   decimalPlaces: 0,
-  color: (opacity = 1) => `rgba(236, 96, 57, ${opacity})`, // Beautiful Coral from design specs
+  color: (opacity = 1) => `rgba(236, 96, 57, ${opacity})`, 
   labelColor: (opacity = 1) => `rgba(100, 100, 100, ${opacity})`,
   style: { borderRadius: 16 },
   propsForDots: { r: '4.5', strokeWidth: '2', stroke: '#EC6039' }
@@ -205,10 +231,10 @@ const styles = StyleSheet.create({
   activeFilterButton: { backgroundColor: '#4F6BB7' },
   filterText: { fontSize: 13, color: '#4F6BB7', fontWeight: '600' },
   activeFilterText: { color: '#FFF' },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#222', marginTop: 24, marginBottom: 14 },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#222', marginTop: 28, marginBottom: 14 },
   lineChartWrapper: { backgroundColor: '#FFF', borderRadius: 16, overflow: 'hidden' },
   chartStyle: { marginVertical: 8, borderRadius: 16, paddingRight: 40 },
-  donutContainer: { backgroundColor: '#FFF', borderRadius: 16, paddingVertical: 24, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#F2F2F2' },
+  donutCardContainer: { backgroundColor: '#FFF', borderRadius: 16, paddingVertical: 24, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#F2F2F2', marginBottom: 8 },
   legendContainer: { flexDirection: 'column', width: '80%', marginTop: 20, paddingHorizontal: 10 },
   legendRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 6 },
   legendDot: { width: 14, height: 14, borderRadius: 7, marginRight: 12 },
