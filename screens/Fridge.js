@@ -14,7 +14,7 @@ import { fridgeStyles as styles } from '../Styles/fridgeStyles';
 
 
 export default function Fridge({ navigation, route }) {
-  const { items } = useContext(FridgeContext);
+  const { items, removeItem, decreaseQty } = useContext(FridgeContext);
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [notifications, setNotifications] = useState([]);

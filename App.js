@@ -21,12 +21,13 @@ import RecipeDetails from './screens/RecipeDetails';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
+
+function FridgeStack() {
   return (
     <Stack.Navigator
       screenOptions={({ navigation }) => ({
         headerRight: () => (
-   <TouchableOpacity
+          <TouchableOpacity
             onPress={() => {
               navigation.popToTop();
               navigation.navigate('FridgeHome', { toggleNotifications: true });
@@ -42,13 +43,16 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
                 width: 8,
                 height: 8,
                 borderRadius: 4,
-              }} />
+              }}
+            />
           </TouchableOpacity>
         ),
-      })}>
-
+      })}
+    >
+      {/* ✅ Clean component reference */}
       <Stack.Screen
         name="FridgeHome"
+        component={Fridge} 
         options={({ navigation }) => ({
           title: 'yield',
           headerShadowVisible: false,
@@ -63,46 +67,35 @@ function FridgeStack({ inventory, deleteItem, decreaseQty, setInventory }) {
             </TouchableOpacity>
           ),
         })}
-      >
-        {(props) => (
-          <Fridge
-            {...props}
-            inventory={inventory}
-            onDeleteItem={deleteItem}
-            onDecreaseQty={decreaseQty}
-          />
-        )}
-      </Stack.Screen>
+      />
 
-      <Stack.Screen name="AddToFridge"
+      {/* ✅ Clean component reference */}
+      <Stack.Screen 
+        name="AddToFridge"
+        component={AddToFridge}
         options={{
           presentation: 'transparentModal',
           headerShown: false,
           cardStyle: { backgroundColor: 'transparent' },
           animation: 'fade',
-        }} >
-        {(props) => (
-          <AddToFridge
-            {...props}
-            onAddProduct={(newItem) => setInventory([...inventory, newItem])} />
-        )}
-      </Stack.Screen>
+        }} 
+      />
 
-      <Stack.Screen name="ItemDetails"
+      <Stack.Screen 
+        name="ItemDetails"
         component={ItemDetails}
-        options={{
-          headerShown: false,
-        }} />
+        options={{ headerShown: false }} 
+      />
 
-
-      <Stack.Screen name="RecipeDetails"
+      <Stack.Screen 
+        name="RecipeDetails"
         component={RecipeDetails}
         options={{
           title: 'Recipe Cooking Guide',
           headerShadowVisible: false,
           headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 20 }
-        }} />
-
+        }} 
+      />
     </Stack.Navigator>
   );
 }
@@ -129,7 +122,7 @@ function MainAppContent() {
   const totalTabBarHeight = insets.bottom > 0 ? 60 + insets.bottom : 76;
 
   return (
-    <NavigationContainer>
+ <NavigationContainer>
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused }) => {
@@ -156,26 +149,30 @@ function MainAppContent() {
           },
         })}
       >
+  
         <Tab.Screen name="Profile" component={Profile} />
 
-        <Tab.Screen name="FridgeTab" options={{ title: 'Fridge' }}>
-          {() => (
-            <FridgeStack
-              inventory={inventory}
-              deleteItem={deleteItem}
-              decreaseQty={decreaseQty}
-              setInventory={setInventory}
-            />
-          )}
-        </Tab.Screen>
+    
+        <Tab.Screen 
+          name="FridgeTab" 
+          component={FridgeStack} 
+          options={{ title: 'Fridge' }} 
+        />
 
         <Tab.Screen
           name="Add"
           component={View}
           listeners={({ navigation }) => ({
             tabPress: (e) => {
-              e.preventDefault();
-              navigation.navigate('FridgeTab', { screen: 'AddToFridge' });
+              e.preventDefault(); // Stop default navigation to an empty View template
+              
+              // 1. Force the Tab Navigator to switch active focus onto your Fridge Tab base
+              navigation.navigate('FridgeTab');
+              
+              // 2. Queue up the transparent Add modal over the freshly mounted inventory grid background
+              setTimeout(() => {
+                navigation.navigate('FridgeTab', { screen: 'AddToFridge' });
+              }, 50); 
             },
           })}
         />

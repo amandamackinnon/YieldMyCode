@@ -1,13 +1,11 @@
 import { View, Text, StyleSheet } from 'react-native';
 import ProfileIcon from './icons/ProfileIcon';
 import FridgeIcon from './icons/FridgeIcon';
-import ShoppingIcon from './icons/ShoppingIcon';
 import AddIcon from './icons/AddIcon';
 
 const iconMap = {
   profile: ProfileIcon,
   fridge: FridgeIcon,
-  shopping: ShoppingIcon,
   add: AddIcon,
 };
 
