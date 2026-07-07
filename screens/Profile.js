@@ -79,14 +79,35 @@ export default function Profile() {
   const emptyWastedFallback = [{ value: 1, color: '#EAEAEA', label: 'No Waste', text: '0%' }];
   const emptyEatenFallback = [{ value: 1, color: '#EAEAEA', label: 'No Data Yet', text: '0%' }];
 
-  // --- 📊 4. MOST ADDED LEADERBOARD PIPELINE ---
-  const foodCounts = {};
+ // --- 🗑️ 4. ITEMIZED WASTE BREAKDOWN WITH UNITS ---
+  const wastedItemsMap = {};
+
   activityLog.forEach(log => {
-    if (log.itemName) {
-      foodCounts[log.itemName] = (foodCounts[log.itemName] || 0) + (Number(log.qty) || 1);
+    const action = log.action ? log.action.toLowerCase() : '';
+    
+    // Track only item entries that were marked as wasted or removed
+    if (action === 'wasted' || action === 'removed') {
+      if (log.itemName) {
+        const name = log.itemName.trim();
+        const qty = Number(log.qty) || 1;
+        const unit = log.unit && log.unit.trim() !== '' ? log.unit : 'pcs';
+        const key = `${name}_${unit}`; // Unique key to separate same items with different units
+
+        if (wastedItemsMap[key]) {
+          wastedItemsMap[key].qty += qty;
+        } else {
+          wastedItemsMap[key] = {
+            name: name,
+            qty: qty,
+            unit: unit
+          };
+        }
+      }
     }
   });
-  const topFoods = Object.entries(foodCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+  // Convert the object into a sorted array (highest waste quantity first)
+  const itemizedWasteList = Object.values(wastedItemsMap).sort((a, b) => b.qty - a.qty);
 
   return (
     <View style={styles.container}>
@@ -172,7 +193,7 @@ export default function Profile() {
 
       </ScrollView>
 
-      {/* Leaderboard Detail Overlay Panel */}
+      {/* 🗑️ Wasted Food Itemized Detail Overlay Panel */}
       <Modal visible={showDetailModal} animationType="slide" presentationStyle="pageSheet">
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
@@ -181,21 +202,26 @@ export default function Profile() {
             </TouchableOpacity>
           </View>
           
-          <Text style={styles.modalTitle}>Most Added Foods</Text>
+          {/* Updated Title */}
+          <Text style={styles.modalTitle}>Wasted Food Breakdown</Text>
           
           <FlatList
-            data={topFoods}
-            keyExtractor={(item) => item[0]}
+            data={itemizedWasteList}
+            keyExtractor={(item, index) => index.toString()}
             ListEmptyComponent={
-              <Text style={styles.emptyText}>Add some items to populate your metrics! 🎉</Text>
+              <Text style={styles.emptyText}>Great job! No food has been wasted yet! 🎉</Text>
             }
             renderItem={({ item, index }) => (
               <View style={styles.listItem}>
                 <View style={styles.listItemLeft}>
-                  <View style={[styles.colorDot, { backgroundColor: wasteColors[index] || '#4F6BB7' }]} />
-                  <Text style={styles.itemNameText}>{item[0]}</Text>
+                  {/* Dynamic coloring dot or fallback warm waste tone */}
+                  <View style={[styles.colorDot, { backgroundColor: wasteColors[index % wasteColors.length] }]} />
+                  <Text style={styles.itemNameText}>{item.name}</Text>
                 </View>
-                <Text style={styles.itemCountText}>{item[1]}</Text>
+                {/* Displays quantity along with its measurement unit cleanly! */}
+                <Text style={styles.itemCountText}>
+                  {item.qty} <Text style={styles.unitText}>{item.unit}</Text>
+                </Text>
               </View>
             )}
           />
@@ -292,4 +318,11 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     flex: 1 // Prevents long text names from breaking onto new lines unexpectedly
   },
+unitText: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: '#666',
+    textTransform: 'lowercase', // Keeps units like 'G' or 'PCS' uniformly neat
+  },
+
 });

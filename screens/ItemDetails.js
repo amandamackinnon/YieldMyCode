@@ -157,18 +157,23 @@ export default function ItemDetails({ route, navigation }) {
       <Text style={styles.genText}>Left in the fridge: </Text>
 
       <View style={styles.counterRow}>
-        <Text style={styles.quantityText}>{`${item.qty} ${item.unit || 'pcs'}`}</Text>
+        {/* ✅ Clean, isolated Text block without any trailing string spaces */}
+        <Text style={styles.quantityText}>
+          {item.qty} {item.unit || 'pcs'}
+        </Text>
+        
         <Pressable
           style={({ pressed }) => [
             styles.counterButton,
             { opacity: pressed ? 0.7 : 1.0 }
           ]}
           onPressIn={handlePressIn}
-          onPressOut={handlePressOut}>
-        
+          onPressOut={handlePressOut}
+        >
           <Ionicons name="remove-sharp" size={30} color="#FFF" />
         </Pressable>
-        <TouchableOpacity style={styles.removeButton} onPress={() => { removeItem(item.id); navigation.goBack(); }}>
+
+        <TouchableOpacity style={styles.removeButton} onPress={triggerDeleteAlert}>
           <Ionicons name="trash-outline" size={40} color="#EF4E23" style={{ marginRight: 6 }} />
         </TouchableOpacity>
       </View>

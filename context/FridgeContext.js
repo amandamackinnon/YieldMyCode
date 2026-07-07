@@ -23,18 +23,20 @@ export const FridgeProvider = ({ children }) => {
     saveActivityLog();
   }, [activityLog]);
 
+  // ✅ FIXED: Capture unit when items are added to the activity log
   const logActivity = (action, item) => {
     const logEntry = {
       id: Date.now().toString(),
-      action, // Will now be dynamically captured as 'added', 'consumed', or 'wasted'
+      action, // 'added', 'consumed', or 'wasted'
       itemId: item.id,
       itemName: item.name,
       category: item.category,
       qty: item.qty,
+      unit: item.unit || 'pcs', // 🌟 Added unit here!
       timestamp: new Date().toISOString(),
     };
 
-    setActivityLog(prev => [...prev, logEntry]);
+    setActivityLog(prev => [logEntry, ...prev]);
   };
 
   const loadItems = async () => {
@@ -82,21 +84,30 @@ export const FridgeProvider = ({ children }) => {
     logActivity('added', newItem);
   };
 
-  // ✅ ENHANCED: Accept a custom action type like 'consumed' or 'wasted'
-  const removeItem = (id, reason = 'removed') => {
-    const itemToRemove = items.find(item => item.id === id);
-    if (itemToRemove) {
-      logActivity(reason, itemToRemove);
-    }
+  // ✅ FIXED & CLEANED: Unified removeItem function capturing unit and routing to states smoothly
+  const removeItem = (id, status = 'removed') => {
+    const itemToLog = items.find(i => i.id === id);
+    if (!itemToLog) return;
+
+    const newLogEntry = {
+      id: Date.now().toString(),
+      itemName: itemToLog.name,
+      qty: itemToLog.qty,
+      unit: itemToLog.unit || 'pcs', // 🌟 This captures the unit (g, ml, etc.)
+      category: itemToLog.category,
+      action: status, // 'wasted', 'consumed', or 'removed'
+      timestamp: new Date().toISOString(),
+    };
+
+    setActivityLog(prev => [newLogEntry, ...prev]);
     setItems(prevItems => prevItems.filter(item => item.id !== id));
   };
 
-  // ✅ HELPER: Call this when user finishes their food
+  // ✅ Unified handlers pointing directly to our clean routing implementation
   const consumeItem = (id) => {
     removeItem(id, 'consumed');
   };
 
-  // ✅ HELPER: Call this when food expires or is thrown away
   const wasteItem = (id) => {
     removeItem(id, 'wasted');
   };
