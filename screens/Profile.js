@@ -9,35 +9,63 @@ const screenWidth = Dimensions.get('window').width;
 
 export default function Profile() {
   const { activityLog = [] } = useContext(FridgeContext) || {};
-  const [selectedFilter, setSelectedFilter] = useState('All statistics');
   const [showDetailModal, setShowDetailModal] = useState(false);
 
-  const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  // =========================================================
+  // 📈 PIPELINE 1: TIME FILTER FOR CURRENT CALENDAR WEEK ONLY
+  // =========================================================
+  const getStartOfWeek = () => {
+    const now = new Date();
+    const day = now.getDay();
+    // Anchor onto most recent Monday morning at 00:00:00
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(now.setDate(diff));
+    monday.setHours(0, 0, 0, 0);
+    return monday;
+  };
+
+  const startOfWeek = getStartOfWeek();
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 7); // Up to midnight Sunday
+
   const weeklyActivity = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
+  const weekdayNamesMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  // =========================================================
+  // 🍩 PIPELINE 2: DONUT FREQUENCY COUNTERS (NOT QUANTITIES)
+  // =========================================================
   const wastedCategoryCounts = {};
   const eatenCategoryCounts = {};
+  let totalSavedItemsCount = 0;
+  let totalWastedItemsCount = 0;
 
   activityLog.forEach(log => {
+    if (!log.timestamp) return;
+
+    const logDate = new Date(log.timestamp);
     const action = log.action ? log.action.toLowerCase() : '';
     const category = log.category || 'Other';
-    const qty = Number(log.qty) || 1;
 
-    if (action === 'consumed') {
-      const date = new Date(log.timestamp);
-      const dayName = weekdayNames[date.getDay()];
-      if (weeklyActivity[dayName] !== undefined) {
-        weeklyActivity[dayName] += qty;
+    // A) Populate Line Chart Data (STRICT CURRENT WEEK CHECK)
+    if (logDate >= startOfWeek && logDate < endOfWeek) {
+      if (action === 'consumed' || action === 'wasted') {
+        const lineDayName = weekdayNamesMap[logDate.getDay()];
+        // Each log item counts as 1 individual activity event
+        weeklyActivity[lineDayName] = (weeklyActivity[lineDayName] || 0) + 1;
       }
-      // Eaten categories breakdown
-      eatenCategoryCounts[category] = (eatenCategoryCounts[category] || 0) + qty;
-    } 
-    else if (action === 'wasted' || action === 'removed') {
-      // Wasted categories breakdown
-      wastedCategoryCounts[category] = (wastedCategoryCounts[category] || 0) + qty;
+    }
+
+    // B) Populate Donut Chart Tallies (Frequency of item entries)
+    if (action === 'consumed') {
+      eatenCategoryCounts[category] = (eatenCategoryCounts[category] || 0) + 1;
+      totalSavedItemsCount++;
+    } else if (action === 'wasted' || action === 'removed') {
+      wastedCategoryCounts[category] = (wastedCategoryCounts[category] || 0) + 1;
+      totalWastedItemsCount++;
     }
   });
 
-  // Assemble Line Chart Data
+  // Assemble Line Chart Data Structure
   const weeklyPoints = Object.values(weeklyActivity);
   const hasLineData = weeklyPoints.some(v => v > 0);
   const lineChartData = {
@@ -48,18 +76,20 @@ export default function Profile() {
     }]
   };
 
-  // Helper function to map category tallies to Gifted Charts data format
-  const generateDonutData = (countsMap, colorsPalette) => {
-    const totalItems = Object.values(countsMap).reduce((sum, v) => sum + v, 0);
+  // =========================================================
+  // 🛠️ PIPELINE 3: COMPONENT DATA GENERATOR (WITH % LABELS)
+  // =========================================================
+  const generateDonutData = (countsMap, totalItems, colorsPalette) => {
     if (totalItems === 0) return null;
 
     return Object.keys(countsMap).map((category, index) => {
-      const value = countsMap[category];
-      const percentage = Math.round((value / totalItems) * 100);
+      const occurrenceCount = countsMap[category];
+      const percentage = Math.round((occurrenceCount / totalItems) * 100);
       return {
-        value,
+        value: occurrenceCount, // Keeps donut slice sizes physically proportional
         color: colorsPalette[index % colorsPalette.length],
         label: category.charAt(0).toUpperCase() + category.slice(1),
+        percentageText: `${percentage}%`, // Displayed inside the legend list below
         text: `${percentage}%`,
         textColor: '#222222',
         fontWeight: 'bold',
@@ -68,45 +98,36 @@ export default function Profile() {
     });
   };
 
-  // Palettes (Warm tones for waste, Fresh/Cool tones for consumption)
   const wasteColors = ['#EC6039', '#E7C665', '#E7B1A6', '#B2DFE8', '#A8C3A4'];
   const eatenColors = ['#4A9B6B', '#5FA8D3', '#9BC53D', '#2A6F97', '#A3C1AD'];
 
-  const wastedDonutData = generateDonutData(wastedCategoryCounts, wasteColors);
-  const eatenDonutData = generateDonutData(eatenCategoryCounts, eatenColors);
+  const eatenDonutData = generateDonutData(eatenCategoryCounts, totalSavedItemsCount, eatenColors);
+  const wastedDonutData = generateDonutData(wastedCategoryCounts, totalWastedItemsCount, wasteColors);
 
-  // Fallbacks for empty states
-  const emptyWastedFallback = [{ value: 1, color: '#EAEAEA', label: 'No Waste', text: '0%' }];
-  const emptyEatenFallback = [{ value: 1, color: '#EAEAEA', label: 'No Data Yet', text: '0%' }];
+  const emptyWastedFallback = [{ value: 1, color: '#EAEAEA', label: 'No Waste', percentageText: '0%' }];
+  const emptyEatenFallback = [{ value: 1, color: '#EAEAEA', label: 'No Data Yet', percentageText: '0%' }];
 
- // --- 🗑️ 4. ITEMIZED WASTE BREAKDOWN WITH UNITS ---
+  // =========================================================
+  // 🗑️ PIPELINE 4: ITEMIZED DETAIL MODAL (KEEPS ORIGINAL UNITS)
+  // =========================================================
   const wastedItemsMap = {};
-
   activityLog.forEach(log => {
     const action = log.action ? log.action.toLowerCase() : '';
-    
-    // Track only item entries that were marked as wasted or removed
     if (action === 'wasted' || action === 'removed') {
       if (log.itemName) {
         const name = log.itemName.trim();
         const qty = Number(log.qty) || 1;
         const unit = log.unit && log.unit.trim() !== '' ? log.unit : 'pcs';
-        const key = `${name}_${unit}`; // Unique key to separate same items with different units
+        const key = `${name}_${unit}`;
 
         if (wastedItemsMap[key]) {
           wastedItemsMap[key].qty += qty;
         } else {
-          wastedItemsMap[key] = {
-            name: name,
-            qty: qty,
-            unit: unit
-          };
+          wastedItemsMap[key] = { name, qty, unit };
         }
       }
     }
   });
-
-  // Convert the object into a sorted array (highest waste quantity first)
   const itemizedWasteList = Object.values(wastedItemsMap).sort((a, b) => b.qty - a.qty);
 
   return (
@@ -149,7 +170,8 @@ export default function Profile() {
                   <View key={idx} style={styles.legendRow}>
                     <View style={[styles.legendDot, { backgroundColor: item.color }]} />
                     <Text style={styles.legendLabel} numberOfLines={1}>
-                      {item.value === 1 && !eatenDonutData ? "" : `${item.value} `}{item.label}
+                      {/* ✅ Now displays clean percentage values instead of large mass units */}
+                      {item.percentageText} {item.label}
                     </Text>
                   </View>
                 ))}
@@ -175,7 +197,8 @@ export default function Profile() {
                   <View key={idx} style={styles.legendRow}>
                     <View style={[styles.legendDot, { backgroundColor: item.color }]} />
                     <Text style={styles.legendLabel} numberOfLines={1}>
-                      {item.value === 1 && !wastedDonutData ? "" : `${item.value} `}{item.label}
+                      {/* ✅ Now displays clean percentage values instead of large mass units */}
+                      {item.percentageText} {item.label}
                     </Text>
                   </View>
                 ))}
@@ -184,7 +207,6 @@ export default function Profile() {
           </View>
 
         </View>
-      
 
         {/* Info Detail Toggle Button */}
         <TouchableOpacity style={styles.seeMoreButton} onPress={() => setShowDetailModal(true)}>
@@ -202,7 +224,6 @@ export default function Profile() {
             </TouchableOpacity>
           </View>
           
-          {/* Updated Title */}
           <Text style={styles.modalTitle}>Wasted Food Breakdown</Text>
           
           <FlatList
@@ -214,11 +235,10 @@ export default function Profile() {
             renderItem={({ item, index }) => (
               <View style={styles.listItem}>
                 <View style={styles.listItemLeft}>
-                  {/* Dynamic coloring dot or fallback warm waste tone */}
                   <View style={[styles.colorDot, { backgroundColor: wasteColors[index % wasteColors.length] }]} />
                   <Text style={styles.itemNameText}>{item.name}</Text>
                 </View>
-                {/* Displays quantity along with its measurement unit cleanly! */}
+                {/* Keep original details inside modal view (e.g. 250 g) */}
                 <Text style={styles.itemCountText}>
                   {item.qty} <Text style={styles.unitText}>{item.unit}</Text>
                 </Text>
@@ -230,7 +250,6 @@ export default function Profile() {
     </View>
   );
 }
-
 
 const lineChartConfig = {
   backgroundGradientFrom: '#ffffff',

@@ -78,14 +78,14 @@ export default function ItemDetails({ route, navigation }) {
           text: "🗑️ Wasted",
           style: "destructive",
           onPress: () => {
-            wasteItem(item.id); // 🍩 Goes straight to your Wasted Donut Chart
+            wasteItem(item.id); 
             navigation.goBack();
           }
         },
         {
           text: "🎉 Eaten",
           onPress: () => {
-            consumeItem(item.id); // 📈 Goes straight to your Weekly Consumption Line Chart
+            consumeItem(item.id);
             navigation.goBack();
           }
         }
@@ -157,7 +157,7 @@ export default function ItemDetails({ route, navigation }) {
       <Text style={styles.genText}>Left in the fridge: </Text>
 
       <View style={styles.counterRow}>
-        {/* ✅ Clean, isolated Text block without any trailing string spaces */}
+        
         <Text style={styles.quantityText}>
           {item.qty} {item.unit || 'pcs'}
         </Text>

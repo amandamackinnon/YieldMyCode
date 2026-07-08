@@ -23,16 +23,16 @@ export const FridgeProvider = ({ children }) => {
     saveActivityLog();
   }, [activityLog]);
 
-  // ✅ FIXED: Capture unit when items are added to the activity log
+  
   const logActivity = (action, item) => {
     const logEntry = {
       id: Date.now().toString(),
-      action, // 'added', 'consumed', or 'wasted'
+      action, 
       itemId: item.id,
       itemName: item.name,
       category: item.category,
       qty: item.qty,
-      unit: item.unit || 'pcs', // 🌟 Added unit here!
+      unit: item.unit || 'pcs', 
       timestamp: new Date().toISOString(),
     };
 
@@ -84,7 +84,6 @@ export const FridgeProvider = ({ children }) => {
     logActivity('added', newItem);
   };
 
-  // ✅ FIXED & CLEANED: Unified removeItem function capturing unit and routing to states smoothly
   const removeItem = (id, status = 'removed') => {
     const itemToLog = items.find(i => i.id === id);
     if (!itemToLog) return;
@@ -93,9 +92,9 @@ export const FridgeProvider = ({ children }) => {
       id: Date.now().toString(),
       itemName: itemToLog.name,
       qty: itemToLog.qty,
-      unit: itemToLog.unit || 'pcs', // 🌟 This captures the unit (g, ml, etc.)
+      unit: itemToLog.unit || 'pcs', 
       category: itemToLog.category,
-      action: status, // 'wasted', 'consumed', or 'removed'
+      action: status, 
       timestamp: new Date().toISOString(),
     };
 
@@ -103,7 +102,6 @@ export const FridgeProvider = ({ children }) => {
     setItems(prevItems => prevItems.filter(item => item.id !== id));
   };
 
-  // ✅ Unified handlers pointing directly to our clean routing implementation
   const consumeItem = (id) => {
     removeItem(id, 'consumed');
   };

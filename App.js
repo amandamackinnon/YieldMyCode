@@ -49,7 +49,6 @@ function FridgeStack() {
         ),
       })}
     >
-      {/* ✅ Clean component reference */}
       <Stack.Screen
         name="FridgeHome"
         component={Fridge} 
@@ -164,12 +163,9 @@ function MainAppContent() {
           component={View}
           listeners={({ navigation }) => ({
             tabPress: (e) => {
-              e.preventDefault(); // Stop default navigation to an empty View template
-              
-              // 1. Force the Tab Navigator to switch active focus onto your Fridge Tab base
+              e.preventDefault(); 
               navigation.navigate('FridgeTab');
               
-              // 2. Queue up the transparent Add modal over the freshly mounted inventory grid background
               setTimeout(() => {
                 navigation.navigate('FridgeTab', { screen: 'AddToFridge' });
               }, 50); 
