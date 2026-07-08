@@ -1,5 +1,5 @@
-import React, { useContext, useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Pressable, Image, ScrollView, Alert } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Pressable, Image, ScrollView, Alert, Modal, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { FridgeContext } from '../context/FridgeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -13,13 +13,12 @@ export default function ItemDetails({ route, navigation }) {
 
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  const timerRef = useRef(null);
-  const isLongPressingRef = useRef(false);
-  const touchStartTimeRef = useRef(0);
+  
+  // Custom Modal States for Cross-Platform Input
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [inputAmount, setInputAmount] = useState('');
 
   const item = items.find((i) => i.id === itemId);
-
 
   if (!item) {
     return (
@@ -28,45 +27,6 @@ export default function ItemDetails({ route, navigation }) {
       </View>
     );
   }
-
-  const handlePressIn = () => {
-    if (timerRef.current) return;
-
-    touchStartTimeRef.current = Date.now();
-    isLongPressingRef.current = false;
-
-    timerRef.current = setInterval(() => {
-      const freshItem = items.find((i) => i.id === itemId);
-
-      if (freshItem && freshItem.qty > 1) {
-        isLongPressingRef.current = true;
-        decreaseQty(itemId);
-      } else {
-        cleanUpTimer();
-        triggerDeleteAlert();
-      }
-    }, 150);
-  };
-
-  const handlePressOut = () => {
-    const touchDuration = Date.now() - touchStartTimeRef.current;
-    cleanUpTimer();
-
-    if (!isLongPressingRef.current && touchDuration < 300) {
-      if (item.qty <= 1) {
-        triggerDeleteAlert();
-      } else {
-        decreaseQty(item.id);
-      }
-    }
-  };
-
-  const cleanUpTimer = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-  };
 
   const triggerDeleteAlert = () => {
     Alert.alert(
@@ -91,6 +51,23 @@ export default function ItemDetails({ route, navigation }) {
         }
       ]
     );
+  };
+
+  // Open our custom inline modal instead of Alert.prompt
+  const openDecrementModal = () => {
+    setInputAmount(Math.ceil(item.qty / 2).toString()); // Pre-fill with half
+    setIsModalVisible(true);
+  };
+
+  const handlePartialAction = (actionType) => {
+    const amount = Number(inputAmount);
+    if (amount > 0 && amount <= item.qty) {
+      decreaseQty(item.id, amount, actionType);
+      setIsModalVisible(false);
+      if (amount === item.qty) navigation.goBack();
+    } else {
+      Alert.alert("Invalid Amount", `Please enter a quantity between 1 and ${item.qty}.`);
+    }
   };
 
   const findRecipes = async () => {
@@ -121,93 +98,217 @@ export default function ItemDetails({ route, navigation }) {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={[styles.headerRow, { paddingTop: insets.top }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={28} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>yield</Text>
-        <View style={styles.headerSpacer} />
-      </View>
-
-      <View style={styles.mainCard}>
-        <Image source= {getImageSource()} style={styles.largeImage} resizeMode="contain" />
-        <Text style={styles.titleText}>{item.name}</Text>
-        <Text style={styles.categoryText}>{item.category}</Text>
-      </View>
-
-      <View style={styles.timelineContainer}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-
-          <View style={[styles.timelineRow, { flex: 1, borderBottomWidth: 0 }]}>
-            <Text style={styles.timelineLabel}>Shopping Date: </Text>
-            <Text style={styles.timelineValue}>{item.addedAt || 'Not specified'}</Text>
-          </View>
-
-          <View style={[styles.timelineRow, { flex: 1, borderBottomWidth: 0 }]}>
-            <Text style={styles.timelineLabel}>Expiry Date: </Text>
-            <Text style={[styles.timelineValue, { color: '#EF4E23', fontFamily: 'NunitoBold' }]}>
-              {item.expiryDate || 'No date set'}
-            </Text>
-          </View>
-
+    <View style={{ flex: 1, backgroundColor: '#FFF' }}>
+      <ScrollView style={styles.container}>
+        <View style={[styles.headerRow, { paddingTop: insets.top }]}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={28} color="#000" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>yield</Text>
+          <View style={styles.headerSpacer} />
         </View>
-      </View>
 
-      <Text style={styles.genText}>Left in the fridge: </Text>
+        <View style={styles.mainCard}>
+          <Image source={getImageSource()} style={styles.largeImage} resizeMode="contain" />
+          <Text style={styles.titleText}>{item.name}</Text>
+          <Text style={styles.categoryText}>{item.category}</Text>
+        </View>
 
-      <View style={styles.counterRow}>
-        
-        <Text style={styles.quantityText}>
-          {item.qty} {item.unit || 'pcs'}
-        </Text>
-        
-        <Pressable
-          style={({ pressed }) => [
-            styles.counterButton,
-            { opacity: pressed ? 0.7 : 1.0 }
-          ]}
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-        >
-          <Ionicons name="remove-sharp" size={30} color="#FFF" />
-        </Pressable>
+        <View style={styles.timelineContainer}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <View style={[styles.timelineRow, { flex: 1, borderBottomWidth: 0 }]}>
+              <Text style={styles.timelineLabel}>Shopping Date: </Text>
+              <Text style={styles.timelineValue}>{item.addedAt || 'Not specified'}</Text>
+            </View>
 
-        <TouchableOpacity style={styles.removeButton} onPress={triggerDeleteAlert}>
-          <Ionicons name="trash-outline" size={40} color="#EF4E23" style={{ marginRight: 6 }} />
-        </TouchableOpacity>
-      </View>
+            <View style={[styles.timelineRow, { flex: 1, borderBottomWidth: 0 }]}>
+              <Text style={styles.timelineLabel}>Expiry Date: </Text>
+              <Text style={[styles.timelineValue, { color: '#EF4E23', fontFamily: 'NunitoBold' }]}>
+                {item.expiryDate || 'No date set'}
+              </Text>
+            </View>
+          </View>
+        </View>
 
-      <TouchableOpacity style={styles.recipeButton} onPress={findRecipes} disabled={loading}>
-        <Text style={styles.recipeButtonText}>
-          {loading ? 'Searching...' : `Check Recipes`}
-        </Text>
-      </TouchableOpacity>
+        <Text style={styles.genText}>Left in the fridge: </Text>
 
-     {recipes.length > 0 && (
-        <View style={styles.recipeListContainer}>
-          <Text style={styles.recipeSectionTitle}>Recipe Ideas:</Text>
+        <View style={styles.counterRow}>
+          <Text style={styles.quantityText}>
+            {item.qty} {item.unit || 'pcs'}
+          </Text>
           
-          {recipes.map((recipe, index) => {
-            const colorsArray = TILE_COLORS || ['#4F6BB7', '#E7B1A6', '#B2DFE8', '#EC6039', '#E7C665', '#699966'];
-            
-            const cardBgColor = colorsArray[index % colorsArray.length];
+          <Pressable
+            style={({ pressed }) => [
+              styles.counterButton,
+              { opacity: pressed ? 0.7 : 1.0 }
+            ]}
+            onPress={openDecrementModal}
+          >
+            <Ionicons name="remove-sharp" size={30} color="#FFF" />
+          </Pressable>
 
-            return (
-              <TouchableOpacity 
-                key={recipe.id} 
-                style={[styles.recipeCard, { backgroundColor: cardBgColor }]} 
-                onPress={() => navigation.navigate('RecipeDetails', { recipeId: recipe.id })}
-              >
-                <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
-                <View style={styles.recipeInfo}>
-                  <Text style={styles.recipeTitle} numberOfLines={2}>{recipe.title}</Text>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
+          <TouchableOpacity style={styles.removeButton} onPress={triggerDeleteAlert}>
+            <Ionicons name="trash-outline" size={40} color="#EF4E23" style={{ marginRight: 6 }} />
+          </TouchableOpacity>
         </View>
-      )}
-    </ScrollView>
+
+        <TouchableOpacity style={styles.recipeButton} onPress={findRecipes} disabled={loading}>
+          <Text style={styles.recipeButtonText}>
+            {loading ? 'Searching...' : `Check Recipes`}
+          </Text>
+        </TouchableOpacity>
+
+        {recipes.length > 0 && (
+          <View style={styles.recipeListContainer}>
+            <Text style={styles.recipeSectionTitle}>Recipe Ideas:</Text>
+            {recipes.map((recipe, index) => {
+              const colorsArray = TILE_COLORS || ['#4F6BB7', '#E7B1A6', '#B2DFE8', '#EC6039', '#E7C665', '#699966'];
+              const cardBgColor = colorsArray[index % colorsArray.length];
+
+              return (
+                <TouchableOpacity 
+                  key={recipe.id} 
+                  style={[styles.recipeCard, { backgroundColor: cardBgColor }]} 
+                  onPress={() => navigation.navigate('RecipeDetails', { recipeId: recipe.id })}
+                >
+                  <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
+                  <View style={styles.recipeInfo}>
+                    <Text style={styles.recipeTitle} numberOfLines={2}>{recipe.title}</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
+      </ScrollView>
+
+      {/* =========================================================
+          📱 CROSS-PLATFORM MODAL (WORKS ON BOTH IOS & ANDROID)
+         ========================================================= */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={isModalVisible}
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <View style={localStyles.modalOverlay}>
+          <View style={localStyles.modalContent}>
+            <Text style={localStyles.modalTitle}>Log Amount</Text>
+            <Text style={localStyles.modalSubtitle}>
+              How many {item.unit || 'pcs'} are you removing? (Max: {item.qty})
+            </Text>
+            
+            <TextInput
+              style={localStyles.numericInput}
+              keyboardType="numeric"
+              value={inputAmount}
+              onChangeText={setInputAmount}
+              selectTextOnFocus
+              autoFocus
+            />
+
+            <View style={localStyles.modalButtonRow}>
+              <TouchableOpacity 
+                style={[localStyles.modalButton, localStyles.cancelBtn]} 
+                onPress={() => setIsModalVisible(false)}
+              >
+                <Text style={localStyles.cancelBtnText}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={[localStyles.modalButton, localStyles.wasteBtn]} 
+                onPress={() => handlePartialAction('wasted')}
+              >
+                <Text style={localStyles.actionBtnText}>🗑️ Wasted</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={[localStyles.modalButton, localStyles.eatenBtn]} 
+                onPress={() => handlePartialAction('consumed')}
+              >
+                <Text style={localStyles.actionBtnText}>🎉 Eaten</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 }
+
+// Simple local style setup to guarantee a matching look across platforms
+const localStyles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '85%',
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#333',
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  numericInput: {
+    width: '60%',
+    height: 45,
+    borderWidth: 1,
+    borderColor: '#CCC',
+    borderRadius: 8,
+    textAlign: 'center',
+    fontSize: 18,
+    marginBottom: 20,
+    color: '#333',
+    backgroundColor: '#FAFAFA'
+  },
+  modalButtonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  modalButton: {
+    flex: 1,
+    height: 40,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 4,
+  },
+  cancelBtn: {
+    backgroundColor: '#EAEAEA',
+  },
+  wasteBtn: {
+    backgroundColor: '#EF4E23',
+  },
+  eatenBtn: {
+    backgroundColor: '#4A9B6B',
+  },
+  cancelBtnText: {
+    color: '#333',
+    fontWeight: '600',
+  },
+  actionBtnText: {
+    color: '#FFF',
+    fontWeight: '600',
+    fontSize: 13,
+  },
+});

@@ -17,7 +17,6 @@ export default function Profile() {
   const getStartOfWeek = () => {
     const now = new Date();
     const day = now.getDay();
-    // Anchor onto most recent Monday morning at 00:00:00
     const diff = now.getDate() - day + (day === 0 ? -6 : 1);
     const monday = new Date(now.setDate(diff));
     monday.setHours(0, 0, 0, 0);
@@ -26,7 +25,7 @@ export default function Profile() {
 
   const startOfWeek = getStartOfWeek();
   const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 7); // Up to midnight Sunday
+  endOfWeek.setDate(startOfWeek.getDate() + 7); 
 
   const weeklyActivity = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
   const weekdayNamesMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];

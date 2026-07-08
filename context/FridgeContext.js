@@ -114,13 +114,37 @@ export const FridgeProvider = ({ children }) => {
     setItems(prevItems => prevItems.map(item => item.id === updatedItem.id ? updatedItem : item));
   };
 
-  const decreaseQty = (id) => {
-    setItems(prevItems => prevItems.map(item => {
-      if (item.id === id) {
-        return { ...item, qty: Math.max(1, item.qty - 1) };
+  const decreaseQty = (id, amountToSubtract, status = null) => {
+    setItems(prevItems => {
+      const targetItem = prevItems.find(item => item.id === id);
+      if (!targetItem) return prevItems;
+
+      const amt = Number(amountToSubtract) || 1;
+
+      // If a status is passed, log exactly that amount to history!
+      if (status) {
+        const partialLogEntry = {
+          id: Date.now().toString(),
+          itemName: targetItem.name,
+          qty: amt, // 🌟 Logs the exact amount (e.g., 100)
+          unit: targetItem.unit || 'pcs',
+          category: targetItem.category,
+          action: status,
+          timestamp: new Date().toISOString(),
+        };
+        setActivityLog(prevLog => [partialLogEntry, ...prevLog]);
       }
-      return item;
-    }));
+
+      // Modify the inventory numbers in the fridge
+      return prevItems.map(item => {
+        if (item.id === id) {
+          const newQty = item.qty - amt;
+          // If they consume everything or more than what's left, we will handle removal
+          return { ...item, qty: Math.max(0, newQty) };
+        }
+        return item;
+      }).filter(item => item.qty > 0); // Automatically clear item if qty hits 0!
+    });
   };
 
   const increaseQty = (id) => {
