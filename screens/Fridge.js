@@ -12,93 +12,101 @@ import { getDynamicFridgeContent } from '../services/foodContentService';
 import FridgeTile from '../components/FridgeTile';
 import { fridgeStyles as styles } from '../Styles/fridgeStyles';
 
-
 export default function Fridge({ navigation, route }) {
   const { items, removeItem, decreaseQty } = useContext(FridgeContext);
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [notifications, setNotifications] = useState([]);
+  const [factTracking, setFactTracking] = useState({});
 
-const handleFactPress = async (ingredientName) => {
-  if (!ingredientName) {
-    Alert.alert("Oops", "We couldn't verify this ingredient name.");
-    return;
-  }
-  
-  try {
+  const handleFactPress = async (ingredientName) => {
+    if (!ingredientName) {
+      Alert.alert("Oops", "We couldn't verify this ingredient name.");
+      return;
+    }
     
-    const activeFridgeNames = items ? items.map(i => i.name) : [];
-    
-    
-    const content = await getDynamicFridgeContent(activeFridgeNames, ingredientName); 
-    
+    const lookupKey = ingredientName.trim().toLowerCase();
+    const currentIdx = factTracking[lookupKey] || 0;
 
-    if (content.type === 'fact') {
-      Alert.alert(
-        `${ingredientName.charAt(0).toUpperCase() + ingredientName.slice(1)} Insight`, 
-        content.text, 
-        [{ text: "The more you know!", style: "cancel" }]
-      );
-    } 
-
-    else if (content.type === 'quiz') {
-      const sanitize = (str) => str.replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
+    try {
+      const activeFridgeNames = items ? items.map(i => i.name) : [];
       
-      const cleanQuestion = sanitize(content.question);
-      const cleanCorrect = sanitize(content.correctAnswer);
-      
-      const choicePool = [content.correctAnswer, ...content.incorrectAnswers]
-        .map(ans => sanitize(ans))
-        .sort(() => Math.random() - 0.5);
+      const content = await getDynamicFridgeContent(activeFridgeNames, ingredientName, currentIdx); 
 
-  
-      const alertButtons = choicePool.map(choice => ({
-        text: choice,
-        onPress: () => {
-          if (choice === cleanCorrect) {
-            Alert.alert("🎉 Correct!", "You really know your food facts!", [{ text: "Now you're cooking!" }]);
-          } else {
-            Alert.alert("❌ Not Quite", `Good try! The correct answer was actually: ${cleanCorrect}`, [{ text: "Food for thought!" }]);
+      if (content.type === 'fact') {
+        Alert.alert(
+          `${ingredientName.charAt(0).toUpperCase() + ingredientName.slice(1)} Insight`, 
+          content.text, 
+          [{ 
+            text: `The more you know!`, 
+            style: "cancel",
+            onPress: () => {
+              setFactTracking(prev => ({
+                ...prev,
+                [lookupKey]: currentIdx + 1
+              }));
+            }
+          }]
+        );
+      } 
+
+      else if (content.type === 'quiz') {
+        const sanitize = (str) => str.replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
+        
+        const cleanQuestion = sanitize(content.question);
+        const cleanCorrect = sanitize(content.correctAnswer);
+        
+        const choicePool = [content.correctAnswer, ...content.incorrectAnswers]
+          .map(ans => sanitize(ans))
+          .sort(() => Math.random() - 0.5);
+
+        const alertButtons = choicePool.map(choice => ({
+          text: choice,
+          onPress: () => {
+            if (choice === cleanCorrect) {
+              Alert.alert("🎉 Correct!", "You really know your food facts!", [{ text: "Now you're cooking!" }]);
+            } else {
+              Alert.alert("❌ Not Quite", `Good try! The correct answer was actually: ${cleanCorrect}`, [{ text: "Food for thought!" }]);
+            }
           }
-        }
-      }));
+        }));
 
-      if (alertButtons.length > 3) alertButtons.splice(3);
+        if (alertButtons.length > 3) alertButtons.splice(3);
 
-      Alert.alert(
-        "🍎 Daily Kitchen Quiz",
-        cleanQuestion,
-        alertButtons,
-        { cancelable: true }
-      );
+        Alert.alert(
+          "🍎 Daily Kitchen Quiz",
+          cleanQuestion,
+          alertButtons,
+          { cancelable: true }
+        );
+      }
+    } catch (err) {
+      Alert.alert("Error", "Could not load food content at this moment.");
     }
-  } catch (err) {
-    Alert.alert("Error", "Could not load food content at this moment.");
-  }
-};
+  };
 
-const handleRecipePress = async (ingredientName) => {
-  if (!ingredientName) return;
+  const handleRecipePress = async (ingredientName) => {
+    if (!ingredientName) return;
 
-  setShowNotifications(false);
+    setShowNotifications(false);
 
-  try {
-    const randomRecipe = await fetchRecipeIdea(ingredientName);
-    
-    if (randomRecipe && randomRecipe.id) {
-      navigation.navigate('RecipeDetails', { 
-        ingredient: ingredientName,
-        recipeId: randomRecipe.id, 
-        autoLoad: true,
-        clickId: Date.now() 
-      });
-    } else {
-      navigation.navigate('RecipeDetails', { ingredient: ingredientName, autoLoad: true });
+    try {
+      const randomRecipe = await fetchRecipeIdea(ingredientName);
+      
+      if (randomRecipe && randomRecipe.id) {
+        navigation.navigate('RecipeDetails', { 
+          ingredient: ingredientName,
+          recipeId: randomRecipe.id, 
+          autoLoad: true,
+          clickId: Date.now() 
+        });
+      } else {
+        navigation.navigate('RecipeDetails', { ingredient: ingredientName, autoLoad: true });
+      }
+    } catch (err) {
+      console.log("Error during recipe navigation routing:", err);
     }
-  } catch (err) {
-    console.log("Error during recipe navigation routing:", err);
-  }
-};
+  };
 
   const [previousNotificationState, setPreviousNotificationState] = useState(null);
   const flatListRef = useRef(null);
@@ -120,31 +128,31 @@ const handleRecipePress = async (ingredientName) => {
   };
 
   useEffect(() => {
-  const syncAlerts = () => {
-    if (!items || items.length === 0) {
-      setNotifications([]);
-      return;
-    }
-    
-    const baseline = getNotificationData(items);
-    const enhanced = baseline.map((alert) => {
-      const cached = notifications.find(n => n.id === alert.id);
-      if (cached) return cached;
-
-      const origin = items.find(i => `expire-${i.id}` === alert.id);
+    const syncAlerts = () => {
+      if (!items || items.length === 0) {
+        setNotifications([]);
+        return;
+      }
       
-      return { 
-        ...alert, 
-        text: origin ? `${origin.name} expires soon!` : alert.text,
-        ingredientName: origin ? origin.name : null,
-        isRead: false 
-      };
-    });
+      const baseline = getNotificationData(items);
+      const enhanced = baseline.map((alert) => {
+        const cached = notifications.find(n => n.id === alert.id);
+        if (cached) return cached;
 
-    setNotifications(enhanced);
-  };
-  syncAlerts();
-}, [items]);
+        const origin = items.find(i => `expire-${i.id}` === alert.id);
+        
+        return { 
+          ...alert, 
+          text: origin ? `${origin.name} expires soon!` : alert.text,
+          ingredientName: origin ? origin.name : null,
+          isRead: false 
+        };
+      });
+
+      setNotifications(enhanced);
+    };
+    syncAlerts();
+  }, [items]);
 
   useEffect(() => {
     if (showNotifications) {
@@ -198,40 +206,40 @@ const handleRecipePress = async (ingredientName) => {
             keyExtractor={item => item.id}
             persistentScrollbar
             showsVerticalScrollIndicator
-           renderItem={({ item }) => (
-    <View style={styles.notificationContainerCell}>
-      <View style={styles.notificationItem}>
-        <TouchableOpacity onPress={() => toggleMarkAsRead(item.id)}>
-          <View style={[styles.indicatorDot, { backgroundColor: item.isRead ? '#FFFFFF' : '#E07A5F', borderColor: '#E07A5F' }]} />
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={{ flex: 1 }} onPress={() => toggleMarkAsRead(item.id)}>
-          <Text style={[styles.notificationText, { color: item.isRead ? '#999999' : '#2D3142', fontFamily: item.isRead ? 'NunitoRegular' : 'NunitoMedium' }]}>
-            {item.text}
-          </Text>
-        </TouchableOpacity>
-      </View>
+            renderItem={({ item }) => (
+              <View style={styles.notificationContainerCell}>
+                <View style={styles.notificationItem}>
+                  <TouchableOpacity onPress={() => toggleMarkAsRead(item.id)}>
+                    <View style={[styles.indicatorDot, { backgroundColor: item.isRead ? '#FFFFFF' : '#E07A5F', borderColor: '#E07A5F' }]} />
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity style={{ flex: 1 }} onPress={() => toggleMarkAsRead(item.id)}>
+                    <Text style={[styles.notificationText, { color: item.isRead ? '#999999' : '#2D3142', fontFamily: item.isRead ? 'NunitoRegular' : 'NunitoMedium' }]}>
+                      {item.text}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
 
-      {item.ingredientName && !item.isRead && (
-        <View style={styles.actionLinksContainer}>
-         <TouchableOpacity 
-      onPress={() => handleFactPress(item.ingredientName)} 
-      style={styles.linkTouchTarget}
-      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} 
-    >
-      <Text style={styles.actionLinkText}>Would you like some food trivia?</Text>
-    </TouchableOpacity>
-          
-          <TouchableOpacity 
-            onPress={() => handleRecipePress(item.ingredientName)} 
-            style={styles.linkTouchTarget}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Text style={styles.actionLinkText}>Would you like to see a recipe?</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
+                {item.ingredientName && !item.isRead && (
+                  <View style={styles.actionLinksContainer}>
+                    <TouchableOpacity 
+                      onPress={() => handleFactPress(item.ingredientName)} 
+                      style={styles.linkTouchTarget}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} 
+                    >
+                      <Text style={styles.actionLinkText}>Would you like some food trivia?</Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity 
+                      onPress={() => handleRecipePress(item.ingredientName)} 
+                      style={styles.linkTouchTarget}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <Text style={styles.actionLinkText}>Would you like to see a recipe?</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
             )}
           />
         </View>

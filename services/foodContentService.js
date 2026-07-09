@@ -1,10 +1,4 @@
-const LOCAL_FRIDGE_DB = {
-  yogurt: "Did you know that the word 'yogurt' comes from a Turkish word meaning 'to curdle or thicken'?",
-  salmon: "Wild salmon get their distinct pink color naturally from eating a steady diet of shrimp and krill!",
-  egg: "To check if your eggs are still fresh, drop them in water. Fresh eggs sink completely, while old ones float!",
-  potato: "Did you know that potatoes were the very first vegetable to be successfully grown in microgravity in space back in 1995?",
-  apple: "Apples float in water because 25% of their total volume is actually pure air!"
-};
+import { LOCAL_FRIDGE_DB } from '../utils/foodFactsData'
 
 const fetchLiveFoodQuiz = async () => {
   try {
@@ -27,26 +21,22 @@ const fetchLiveFoodQuiz = async () => {
     console.log("❌ Dedicated Culinary Trivia API request failure:", error);
   }
 
-  return {
-    type: 'quiz',
-    question: "What is the main ingredient used to make traditional Guacamole?",
-    correctAnswer: "Avocado",
-    incorrectAnswers: ["Tomato", "Lime", "Cucumber"]
-  };
 };
 
-export const getDynamicFridgeContent = async (currentFridgeItems = [], targetItem = '') => {
+export const getDynamicFridgeContent = async (currentFridgeItems = [], targetItem = '', currentFactIndex = 0) => {
   let cleanTarget = targetItem.trim().toLowerCase();
   if (cleanTarget.endsWith('s') && !cleanTarget.endsWith('ss')) {
     cleanTarget = cleanTarget.slice(0, -1);
   }
 
-  if (LOCAL_FRIDGE_DB[cleanTarget]) {
+  const factArray = LOCAL_FRIDGE_DB[cleanTarget];
+
+  if (factArray && factArray.length > 0 && currentFactIndex < factArray.length) {
     return { 
       type: 'fact', 
-      text: LOCAL_FRIDGE_DB[cleanTarget] 
+      text: factArray[currentFactIndex],
+      totalFacts: factArray.length 
     };
   }
-
   return await fetchLiveFoodQuiz();
 };

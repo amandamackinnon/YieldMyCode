@@ -14,7 +14,6 @@ export default function ItemDetails({ route, navigation }) {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
   
-  // Custom Modal States for Cross-Platform Input
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [inputAmount, setInputAmount] = useState('');
 
@@ -53,9 +52,8 @@ export default function ItemDetails({ route, navigation }) {
     );
   };
 
-  // Open our custom inline modal instead of Alert.prompt
   const openDecrementModal = () => {
-    setInputAmount(Math.ceil(item.qty / 2).toString()); // Pre-fill with half
+    setInputAmount(Math.ceil(item.qty / 2).toString()); 
     setIsModalVisible(true);
   };
 
@@ -182,9 +180,6 @@ export default function ItemDetails({ route, navigation }) {
         )}
       </ScrollView>
 
-      {/* =========================================================
-          📱 CROSS-PLATFORM MODAL (WORKS ON BOTH IOS & ANDROID)
-         ========================================================= */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -193,7 +188,7 @@ export default function ItemDetails({ route, navigation }) {
       >
         <View style={localStyles.modalOverlay}>
           <View style={localStyles.modalContent}>
-            <Text style={localStyles.modalTitle}>Log Amount</Text>
+            
             <Text style={localStyles.modalSubtitle}>
               How many {item.unit || 'pcs'} are you removing? (Max: {item.qty})
             </Text>
@@ -236,7 +231,7 @@ export default function ItemDetails({ route, navigation }) {
   );
 }
 
-// Simple local style setup to guarantee a matching look across platforms
+
 const localStyles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
