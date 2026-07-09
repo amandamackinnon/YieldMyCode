@@ -1,4 +1,11 @@
-import { LOCAL_FRIDGE_DB } from '../utils/foodFactsData'
+import { LOCAL_FRIDGE_DB } from '../utils/foodFactsData';
+
+const FOOD_ALIASES = {
+  zucchini: 'courgette', 
+  aubergine: 'eggplant',
+  bellpepper: 'bell_pepper',
+  pepper: 'bell_pepper',
+};
 
 const fetchLiveFoodQuiz = async () => {
   try {
@@ -20,15 +27,23 @@ const fetchLiveFoodQuiz = async () => {
   } catch (error) {
     console.log("❌ Dedicated Culinary Trivia API request failure:", error);
   }
-
 };
 
 export const getDynamicFridgeContent = async (currentFridgeItems = [], targetItem = '', currentFactIndex = 0) => {
-  let cleanTarget = targetItem.trim().toLowerCase();
+  // 1. Clean up spaces and convert to lowercase
+  let cleanTarget = targetItem.trim().toLowerCase().replace(/\s+/g, '_');
+  
+  // 2. Trim trailing 's' if it's a plural item
   if (cleanTarget.endsWith('s') && !cleanTarget.endsWith('ss')) {
     cleanTarget = cleanTarget.slice(0, -1);
   }
 
+  // 3. 🌟 THE MISSING STEP: Intercept and swap the alias key here!
+  if (FOOD_ALIASES[cleanTarget]) {
+    cleanTarget = FOOD_ALIASES[cleanTarget];
+  }
+
+  // 4. Now this looks up 'courgette' instead of 'zucchini'
   const factArray = LOCAL_FRIDGE_DB[cleanTarget];
 
   if (factArray && factArray.length > 0 && currentFactIndex < factArray.length) {
@@ -38,5 +53,6 @@ export const getDynamicFridgeContent = async (currentFridgeItems = [], targetIte
       totalFacts: factArray.length 
     };
   }
+  
   return await fetchLiveFoodQuiz();
 };
