@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LineChart } from 'react-native-chart-kit'; 
 import { PieChart as GiftedPieChart } from 'react-native-gifted-charts'; 
 import { FridgeContext } from '../context/FridgeContext';
+import { profileStyle as styles } from '../Styles/profileStyle';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -11,9 +12,6 @@ export default function Profile() {
   const { activityLog = [] } = useContext(FridgeContext) || {};
   const [showDetailModal, setShowDetailModal] = useState(false);
 
-  // =========================================================
-  // 📈 PIPELINE 1: TIME FILTER FOR CURRENT CALENDAR WEEK ONLY
-  // =========================================================
   const getStartOfWeek = () => {
     const now = new Date();
     const day = now.getDay();
@@ -92,13 +90,14 @@ export default function Profile() {
         text: `${percentage}%`,
         textColor: '#222222',
         fontWeight: 'bold',
-        fontSize: 12
+        fontSize: 12,
+        
       };
     });
   };
 
-  const wasteColors = ['#EC6039', '#E7C665', '#E7B1A6', '#B2DFE8', '#A8C3A4'];
-  const eatenColors = ['#4A9B6B', '#5FA8D3', '#9BC53D', '#2A6F97', '#A3C1AD'];
+  const wasteColors = ['#F3B0A5', '#87B9C2', '#EC6039', '#FFB500', '#699966'];
+  const eatenColors = ['#4F6BB7', '#B2DFE8','#E7C665', '#699966', '#A8C3A4'];
 
   const eatenDonutData = generateDonutData(eatenCategoryCounts, totalSavedItemsCount, eatenColors);
   const wastedDonutData = generateDonutData(wastedCategoryCounts, totalWastedItemsCount, wasteColors);
@@ -106,9 +105,6 @@ export default function Profile() {
   const emptyWastedFallback = [{ value: 1, color: '#EAEAEA', label: 'No Waste', percentageText: '0%' }];
   const emptyEatenFallback = [{ value: 1, color: '#EAEAEA', label: 'No Data Yet', percentageText: '0%' }];
 
-  // =========================================================
-  // 🗑️ PIPELINE 4: ITEMIZED DETAIL MODAL (KEEPS ORIGINAL UNITS)
-  // =========================================================
   const wastedItemsMap = {};
   activityLog.forEach(log => {
     const action = log.action ? log.action.toLowerCase() : '';
@@ -161,15 +157,14 @@ export default function Profile() {
                 radius={45}       
                 innerRadius={30}  
                 showText={false}   
-                strokeWidth={2}
-                strokeColor="#ffffff"
+                strokeWidth={3}
+                strokeColor="#ffffff" 
               />
               <View style={styles.legendContainer}>
                 {(eatenDonutData || emptyEatenFallback).map((item, idx) => (
                   <View key={idx} style={styles.legendRow}>
                     <View style={[styles.legendDot, { backgroundColor: item.color }]} />
                     <Text style={styles.legendLabel} numberOfLines={1}>
-                      {/* ✅ Now displays clean percentage values instead of large mass units */}
                       {item.percentageText} {item.label}
                     </Text>
                   </View>
@@ -188,7 +183,7 @@ export default function Profile() {
                 radius={45}       
                 innerRadius={30}
                 showText={false}
-                strokeWidth={0}
+                strokeWidth={3}
                 strokeColor="#ffffff"
               />
               <View style={styles.legendContainer}>
@@ -237,7 +232,6 @@ export default function Profile() {
                   <View style={[styles.colorDot, { backgroundColor: wasteColors[index % wasteColors.length] }]} />
                   <Text style={styles.itemNameText}>{item.name}</Text>
                 </View>
-                {/* Keep original details inside modal view (e.g. 250 g) */}
                 <Text style={styles.itemCountText}>
                   {item.qty} <Text style={styles.unitText}>{item.unit}</Text>
                 </Text>
@@ -260,87 +254,3 @@ const lineChartConfig = {
   propsForDots: { r: '4.5', strokeWidth: '2', stroke: '#EC6039' }
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFF', paddingTop: 50 },
-  scrollContent: { paddingHorizontal: 16, paddingBottom: 40 },
-  filterContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
-  filterButton: { flex: 1, paddingVertical: 10, marginHorizontal: 4, borderRadius: 24, borderWidth: 1, borderColor: '#4F6BB7', alignItems: 'center', backgroundColor: '#FFF' },
-  activeFilterButton: { backgroundColor: '#4F6BB7' },
-  filterText: { fontSize: 13, color: '#4F6BB7', fontWeight: '600' },
-  activeFilterText: { color: '#FFF' },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#222', marginTop: 28, marginBottom: 14 },
-  lineChartWrapper: { backgroundColor: '#FFF', borderRadius: 16, overflow: 'hidden' },
-  chartStyle: { marginVertical: 8, borderRadius: 16, paddingRight: 40 },
-  donutCardContainer: { backgroundColor: '#FFF', borderRadius: 16, paddingVertical: 24, alignItems: 'center', justifyContent: 'center', borderWidth: 0, borderColor: '#F2F2F2', marginBottom: 8 },
-  legendContainer: { flexDirection: 'column', width: '80%', marginTop: 20, paddingHorizontal: 10 },
-  legendRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 6 },
-  legendDot: { width: 14, height: 14, borderRadius: 7, marginRight: 12 },
-  legendLabel: { fontSize: 15, color: '#444', fontWeight: '500' },
-  seeMoreButton: { backgroundColor: '#EC6039', paddingVertical: 14, borderRadius: 12, alignItems: 'center', marginTop: 28 },
-  seeMoreButtonText: { color: '#FFF', fontWeight: '700', fontSize: 16, letterSpacing: 0.5 },
-  modalContainer: { flex: 1, backgroundColor: '#FFF', paddingHorizontal: 24, paddingTop: 24 },
-  modalHeader: { width: '100%', alignItems: 'flex-end', marginBottom: 10 },
-  modalTitle: { fontSize: 26, fontWeight: '700', color: '#111', marginBottom: 24, textAlign: 'center' },
-  listItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 18, borderBottomWidth: 1, borderBottomColor: '#F5F5F5' },
-  listItemLeft: { flexDirection: 'row', alignItems: 'center' },
-  colorDot: { width: 14, height: 14, borderRadius: 7, marginRight: 14 },
-  itemNameText: { fontSize: 17, color: '#333', textTransform: 'capitalize' },
-  itemCountText: { fontSize: 17, fontWeight: '700', color: '#333' },
-  emptyText: { textAlign: 'center', color: '#666', marginTop: 40, fontSize: 16 },
-  chartsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-    width: '100%',
-  },
-  halfColumn: {
-    width: '48%', // Leaves a tiny 4% gap right down the middle
-  },
-  smallSectionTitle: { 
-    fontSize: 14, 
-    fontWeight: '700', 
-    color: '#222', 
-    marginBottom: 8,
-    textAlign: 'center' 
-  },
-  donutCardContainer: { 
-    backgroundColor: '#FFF', 
-    borderRadius: 16, 
-    paddingVertical: 16, 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    borderWidth: 0, 
-    borderColor: '#F2F2F2',
-    minHeight: 200 // Ensures both containers stay perfectly uniform in height
-  },
-  legendContainer: { 
-    flexDirection: 'column', 
-    width: '90%', 
-    marginTop: 12, 
-    paddingHorizontal: 4 
-  },
-  legendRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    marginVertical: 4 
-  },
-  legendDot: { 
-    width: 10, 
-    height: 10, 
-    borderRadius: 5, 
-    marginRight: 6 
-  },
-  legendLabel: { 
-    fontSize: 12, 
-    color: '#444', 
-    fontWeight: '500',
-    flex: 1 // Prevents long text names from breaking onto new lines unexpectedly
-  },
-unitText: {
-    fontSize: 14,
-    fontWeight: '400',
-    color: '#666',
-    textTransform: 'lowercase', // Keeps units like 'G' or 'PCS' uniformly neat
-  },
-
-});

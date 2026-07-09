@@ -155,6 +155,7 @@ export const itemDetailsStyles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 10,
+    marginTop: 20,
     backgroundColor: '#fff',
   },
 

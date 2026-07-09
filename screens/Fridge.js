@@ -73,7 +73,6 @@ export default function Fridge({ navigation, route }) {
     }
   };
 
-  // 🍳 Recipe Suggestions Routing Handler
   const handleRecipePress = async (ingredientName) => {
     if (!ingredientName) return;
     setShowNotifications(false);
