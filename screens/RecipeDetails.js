@@ -5,8 +5,7 @@ import { recipeDetailsStyles as styles } from '../Styles/recipeDetailsStyles';
 
 export default function RecipeDetails({ route, navigation }) {
   
-  const { ingredient, recipeId: initialRecipeId } = route.params || {};
-  
+  const { ingredient, recipeId: initialRecipeId } = route.params || {};  
   const [recipeId, setRecipeId] = useState(initialRecipeId);
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -65,9 +64,6 @@ export default function RecipeDetails({ route, navigation }) {
     handleIncomingParams();
   }, [recipeId, ingredient]); 
 
-
-  
-
   useEffect(() => {
     if (route.params?.toggleNotifications) {
       navigation.goBack();
@@ -88,7 +84,6 @@ export default function RecipeDetails({ route, navigation }) {
       </View>
     );
   }
-
   
   if (!details) {
     return (

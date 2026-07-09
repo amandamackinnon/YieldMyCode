@@ -13,6 +13,20 @@ export const categories = [
 export const TILE_COLORS = ['#4F6BB7', '#E7B1A6', '#B2DFE8', '#EC6039', '#E7C665', '#699966'];
 export const EXPIRED_TILE_COLORS = ['#4F6BB780', '#E7B1A680', '#B2DFE880', '#EC603980', '#E7C66580', '#69996680'];
 
+
+export const unitData = [
+  { label: 'pcs', value: 'pcs' },
+  { label: 'pkg', value: 'pkg' },
+  { label: 'jar', value: 'jar' },
+  { label: 'carton', value: 'carton' },
+  { label: 'g', value: 'g' },
+  { label: 'kg', value: 'kg' },
+  { label: 'ml', value: 'ml' },
+  { label: 'l', value: 'l' },
+  { label: 'oz', value: 'oz' },
+  { label: 'lb', value: 'lb' },
+];
+
 export const getNotificationData = (fridgeItems) => {
   if (!fridgeItems) return [];
   const today = new Date();
@@ -48,6 +62,12 @@ export const getNotificationData = (fridgeItems) => {
 
   return notifications;
 };
+
+export const formatEuropeanDate = (date) => {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${day}/${month}/${date.getFullYear()}`;
+  }; 
 
 export const getDaysLeft = (expiryDateStr) => {
   if (!expiryDateStr || typeof expiryDateStr !== 'string' || expiryDateStr.trim() === '') {

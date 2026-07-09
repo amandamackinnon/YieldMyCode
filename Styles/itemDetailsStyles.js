@@ -161,18 +161,92 @@ export const itemDetailsStyles = StyleSheet.create({
   backButton: {
     width: 40,
     alignItems: 'flex-start',
+    marginLeft: -50,
   },
 
   headerTitle: {
     fontSize: 32,
     fontFamily: 'NunitoSemiBold',
     color: '#000',
-    textAlign: 'center',
+    textAlign: 'flex-start',
     flex: 1,
+
   },
 
-  headerSpacer: {
-    width: 40,
+  
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '85%',
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#333',
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  numericInput: {
+    width: '60%',
+    height: 45,
+    borderWidth: 1,
+    borderColor: '#CCC',
+    borderRadius: 8,
+    textAlign: 'center',
+    fontSize: 18,
+    marginBottom: 20,
+    color: '#333',
+    backgroundColor: '#FAFAFA'
+  },
+  modalButtonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  modalButton: {
+    flex: 1,
+    height: 40,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 4,
+  },
+  cancelBtn: {
+    backgroundColor: '#EAEAEA',
+  },
+  wasteBtn: {
+    backgroundColor: '#EF4E23',
+  },
+  eatenBtn: {
+    backgroundColor: '#4A9B6B',
+  },
+  cancelBtnText: {
+    color: '#333',
+    fontWeight: '600',
+  },
+  actionBtnText: {
+    color: '#FFF',
+    fontWeight: '600',
+    fontSize: 13,
   },
 
 });

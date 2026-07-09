@@ -8,7 +8,7 @@ export const fetchRecipeIdea = async (ingredientName) => {
     const cacheBuster = Date.now();
 
     
-    const url = `https://api.spoonacular.com/recipes/complexSearch?query=${encodeURIComponent(ingredientName)}&number=20&cb=${cacheBuster}&apiKey=${SPOONACULAR_API_KEY}`;
+    const url = `https://api.spoonacular.com/recipes/complexSearch?query=${encodeURIComponent(ingredientName)}&number=50&cb=${cacheBuster}&apiKey=${SPOONACULAR_API_KEY}`;
     
     const response = await fetch(url);
     

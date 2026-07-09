@@ -68,7 +68,6 @@ function FridgeStack() {
         })}
       />
 
-      {/* ✅ Clean component reference */}
       <Stack.Screen 
         name="AddToFridge"
         component={AddToFridge}
@@ -90,9 +89,11 @@ function FridgeStack() {
         name="RecipeDetails"
         component={RecipeDetails}
         options={{
-          title: 'Recipe Cooking Guide',
+          title: 'Recipe',
+          headerBackTitle: 'Back',      
+          headerTintColor: 'black',
           headerShadowVisible: false,
-          headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 20 }
+          headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 30 }
         }} 
       />
     </Stack.Navigator>
