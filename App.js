@@ -16,6 +16,7 @@ import Profile from './screens/Profile';
 import { FridgeProvider } from './context/FridgeContext';
 import ItemDetails from './screens/ItemDetails';
 import RecipeDetails from './screens/RecipeDetails';
+import ProfileScreen from './screens/Profile'
 
 
 const Stack = createStackNavigator();
@@ -51,7 +52,7 @@ function FridgeStack() {
     >
       <Stack.Screen
         name="FridgeHome"
-        component={Fridge} 
+        component={Fridge}
         options={({ navigation }) => ({
           title: 'yield',
           headerShadowVisible: false,
@@ -68,7 +69,7 @@ function FridgeStack() {
         })}
       />
 
-      <Stack.Screen 
+      <Stack.Screen
         name="AddToFridge"
         component={AddToFridge}
         options={{
@@ -76,25 +77,34 @@ function FridgeStack() {
           headerShown: false,
           cardStyle: { backgroundColor: 'transparent' },
           animation: 'fade',
-        }} 
+        }}
       />
-
-      <Stack.Screen 
+      <Stack.Screen
         name="ItemDetails"
         component={ItemDetails}
-        options={{ headerShown: false }} 
+        options={{
+          title: 'yield',
+          headerBackTitle: '',
+          headerTintColor: 'black',
+          headerShadowVisible: false,
+          headerTitleAlign: 'left',
+          headerTitleStyle: {
+            fontSize: 32,
+            fontFamily: 'NunitoSemiBold'
+          },
+        }}
       />
 
-      <Stack.Screen 
+      <Stack.Screen
         name="RecipeDetails"
         component={RecipeDetails}
         options={{
           title: 'Recipe',
-          headerBackTitle: 'Back',      
+          headerBackTitle: 'Back',
           headerTintColor: 'black',
           headerShadowVisible: false,
           headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 30 }
-        }} 
+        }}
       />
     </Stack.Navigator>
   );
@@ -122,7 +132,7 @@ function MainAppContent() {
   const totalTabBarHeight = insets.bottom > 0 ? 60 + insets.bottom : 76;
 
   return (
- <NavigationContainer>
+    <NavigationContainer>
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused }) => {
@@ -149,14 +159,31 @@ function MainAppContent() {
           },
         })}
       >
-  
-        <Tab.Screen name="Profile" component={Profile} />
 
-    
         <Tab.Screen 
-          name="FridgeTab" 
-          component={FridgeStack} 
-          options={{ title: 'Fridge' }} 
+  name="Profile" 
+  component={Profile} 
+  options={({ navigation }) => ({
+    headerShown: true, //
+    title: '',
+    headerShadowVisible: false,
+    headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 24 },
+    headerRight: () => (
+      <TouchableOpacity
+        onPress={() => navigation.navigate('FridgeTab', { screen: 'FridgeHome', params: { toggleNotifications: true } })}
+        style={{ marginRight: 20 }}
+      >
+        <Ionicons name="notifications" size={28} color="#E07A5F" />
+      </TouchableOpacity>
+    ),
+  })}
+/>
+
+
+        <Tab.Screen
+          name="FridgeTab"
+          component={FridgeStack}
+          options={{ title: 'Fridge' }}
         />
 
         <Tab.Screen
@@ -164,15 +191,16 @@ function MainAppContent() {
           component={View}
           listeners={({ navigation }) => ({
             tabPress: (e) => {
-              e.preventDefault(); 
+              e.preventDefault();
               navigation.navigate('FridgeTab');
-              
+
               setTimeout(() => {
                 navigation.navigate('FridgeTab', { screen: 'AddToFridge' });
-              }, 50); 
+              }, 50);
             },
           })}
         />
+
       </Tab.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>

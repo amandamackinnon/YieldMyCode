@@ -28,9 +28,6 @@ export default function Profile() {
   const weeklyActivity = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
   const weekdayNamesMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  // =========================================================
-  // 🍩 PIPELINE 2: DONUT FREQUENCY COUNTERS (NOT QUANTITIES)
-  // =========================================================
   const wastedCategoryCounts = {};
   const eatenCategoryCounts = {};
   let totalSavedItemsCount = 0;
@@ -43,16 +40,14 @@ export default function Profile() {
     const action = log.action ? log.action.toLowerCase() : '';
     const category = log.category || 'Other';
 
-    // A) Populate Line Chart Data (STRICT CURRENT WEEK CHECK)
     if (logDate >= startOfWeek && logDate < endOfWeek) {
       if (action === 'consumed' || action === 'wasted') {
         const lineDayName = weekdayNamesMap[logDate.getDay()];
-        // Each log item counts as 1 individual activity event
+  
         weeklyActivity[lineDayName] = (weeklyActivity[lineDayName] || 0) + 1;
       }
     }
 
-    // B) Populate Donut Chart Tallies (Frequency of item entries)
     if (action === 'consumed') {
       eatenCategoryCounts[category] = (eatenCategoryCounts[category] || 0) + 1;
       totalSavedItemsCount++;
@@ -62,7 +57,6 @@ export default function Profile() {
     }
   });
 
-  // Assemble Line Chart Data Structure
   const weeklyPoints = Object.values(weeklyActivity);
   const hasLineData = weeklyPoints.some(v => v > 0);
   const lineChartData = {
@@ -73,9 +67,6 @@ export default function Profile() {
     }]
   };
 
-  // =========================================================
-  // 🛠️ PIPELINE 3: COMPONENT DATA GENERATOR (WITH % LABELS)
-  // =========================================================
   const generateDonutData = (countsMap, totalItems, colorsPalette) => {
     if (totalItems === 0) return null;
 
@@ -83,10 +74,10 @@ export default function Profile() {
       const occurrenceCount = countsMap[category];
       const percentage = Math.round((occurrenceCount / totalItems) * 100);
       return {
-        value: occurrenceCount, // Keeps donut slice sizes physically proportional
+        value: occurrenceCount, 
         color: colorsPalette[index % colorsPalette.length],
         label: category.charAt(0).toUpperCase() + category.slice(1),
-        percentageText: `${percentage}%`, // Displayed inside the legend list below
+        percentageText: `${percentage}%`, 
         text: `${percentage}%`,
         textColor: '#222222',
         fontWeight: 'bold',
@@ -96,8 +87,8 @@ export default function Profile() {
     });
   };
 
-  const wasteColors = ['#F3B0A5', '#87B9C2', '#EC6039', '#FFB500', '#699966'];
-  const eatenColors = ['#4F6BB7', '#B2DFE8','#E7C665', '#699966', '#A8C3A4'];
+  const wasteColors = ['#F3B0A5', '#87B9C2', '#EC6039', '#FFB500', '#A8C3A4','#4F6BB7','#E7C665','#699966'];
+  const eatenColors = ['#B39DBC','#4EA8DE', '#90E0EF', '#DDA15E','#98B4A6', '#5E60CE',  '#D8C3A5', '#0077B6'];
 
   const eatenDonutData = generateDonutData(eatenCategoryCounts, totalSavedItemsCount, eatenColors);
   const wastedDonutData = generateDonutData(wastedCategoryCounts, totalWastedItemsCount, wasteColors);
@@ -129,7 +120,6 @@ export default function Profile() {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-        {/* 📈 Chart 1: Over-time Tracking */}
         <Text style={styles.sectionTitle}>Your weekly food consumption</Text>
         <View style={styles.lineChartWrapper}>
           <LineChart
@@ -144,10 +134,8 @@ export default function Profile() {
           />
         </View>
 
-        {/* 📊 SIDE-BY-SIDE DONUT GRAPHS WRAPPER */}
         <View style={styles.chartsRow}>
           
-          {/* 🥗 Left Column: Food Eaten */}
           <View style={styles.halfColumn}>
             <Text style={styles.smallSectionTitle}>Food saved</Text>
             <View style={styles.donutCardContainer}>
@@ -155,7 +143,7 @@ export default function Profile() {
                 donut
                 data={eatenDonutData || emptyEatenFallback}
                 radius={45}       
-                innerRadius={30}  
+                innerRadius={25}  
                 showText={false}   
                 strokeWidth={3}
                 strokeColor="#ffffff" 
@@ -173,7 +161,6 @@ export default function Profile() {
             </View>
           </View>
 
-          {/* 🍩 Right Column: Food Wasted */}
           <View style={styles.halfColumn}>
             <Text style={styles.smallSectionTitle}>Your food waste</Text>
             <View style={styles.donutCardContainer}>
@@ -181,7 +168,7 @@ export default function Profile() {
                 donut
                 data={wastedDonutData || emptyWastedFallback}
                 radius={45}       
-                innerRadius={30}
+                innerRadius={25}
                 showText={false}
                 strokeWidth={3}
                 strokeColor="#ffffff"
@@ -191,7 +178,6 @@ export default function Profile() {
                   <View key={idx} style={styles.legendRow}>
                     <View style={[styles.legendDot, { backgroundColor: item.color }]} />
                     <Text style={styles.legendLabel} numberOfLines={1}>
-                      {/* ✅ Now displays clean percentage values instead of large mass units */}
                       {item.percentageText} {item.label}
                     </Text>
                   </View>
@@ -202,14 +188,12 @@ export default function Profile() {
 
         </View>
 
-        {/* Info Detail Toggle Button */}
         <TouchableOpacity style={styles.seeMoreButton} onPress={() => setShowDetailModal(true)}>
           <Text style={styles.seeMoreButtonText}>SEE MORE</Text>
         </TouchableOpacity>
 
       </ScrollView>
 
-      {/* 🗑️ Wasted Food Itemized Detail Overlay Panel */}
       <Modal visible={showDetailModal} animationType="slide" presentationStyle="pageSheet">
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>

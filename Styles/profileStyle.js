@@ -5,7 +5,7 @@ export const profileStyle = StyleSheet.create({
 container: { 
     flex: 1, 
     backgroundColor: '#FFF', 
-    paddingTop: 50
+    paddingTop: 7
     },
   scrollContent: { 
     paddingHorizontal: 16, 
@@ -41,7 +41,6 @@ container: {
     fontSize: 18, 
     fontWeight: '700', 
     color: '#222', 
-    marginTop: 28, 
     marginBottom: 14 
     },
   lineChartWrapper: { 
@@ -89,7 +88,7 @@ container: {
   seeMoreButton: { 
     backgroundColor: '#EC6039', 
     paddingVertical: 14, 
-    borderRadius: 12, 
+    borderRadius: 6, 
     alignItems: 'center', 
     marginTop: 28 
     },

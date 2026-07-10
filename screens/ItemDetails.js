@@ -98,13 +98,7 @@ export default function ItemDetails({ route, navigation }) {
   return (
     <View style={{ flex: 1, backgroundColor: '#FFF' }}>
       <ScrollView style={styles.container}>
-        <View style={[styles.headerRow, { paddingTop: insets.top }]}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={28} color="#000" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>yield</Text>
-          <View style={styles.headerSpacer} />
-        </View>
+        
 
         <View style={styles.mainCard}>
           <Image source={getImageSource()} style={styles.largeImage} resizeMode="contain" />
