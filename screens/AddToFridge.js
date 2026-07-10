@@ -7,7 +7,7 @@ import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold
 import { FridgeContext } from '../context/FridgeContext';
 import Constants from 'expo-constants';
 import { BlurView } from 'expo-blur';
-import { CATEGORIES_LIST, UNIT_DATA, formatEuropeanDate } from '../utils/fridgeHelpers';
+import { categories, unitData, formatEuropeanDate } from '../utils/fridgeHelpers';
 import { addToFridgeStyles as styles } from '../Styles/addToFridgeStyles';
 
 const SPOONACULAR_API_KEY = Constants.expoConfig?.extra?.spoonacularApiKey || Constants.manifest?.extra?.spoonacularApiKey;
@@ -116,7 +116,7 @@ export default function AddToFridge({ navigation }) {
           style={styles.dropdown}
           placeholderStyle={styles.dropdownPlaceholder}
           selectedTextStyle={styles.dropdownSelectedText}
-          data={CATEGORIES_LIST}
+          data={categories}
           labelField="label"
           valueField="value"
           placeholder="Select Category"
@@ -134,7 +134,7 @@ export default function AddToFridge({ navigation }) {
             selectedTextStyle={styles.selectedTextStyle}
             maxHeight={155}
             containerStyle={[styles.dropdownOverlayMenu]}
-            data={UNIT_DATA}
+            data={unitData}
             labelField="label"
             valueField="value"
             placeholder="UNIT"
