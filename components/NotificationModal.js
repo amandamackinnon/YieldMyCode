@@ -1,4 +1,4 @@
-// components/NotificationModal.js
+
 import React, { useRef, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
