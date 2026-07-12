@@ -21,26 +21,29 @@ export default function RecipeDetails({ route, navigation }) {
     const handleIncomingParams = async () => {
 
       if (!recipeId && ingredient) {
-        setLoading(true);
-        try {
-          const apiKey = 'e7de26d39bf344c88aaf33e8ee08eda4';
-          const cleanName = encodeURIComponent(ingredient.trim().toLowerCase());
-          
-          const searchResponse = await fetch(
-            `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${cleanName}&number=1&apiKey=${apiKey}`
-          );
-          
-          if (searchResponse.ok) {
-            const searchResults = await searchResponse.json();
-            if (searchResults && searchResults.length > 0) {
-              setRecipeId(searchResults[0].id);
-              return; 
-            }
-          }
-        } catch (err) {
-          console.log("Error in fallback lookup:", err);
-        }
+  setLoading(true);
+  try {
+    const apiKey = 'e7de26d39bf344c88aaf33e8ee08eda4';
+    const cleanName = encodeURIComponent(ingredient.trim().toLowerCase());
+    
+    const searchResponse = await fetch(
+      `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${cleanName}&number=50&apiKey=${apiKey}`
+    );
+    
+    if (searchResponse.ok) {
+      const searchResults = await searchResponse.json();
+      if (searchResults && searchResults.length > 0) {
+    
+        const randomIndex = Math.floor(Math.random() * searchResults.length);
+        
+        setRecipeId(searchResults[randomIndex].id);
+        return; 
       }
+    }
+  } catch (err) {
+    console.log("Error in fallback lookup:", err);
+  }
+}
 
       if (recipeId) {
         setLoading(true);

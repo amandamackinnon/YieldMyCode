@@ -6,7 +6,6 @@ export const itemDetailsStyles = StyleSheet.create({
     paddingLeft: 50,
     paddingBottom: 60,
   },
-
   mainCard: {
     width: '85%',
     backgroundColor: '#fff',
@@ -14,34 +13,29 @@ export const itemDetailsStyles = StyleSheet.create({
     alignItems: 'center',
     borderColor: '#fff',
   },
-
   largeImage: {
     width: 160,
     height: 160,
     marginBottom: 16,
   },
-
   titleText: {
     fontSize: 30,
     fontWeight: '700',
     color: '#333',
     fontFamily: 'NunitoMedium',
   },
-
   genText: {
     marginTop: 35,
     fontSize: 20,
     fontWeight: 'bold',
     marginLeft: -15,
   },
-
   categoryText: {
     fontSize: 14,
     color: '#888',
     marginTop: 4,
     fontFamily: 'NunitoMedium',
   },
-
   counterRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -50,7 +44,6 @@ export const itemDetailsStyles = StyleSheet.create({
     gap: 30,
     marginLeft: -15,
   },
-
   counterButton: {
     width: 40,
     height: 40,
@@ -61,19 +54,16 @@ export const itemDetailsStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
-  quantityText: {
+ quantityText: {
     fontSize: 30,
     fontWeight: '700',
     color: '#333',
   },
-
   errorText: {
     fontSize: 16,
     color: '#666',
     marginTop: 40,
   },
-
   recipeButton: {
     flexDirection: 'row',
     backgroundColor: '#F6CA5E',
@@ -87,26 +77,22 @@ export const itemDetailsStyles = StyleSheet.create({
     marginVertical: 15,
     marginLeft: -12,
   },
-
   recipeButtonText: {
     color: '#292929',
     fontFamily: 'NunitoBold',
     fontSize: 15,
   },
-
   recipeListContainer: {
     width: '85%',
     marginTop: 15,
     marginBottom: 30,
   },
-
   recipeSectionTitle: {
     fontFamily: 'NunitoBold',
     fontSize: 18,
     color: '#333',
     marginBottom: 12,
   },
-
   recipeCard: {
     flexDirection: 'row',
     backgroundColor: '#F6CA5E',
@@ -117,38 +103,32 @@ export const itemDetailsStyles = StyleSheet.create({
     borderColor: 'white',
     alignItems: 'center',
   },
-
   recipeImage: {
     width: 75,
     height: 75,
     backgroundColor: '#e1e1e1',
   },
-
   recipeInfo: {
     flex: 1,
     paddingHorizontal: 12,
     justifyContent: 'center',
   },
-
   recipeTitle: {
     fontFamily: 'NunitoBold',
     fontSize: 14,
     color: 'white',
   },
-
   recipeMatchText: {
     fontFamily: 'NunitoMedium',
     fontSize: 12,
     color: '#777',
     marginTop: 4,
   },
-
   removeButtonText: {
     color: "#EF4E23",
     fontFamily: 'NunitoBold',
     fontSize: 20,
   },
-
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -158,25 +138,19 @@ export const itemDetailsStyles = StyleSheet.create({
     marginTop: 20,
     backgroundColor: '#fff',
   },
-
   backButton: {
     width: 40,
     alignItems: 'flex-start',
     marginLeft: -50,
   },
-
   headerTitle: {
     fontSize: 32,
     fontFamily: 'NunitoSemiBold',
     color: '#000',
     textAlign: 'flex-start',
     flex: 1,
-
   },
-
-  
-
-  modalOverlay: {
+   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',

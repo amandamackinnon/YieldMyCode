@@ -30,20 +30,16 @@ const fetchLiveFoodQuiz = async () => {
 };
 
 export const getDynamicFridgeContent = async (currentFridgeItems = [], targetItem = '', currentFactIndex = 0) => {
-  // 1. Clean up spaces and convert to lowercase
   let cleanTarget = targetItem.trim().toLowerCase().replace(/\s+/g, '_');
   
-  // 2. Trim trailing 's' if it's a plural item
   if (cleanTarget.endsWith('s') && !cleanTarget.endsWith('ss')) {
     cleanTarget = cleanTarget.slice(0, -1);
   }
 
-  // 3. 🌟 THE MISSING STEP: Intercept and swap the alias key here!
   if (FOOD_ALIASES[cleanTarget]) {
     cleanTarget = FOOD_ALIASES[cleanTarget];
   }
 
-  // 4. Now this looks up 'courgette' instead of 'zucchini'
   const factArray = LOCAL_FRIDGE_DB[cleanTarget];
 
   if (factArray && factArray.length > 0 && currentFactIndex < factArray.length) {

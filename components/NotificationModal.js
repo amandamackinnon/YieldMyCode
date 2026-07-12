@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
@@ -14,7 +13,7 @@ export default function NotificationModal({
   onRecipePress 
 }) {
   const flatListRef = useRef(null);
-  const allRead = notifications.length > 0 && notifications.every(n => n.isRead);
+  const allRead = notifications && notifications.length > 0 && notifications.every(n => n.isRead);
 
   useEffect(() => {
     if (visible) {
@@ -44,7 +43,7 @@ export default function NotificationModal({
 
         <FlatList
           ref={flatListRef}
-          data={notifications}
+          data={notifications || []}
           keyExtractor={item => item.id}
           persistentScrollbar
           showsVerticalScrollIndicator
