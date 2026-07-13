@@ -1,8 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, FlatList, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LineChart } from 'react-native-chart-kit'; 
-import { PieChart as GiftedPieChart } from 'react-native-gifted-charts'; 
+import { LineChart } from 'react-native-chart-kit';
+import { PieChart as GiftedPieChart } from 'react-native-gifted-charts';
 import { FridgeContext } from '../context/FridgeContext';
 import { profileStyle as styles } from '../Styles/profileStyle';
 
@@ -23,7 +23,7 @@ export default function Profile() {
 
   const startOfWeek = getStartOfWeek();
   const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 7); 
+  endOfWeek.setDate(startOfWeek.getDate() + 7);
 
   const weeklyActivity = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
   const weekdayNamesMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -43,7 +43,7 @@ export default function Profile() {
     if (logDate >= startOfWeek && logDate < endOfWeek) {
       if (action === 'consumed' || action === 'wasted') {
         const lineDayName = weekdayNamesMap[logDate.getDay()];
-  
+
         weeklyActivity[lineDayName] = (weeklyActivity[lineDayName] || 0) + 1;
       }
     }
@@ -74,21 +74,21 @@ export default function Profile() {
       const occurrenceCount = countsMap[category];
       const percentage = Math.round((occurrenceCount / totalItems) * 100);
       return {
-        value: occurrenceCount, 
+        value: occurrenceCount,
         color: colorsPalette[index % colorsPalette.length],
         label: category.charAt(0).toUpperCase() + category.slice(1),
-        percentageText: `${percentage}%`, 
+        percentageText: `${percentage}%`,
         text: `${percentage}%`,
         textColor: '#222222',
         fontWeight: 'bold',
         fontSize: 12,
-        
+
       };
     });
   };
 
-  const wasteColors = ['#F3B0A5', '#87B9C2', '#EC6039', '#FFB500', '#A8C3A4','#4F6BB7','#E7C665','#699966'];
-  const eatenColors = ['#B39DBC','#4EA8DE', '#90E0EF', '#DDA15E','#98B4A6', '#5E60CE',  '#D8C3A5', '#0077B6'];
+  const wasteColors = ['#F3B0A5', '#87B9C2', '#EC6039', '#FFB500', '#A8C3A4', '#4F6BB7', '#E7C665', '#699966'];
+  const eatenColors = ['#B39DBC', '#4EA8DE', '#90E0EF', '#DDA15E', '#98B4A6', '#5E60CE', '#D8C3A5', '#0077B6'];
 
   const eatenDonutData = generateDonutData(eatenCategoryCounts, totalSavedItemsCount, eatenColors);
   const wastedDonutData = generateDonutData(wastedCategoryCounts, totalWastedItemsCount, wasteColors);
@@ -135,18 +135,18 @@ export default function Profile() {
         </View>
 
         <View style={styles.chartsRow}>
-          
+
           <View style={styles.halfColumn}>
             <Text style={styles.smallSectionTitle}>Food saved</Text>
             <View style={styles.donutCardContainer}>
               <GiftedPieChart
                 donut
                 data={eatenDonutData || emptyEatenFallback}
-                radius={45}       
-                innerRadius={25}  
-                showText={false}   
+                radius={45}
+                innerRadius={25}
+                showText={false}
                 strokeWidth={3}
-                strokeColor="#ffffff" 
+                strokeColor="#ffffff"
               />
               <View style={styles.legendContainer}>
                 {(eatenDonutData || emptyEatenFallback).map((item, idx) => (
@@ -167,7 +167,7 @@ export default function Profile() {
               <GiftedPieChart
                 donut
                 data={wastedDonutData || emptyWastedFallback}
-                radius={45}       
+                radius={45}
                 innerRadius={25}
                 showText={false}
                 strokeWidth={3}
@@ -201,12 +201,20 @@ export default function Profile() {
               <Ionicons name="close-circle" size={36} color="#333" />
             </TouchableOpacity>
           </View>
-          
+
           <Text style={styles.modalTitle}>Wasted Food Breakdown</Text>
-          
+
           <FlatList
             data={itemizedWasteList}
             keyExtractor={(item, index) => index.toString()}
+            showsVerticalScrollIndicator={true}
+            style={{ width: '100%', marginHorizontal: -5 }}
+                          // 🌟 THE ADJUSTMENT: Push the inner row content back in by the exact same amount
+            contentContainerStyle={{
+              paddingHorizontal: 20, 
+              paddingBottom: 30,
+            }}
+
             ListEmptyComponent={
               <Text style={styles.emptyText}>Great job! No food has been wasted yet! 🎉</Text>
             }
@@ -232,7 +240,7 @@ const lineChartConfig = {
   backgroundGradientFrom: '#ffffff',
   backgroundGradientTo: '#ffffff',
   decimalPlaces: 0,
-  color: (opacity = 1) => `rgba(236, 96, 57, ${opacity})`, 
+  color: (opacity = 1) => `rgba(236, 96, 57, ${opacity})`,
   labelColor: (opacity = 1) => `rgba(100, 100, 100, ${opacity})`,
   style: { borderRadius: 16 },
   propsForDots: { r: '4.5', strokeWidth: '2', stroke: '#EC6039' }

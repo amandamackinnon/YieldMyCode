@@ -9,7 +9,7 @@ import { categories, getNotificationData } from '../utils/fridgeHelpers';
 import { fetchRecipeIdea } from '../services/spoonacular';
 import { getDynamicFridgeContent } from '../services/foodContentService';
 import FridgeTile from '../components/FridgeTile';
-import NotificationModal from '../components/NotificationModal'; 
+import NotificationModal from '../components/NotificationModal';
 import { fridgeStyles as styles } from '../Styles/fridgeStyles';
 
 
@@ -24,19 +24,19 @@ export default function Fridge({ navigation, route }) {
   const [factTracking, setFactTracking] = useState({});
 
 
-const handleFactPress = (ingredientName) => {
+  const handleFactPress = (ingredientName) => {
     if (!ingredientName) {
       Alert.alert("Oops", "We couldn't verify this ingredient name.");
       return;
     }
-    
+
     setShowNotifications(false);
 
     navigation.navigate('FridgeTab', {
       screen: 'FoodTrivia',
       params: {
         ingredient: ingredientName,
-        clickId: Date.now() 
+        clickId: Date.now()
       }
     });
   };
@@ -47,11 +47,11 @@ const handleFactPress = (ingredientName) => {
 
     try {
       const randomRecipe = await fetchRecipeIdea(ingredientName);
-      navigation.navigate('RecipeDetails', { 
+      navigation.navigate('RecipeDetails', {
         ingredient: ingredientName,
-        recipeId: randomRecipe?.id || null, 
+        recipeId: randomRecipe?.id || null,
         autoLoad: true,
-        clickId: Date.now() 
+        clickId: Date.now()
       });
     } catch (err) {
       console.log("Error during recipe navigation routing:", err);
@@ -84,11 +84,11 @@ const handleFactPress = (ingredientName) => {
       const cached = notifications.find(n => n.id === alert.id);
       if (cached) return cached;
       const origin = items.find(i => `expire-${i.id}` === alert.id);
-      return { 
-        ...alert, 
+      return {
+        ...alert,
         text: origin ? `${origin.name} expires soon!` : alert.text,
         ingredientName: origin ? origin.name : null,
-        isRead: false 
+        isRead: false
       };
     });
 
@@ -113,7 +113,7 @@ const handleFactPress = (ingredientName) => {
 
   return (
     <View style={styles.container}>
-      <NotificationModal 
+      <NotificationModal
         visible={showNotifications}
         onClose={() => setShowNotifications(false)}
         notifications={notifications}
@@ -142,31 +142,22 @@ const handleFactPress = (ingredientName) => {
         keyExtractor={item => item.id.toString()}
         numColumns={2}
         columnWrapperStyle={styles.row}
-
-        contentContainerStyle={filteredInventory.length === 0 ? { flexGrow: 1 } : null} 
-  ListEmptyComponent={() => (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-      
-      {/* Your background/empty state image placeholder */}
-      <Image 
-        source={require('../assets/modal-tile-image.png')} 
-        style={{ width: 200, height: 200, marginBottom: 20, opacity: 0.8 }}
-        resizeMode="contain"
+        showsVerticalScrollIndicator={true}
+        persistentScrollbar={true}
+        scrollIndicatorInsets={{ top: 0, left: 0, bottom: 0, right: -15 }}
+        contentContainerStyle={{ width: '100%' }}
+        ListEmptyComponent={() => (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+            <Image source={require('../assets/modal-tile-image.png')} style={{ width: 200, height: 200, marginBottom: 20, opacity: 0.8 }} resizeMode="contain" />
+            <Text style={{
+              fontSize: 18,
+              fontFamily: 'NunitoSemiBold',
+              color: '#666',
+              textAlign: 'center'
+            }}>  No items from category {selectedCategory === 'All' ? '' : `${selectedCategory} `} in your fridge</Text>
+          </View>
+        )}
       />
-      
-      {/* Dynamic empty text notice */}
-      <Text style={{ 
-        fontSize: 18, 
-        fontFamily: 'NunitoSemiBold', 
-        color: '#666', 
-        textAlign: 'center' 
-      }}>
-        No items from category {selectedCategory === 'All' ? '' : `${selectedCategory} `} in your fridge
-      </Text>
-
-    </View>
-  )}
-/>
 
     </View>
   );

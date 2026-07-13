@@ -101,29 +101,24 @@ container: {
   modalContainer: { 
     flex: 1, 
     backgroundColor: '#FFF', 
-    paddingHorizontal: 24, 
     paddingTop: 24 
     },
-  modalHeader: { 
-    width: '100%', 
-    alignItems: 'flex-end', 
-    marginBottom: 10 
-    },
-  modalTitle: { 
-    fontSize: 26, 
-    fontWeight: '700', 
-    color: '#111', 
-    marginBottom: 24, 
-    textAlign: 'center' 
-    },
-  listItem: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    paddingVertical: 18, 
-    borderBottomWidth: 1, 
-    borderBottomColor: '#F5F5F5' 
-    },
+  modalHeader: {
+  alignItems: 'flex-end',
+  paddingHorizontal: 20, // Keep header elements inside bounds
+},
+modalTitle: {
+  fontSize: 24,
+  fontFamily: 'NunitoBold',
+  paddingHorizontal: 20, // Keep title text inside bounds
+  marginBottom: 15,
+},
+listItem: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  paddingHorizontal: 20, // 💡 Keeps row text safe and neat while the scroll container goes to the glass edge!
+  paddingVertical: 12,
+},
   listItemLeft: { 
     flexDirection: 'row', 
     alignItems: 'center' 

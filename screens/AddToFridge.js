@@ -15,7 +15,7 @@ const SPOONACULAR_API_KEY = Constants.expoConfig?.extra?.spoonacularApiKey || Co
 export default function AddToFridge({ navigation }) {
   const { addItem } = useContext(FridgeContext);
   const webDatePickerRef = useRef(null);
-  
+
   const [name, setName] = useState('');
   const [qty, setQty] = useState('');
   const [unit, setUnit] = useState('pcs');
@@ -121,7 +121,7 @@ export default function AddToFridge({ navigation }) {
           valueField="value"
           placeholder="Select Category"
           value={category}
-          onChange={item => setCategory(item.value)} 
+          onChange={item => setCategory(item.value)}
         />
 
         <TextInput placeholder="Product Name..." placeholderTextColor="#000000" style={styles.input} value={name} onChangeText={setName} />
@@ -142,9 +142,12 @@ export default function AddToFridge({ navigation }) {
             onChange={item => setUnit(item.value)}
             flatListProps={{
               showsVerticalScrollIndicator: true,
-              persistentScrollbar: Platform.OS === 'android',
-              indicatorStyle: 'black',
-            }} 
+              persistentScrollbar: true,
+              scrollIndicatorInsets: { top: 0, left: 0, bottom: 0, right: 0 },
+              contentContainerStyle: {
+                paddingRight: 12,
+              }
+            }}
           />
         </View>
 
@@ -153,8 +156,7 @@ export default function AddToFridge({ navigation }) {
             <TouchableOpacity style={styles.input} onPress={() => webDatePickerRef.current?.showPicker()}>
               <Text style={styles.dateText}> Expires: {displayDateString} </Text>
             </TouchableOpacity>
-            <input
-              ref={webDatePickerRef}
+            <input ref={webDatePickerRef}
               type="date"
               value={`${expiryDate.getFullYear()}-${String(expiryDate.getMonth() + 1).padStart(2, '0')}-${String(expiryDate.getDate()).padStart(2, '0')}`}
               onChange={(e) => {
@@ -165,7 +167,7 @@ export default function AddToFridge({ navigation }) {
                   setDisplayDateString(`${day}/${month}/${year}`);
                 }
               }}
-              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, pointerEvents: 'none' }} 
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, pointerEvents: 'none' }}
             />
           </View>
         ) : (
