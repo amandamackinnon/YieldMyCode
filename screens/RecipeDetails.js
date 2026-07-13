@@ -69,7 +69,7 @@ export default function RecipeDetails({ route, navigation }) {
 
   useEffect(() => {
     if (route.params?.toggleNotifications) {
-      navigation.goBack();
+      navigation.popToTop();
       navigation.navigate({
         merge: true, 
         params: { toggleNotifications: route.params.toggleNotifications },

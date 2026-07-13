@@ -1,5 +1,5 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
-import { View, FlatList, Alert } from 'react-native';
+import { View, FlatList, Alert, Text, Image } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useFonts } from 'expo-font';
 import { Nunito_400Regular, Nunito_500Medium, Nunito_600SemiBold, Nunito_700Bold } from '@expo-google-fonts/nunito';
@@ -24,53 +24,21 @@ export default function Fridge({ navigation, route }) {
   const [factTracking, setFactTracking] = useState({});
 
 
-  const handleFactPress = async (ingredientName) => {
+const handleFactPress = (ingredientName) => {
     if (!ingredientName) {
       Alert.alert("Oops", "We couldn't verify this ingredient name.");
       return;
     }
     
-    const lookupKey = ingredientName.trim().toLowerCase();
-    const currentIdx = factTracking[lookupKey] || 0;
+    setShowNotifications(false);
 
-    try {
-      const activeFridgeNames = items ? items.map(i => i.name) : [];
-      const content = await getDynamicFridgeContent(activeFridgeNames, ingredientName, currentIdx); 
-
-      if (content.type === 'fact') {
-        Alert.alert(
-          `${ingredientName.charAt(0).toUpperCase() + ingredientName.slice(1)} Insight`, 
-          content.text, 
-          [{ 
-            text: `The more you know!`, 
-            style: "cancel",
-            onPress: () => setFactTracking(prev => ({ ...prev, [lookupKey]: currentIdx + 1 }))
-          }]
-        );
-      } else if (content.type === 'quiz') {
-        const cleanQuestion = sanitizeHTML(content.question);
-        const cleanCorrect = sanitizeHTML(content.correctAnswer);
-        const choicePool = [content.correctAnswer, ...content.incorrectAnswers]
-          .map(ans => sanitizeHTML(ans))
-          .sort(() => Math.random() - 0.5);
-
-        const alertButtons = choicePool.map(choice => ({
-          text: choice,
-          onPress: () => {
-            if (choice === cleanCorrect) {
-              Alert.alert("🎉 Correct!", "You really know your food facts!", [{ text: "Now you're cooking!" }]);
-            } else {
-              Alert.alert("❌ Not Quite", `Good try! The correct answer was: ${cleanCorrect}`, [{ text: "Food for thought!" }]);
-            }
-          }
-        }));
-
-        if (alertButtons.length > 3) alertButtons.splice(3);
-        Alert.alert("🍎 Daily Kitchen Quiz", cleanQuestion, alertButtons, { cancelable: true });
+    navigation.navigate('FridgeTab', {
+      screen: 'FoodTrivia',
+      params: {
+        ingredient: ingredientName,
+        clickId: Date.now() 
       }
-    } catch (err) {
-      Alert.alert("Error", "Could not load food content at this moment.");
-    }
+    });
   };
 
   const handleRecipePress = async (ingredientName) => {
@@ -174,7 +142,32 @@ export default function Fridge({ navigation, route }) {
         keyExtractor={item => item.id.toString()}
         numColumns={2}
         columnWrapperStyle={styles.row}
+
+        contentContainerStyle={filteredInventory.length === 0 ? { flexGrow: 1 } : null} 
+  ListEmptyComponent={() => (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+      
+      {/* Your background/empty state image placeholder */}
+      <Image 
+        source={require('../assets/modal-tile-image.png')} 
+        style={{ width: 200, height: 200, marginBottom: 20, opacity: 0.8 }}
+        resizeMode="contain"
       />
+      
+      {/* Dynamic empty text notice */}
+      <Text style={{ 
+        fontSize: 18, 
+        fontFamily: 'NunitoSemiBold', 
+        color: '#666', 
+        textAlign: 'center' 
+      }}>
+        No items from category {selectedCategory === 'All' ? '' : `${selectedCategory} `} in your fridge
+      </Text>
+
+    </View>
+  )}
+/>
+
     </View>
   );
 }

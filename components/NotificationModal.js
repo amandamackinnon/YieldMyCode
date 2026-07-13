@@ -1,17 +1,20 @@
 import React, { useRef, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { fridgeStyles as styles } from '../Styles/fridgeStyles'; 
+import { fridgeStyles as styles } from '../Styles/fridgeStyles';
+import { useNavigation } from '@react-navigation/native';
 
-export default function NotificationModal({ 
-  visible, 
-  onClose, 
-  notifications, 
-  onToggleRead, 
-  onMarkAllOrUndo, 
-  onFactPress, 
-  onRecipePress 
+export default function NotificationModal({
+  visible,
+  onClose,
+  notifications,
+  onToggleRead,
+  onMarkAllOrUndo,
+  onFactPress,
+  onRecipePress
 }) {
+
+  const navigation = useNavigation();
   const flatListRef = useRef(null);
   const allRead = notifications && notifications.length > 0 && notifications.every(n => n.isRead);
 
@@ -53,7 +56,7 @@ export default function NotificationModal({
                 <TouchableOpacity onPress={() => onToggleRead(item.id)}>
                   <View style={[styles.indicatorDot, { backgroundColor: item.isRead ? '#FFFFFF' : '#E07A5F', borderColor: '#E07A5F' }]} />
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity style={{ flex: 1 }} onPress={() => onToggleRead(item.id)}>
                   <Text style={[styles.notificationText, { color: item.isRead ? '#999999' : '#2D3142', fontFamily: item.isRead ? 'NunitoRegular' : 'NunitoMedium' }]}>
                     {item.text}
@@ -63,16 +66,26 @@ export default function NotificationModal({
 
               {item.ingredientName && !item.isRead && (
                 <View style={styles.actionLinksContainer}>
-                  <TouchableOpacity 
-                    onPress={() => onFactPress(item.ingredientName)} 
+                  <TouchableOpacity
+                    onPress={() => onFactPress(item.ingredientName)}
                     style={styles.linkTouchTarget}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} 
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   >
                     <Text style={styles.actionLinkText}>Would you like some food trivia?</Text>
                   </TouchableOpacity>
-                  
-                  <TouchableOpacity 
-                    onPress={() => onRecipePress(item.ingredientName)} 
+
+                  <TouchableOpacity
+                    onPress={() => { onClose();
+                      if (navigation) {
+                        navigation.navigate('RecipeDetails', {
+                          ingredient: item.ingredientName,
+                          autoLoad: true,
+                          clickId: Date.now()
+                        });
+                      } else {
+                        onRecipePress(item.ingredientName);
+                      }
+                    }}
                     style={styles.linkTouchTarget}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   >
