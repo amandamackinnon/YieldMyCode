@@ -26,7 +26,7 @@ export const itemDetailsStyles = StyleSheet.create({
   },
   genText: {
     marginTop: 35,
-    fontSize: 20,
+    fontSize: 15,
     fontWeight: 'bold',
     marginLeft: -15,
   },
@@ -55,7 +55,7 @@ export const itemDetailsStyles = StyleSheet.create({
     justifyContent: 'center',
   },
  quantityText: {
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: '700',
     color: '#333',
   },
@@ -67,18 +67,36 @@ export const itemDetailsStyles = StyleSheet.create({
   recipeButton: {
     flexDirection: 'row',
     backgroundColor: '#F6CA5E',
-    paddingVertical: 12,
+    paddingVertical: 6,
     borderRadius: 4,
     borderColor: '#292929',
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
     width: '45%',
-    marginVertical: 15,
+    marginVertical: 5,
     marginLeft: -12,
   },
   recipeButtonText: {
     color: '#292929',
+    fontFamily: 'NunitoBold',
+    fontSize: 15,
+  },
+    triviaButton: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(79, 107, 183, 1)',
+    paddingVertical: 6,
+    borderRadius: 4,
+    borderColor: '#292929',
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '45%',
+    marginVertical: 5,
+    marginLeft: -12,
+  },
+  triviaButtonText: {
+    color: 'white',
     fontFamily: 'NunitoBold',
     fontSize: 15,
   },
@@ -209,19 +227,20 @@ export const itemDetailsStyles = StyleSheet.create({
     backgroundColor: '#EAEAEA',
   },
   wasteBtn: {
-    backgroundColor: '#EF4E23',
+    backgroundColor: '#FF3800',
   },
   eatenBtn: {
-    backgroundColor: '#4A9B6B',
+    backgroundColor: 'rgba(98, 159, 85, 1)',
   },
   cancelBtnText: {
     color: '#333',
     fontWeight: '600',
+    fontSize: 16,
   },
   actionBtnText: {
     color: '#FFF',
     fontWeight: '600',
-    fontSize: 13,
+    fontSize: 16,
   },
 
 });

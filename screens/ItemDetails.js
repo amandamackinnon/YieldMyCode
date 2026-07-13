@@ -13,7 +13,7 @@ export default function ItemDetails({ route, navigation }) {
 
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
-  
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [inputAmount, setInputAmount] = useState('');
 
@@ -30,19 +30,19 @@ export default function ItemDetails({ route, navigation }) {
   const triggerDeleteAlert = () => {
     Alert.alert(
       "Remove Item?",
-      `Did you eat ${item.name} or was it wasted?`,
-      [
+      "Was it wasted or eaten?", 
+      [ 
         { text: "Cancel", style: "cancel" },
         {
           text: "🗑️ Wasted",
           style: "destructive",
           onPress: () => {
-            wasteItem(item.id); 
+            wasteItem(item.id);
             navigation.goBack();
           }
         },
         {
-          text: "🎉 Eaten",
+          text: "🍽️ Eaten",
           onPress: () => {
             consumeItem(item.id);
             navigation.goBack();
@@ -53,7 +53,7 @@ export default function ItemDetails({ route, navigation }) {
   };
 
   const openDecrementModal = () => {
-    setInputAmount(Math.ceil(item.qty / 2).toString()); 
+    setInputAmount(Math.ceil(item.qty / 2).toString());
     setIsModalVisible(true);
   };
 
@@ -89,6 +89,17 @@ export default function ItemDetails({ route, navigation }) {
     }
   };
 
+  const navigateToTrivia = () => {
+    navigation.navigate('FridgeTab', {
+      screen: 'FoodTrivia',
+      params: {
+        ingredient: item.name,
+        clickId: Date.now()
+      },
+      initialRouteName: 'FridgeHome'
+    });
+  };
+
   const getImageSource = () => {
     if (!item.imageUrl || item.imageUrl.trim() === '' || item.imageUrl.includes('no.jpg')) {
       return require('../assets/modal-tile-image.png');
@@ -98,7 +109,7 @@ export default function ItemDetails({ route, navigation }) {
   return (
     <View style={{ flex: 1, backgroundColor: '#FFF' }}>
       <ScrollView style={styles.container}>
-        
+
 
         <View style={styles.mainCard}>
           <Image source={getImageSource()} style={styles.largeImage} resizeMode="contain" />
@@ -123,32 +134,44 @@ export default function ItemDetails({ route, navigation }) {
         </View>
 
         <Text style={styles.genText}>Left in the fridge: </Text>
+<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
+  
+  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15, flex: 1.2 }}>
+    <Text style={styles.quantityText}>
+      {item.qty} {item.unit || 'pcs'}
+    </Text>
 
-        <View style={styles.counterRow}>
-          <Text style={styles.quantityText}>
-            {item.qty} {item.unit || 'pcs'}
-          </Text>
-          
-          <Pressable
-            style={({ pressed }) => [
-              styles.counterButton,
-              { opacity: pressed ? 0.7 : 1.0 }
-            ]}
-            onPress={openDecrementModal}
-          >
-            <Ionicons name="remove-sharp" size={30} color="#FFF" />
-          </Pressable>
+    <Pressable
+      style={({ pressed }) => [
+        styles.counterButton,
+        { opacity: pressed ? 0.7 : 1.0 }
+      ]}
+      onPress={openDecrementModal}
+    >
+      <Ionicons name="remove-sharp" size={30} color="#FFF" />
+    </Pressable>
 
-          <TouchableOpacity style={styles.removeButton} onPress={triggerDeleteAlert}>
-            <Ionicons name="trash-outline" size={40} color="#EF4E23" style={{ marginRight: 6 }} />
-          </TouchableOpacity>
-        </View>
+    <TouchableOpacity style={styles.removeButton} onPress={triggerDeleteAlert}>
+      <Ionicons name="trash-outline" size={35} color="#EF4E23" />
+    </TouchableOpacity>
+  </View>
 
-        <TouchableOpacity style={styles.recipeButton} onPress={findRecipes} disabled={loading}>
-          <Text style={styles.recipeButtonText}>
-            {loading ? 'Searching...' : `Check Recipes`}
-          </Text>
-        </TouchableOpacity>
+  <View style={{ flexDirection: 'column', gap: 1, flex: 1, alignItems: 'flex-end', marginRight: 10 }}>
+     <TouchableOpacity style={[styles.triviaButton, { marginTop: 0, width: '100%' }]} onPress={navigateToTrivia} disabled={loading}>
+      <Text style={styles.triviaButtonText}>
+        Food Trivia
+      </Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity style={[styles.recipeButton, { marginTop: 0, width: '100%' }]} onPress={findRecipes} disabled={loading}>
+      <Text style={styles.recipeButtonText}>
+        {loading ? 'Searching...' : `Check Recipes`}
+      </Text>
+    </TouchableOpacity>
+
+  </View>
+
+</View>
 
         {recipes.length > 0 && (
           <View style={styles.recipeListContainer}>
@@ -158,9 +181,9 @@ export default function ItemDetails({ route, navigation }) {
               const cardBgColor = colorsArray[index % colorsArray.length];
 
               return (
-                <TouchableOpacity 
-                  key={recipe.id} 
-                  style={[styles.recipeCard, { backgroundColor: cardBgColor }]} 
+                <TouchableOpacity
+                  key={recipe.id}
+                  style={[styles.recipeCard, { backgroundColor: cardBgColor }]}
                   onPress={() => navigation.navigate('RecipeDetails', { recipeId: recipe.id })}
                 >
                   <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
@@ -182,11 +205,11 @@ export default function ItemDetails({ route, navigation }) {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            
+
             <Text style={styles.modalSubtitle}>
               How many {item.unit || 'pcs'} are you removing? (Max: {item.qty})
             </Text>
-            
+
             <TextInput
               style={styles.numericInput}
               keyboardType="numeric"
@@ -197,26 +220,24 @@ export default function ItemDetails({ route, navigation }) {
             />
 
             <View style={styles.modalButtonRow}>
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.cancelBtn]} 
-                onPress={() => setIsModalVisible(false)}
-              >
-                <Text style={styles.cancelBtnText}>Cancel</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.wasteBtn]} 
-                onPress={() => handlePartialAction('wasted')}
-              >
+              <TouchableOpacity
+                style={[styles.modalButton, styles.wasteBtn]}
+                onPress={() => handlePartialAction('wasted')}>
                 <Text style={styles.actionBtnText}>🗑️ Wasted</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.eatenBtn]} 
-                onPress={() => handlePartialAction('consumed')}
-              >
-                <Text style={styles.actionBtnText}>🎉 Eaten</Text>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.eatenBtn]}
+                onPress={() => handlePartialAction('consumed')}>
+                <Text style={styles.actionBtnText}>🍽️ Eaten</Text>
               </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelBtn]}
+                onPress={() => setIsModalVisible(false)}>
+                <Text style={styles.cancelBtnText}>Cancel</Text>
+              </TouchableOpacity>
+
             </View>
           </View>
         </View>
