@@ -30,8 +30,8 @@ export default function ItemDetails({ route, navigation }) {
   const triggerDeleteAlert = () => {
     Alert.alert(
       "Remove Item?",
-      "Was it wasted or eaten?", 
-      [ 
+      "Was it wasted or eaten?",
+      [
         { text: "Cancel", style: "cancel" },
         {
           text: "🗑️ Wasted",
@@ -134,45 +134,45 @@ export default function ItemDetails({ route, navigation }) {
         </View>
 
         <Text style={styles.genText}>Left in the fridge: </Text>
-<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
-  
-  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15, flex: 1.2 }}>
-    <Text style={styles.quantityText}>
-      {item.qty} {item.unit || 'pcs'}
-    </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, width: '100%' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginLeft: -15 }}>
+            <Text style={styles.quantityText}>
+              {item.qty} {item.unit || 'pcs'}
+            </Text>
 
-    <Pressable
-      style={({ pressed }) => [
-        styles.counterButton,
-        { opacity: pressed ? 0.7 : 1.0 }
-      ]}
-      onPress={openDecrementModal}
-    >
-      <Ionicons name="remove-sharp" size={30} color="#FFF" />
-    </Pressable>
+            <Pressable style={({ pressed }) => [
+              styles.counterButton,
+              { opacity: pressed ? 0.7 : 1.0 }
+            ]}
+              onPress={openDecrementModal}>
+              <Ionicons name="remove-sharp" size={30} color="#FFF" />
+            </Pressable>
 
-    <TouchableOpacity style={styles.removeButton} onPress={triggerDeleteAlert}>
-      <Ionicons name="trash-outline" size={35} color="#EF4E23" />
-    </TouchableOpacity>
-  </View>
+            <TouchableOpacity style={styles.removeButton} onPress={triggerDeleteAlert}>
+              <Ionicons name="trash-outline" size={35} color="#EF4E23" />
+            </TouchableOpacity>
+          </View>
 
-  <View style={{ flexDirection: 'column', gap: 1, flex: 1, alignItems: 'flex-end', marginRight: 10 }}>
-     <TouchableOpacity style={[styles.triviaButton, { marginTop: 0, width: '100%' }]} onPress={navigateToTrivia} disabled={loading}>
-      <Text style={styles.triviaButtonText}>
-        Food Trivia
-      </Text>
-    </TouchableOpacity>
+          <View style={{
+            flexDirection: 'column',
+            gap: 8,
+            width: 160,
+            alignItems: 'stretch'
+          }}>
+            <TouchableOpacity style={[styles.triviaButton, { marginTop: 0, marginBottom: -2,  width: '100%' }]} onPress={navigateToTrivia} disabled={loading}>
+              <Text style={styles.triviaButtonText}>
+                Food Trivia
+              </Text>
+            </TouchableOpacity>
 
-    <TouchableOpacity style={[styles.recipeButton, { marginTop: 0, width: '100%' }]} onPress={findRecipes} disabled={loading}>
-      <Text style={styles.recipeButtonText}>
-        {loading ? 'Searching...' : `Check Recipes`}
-      </Text>
-    </TouchableOpacity>
+            <TouchableOpacity style={[styles.recipeButton, { marginTop: 0, width: '100%' }]} onPress={findRecipes} disabled={loading}>
+              <Text style={styles.recipeButtonText}>
+                {loading ? 'Searching...' : `Check Recipes`}
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-  </View>
-
-</View>
-
+        </View>
         {recipes.length > 0 && (
           <View style={styles.recipeListContainer}>
             <Text style={styles.recipeSectionTitle}>Recipe Ideas:</Text>
