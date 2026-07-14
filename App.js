@@ -18,6 +18,7 @@ import ItemDetails from './screens/ItemDetails';
 import RecipeDetails from './screens/RecipeDetails';
 import NotificationModal from './components/NotificationModal';
 import FoodTriviaScreen from './screens/FoodTriviaScreen';
+import { getNotificationData } from './utils/fridgeHelpers';
 
 const NotificationModalContext = createContext();
 export const useNotificationModal = () => useContext(NotificationModalContext);
@@ -120,38 +121,7 @@ function MainAppContent() {
     : (contextData.items || contextData.fridgeItems || []);
 
   
-  const notifications = itemsArray
-    .filter(item => {
-      const rawDate = item.expiryDate || item.expiry || item.expirationDate;
-      if (!rawDate || typeof rawDate !== 'string') return false;
-
-      const parts = rawDate.split('/');
-      if (parts.length !== 3) return false;
-
-      const day = parseInt(parts[0], 10);
-      const month = parseInt(parts[1], 10) - 1;
-      const year = parseInt(parts[2], 10);
-
-      const expiry = new Date(year, month, day);
-      const today = new Date();
-
-      expiry.setHours(0, 0, 0, 0);
-      today.setHours(0, 0, 0, 0);
-
-      const timeDiff = expiry.getTime() - today.getTime();
-      const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
-
-      return daysLeft >= 0 && daysLeft <= 3;
-    })
-    .map(item => {
-      const finalName = item.name || item.itemName || 'Unknown Item';
-      return {
-        id: item.id || Math.random().toString(),
-        text: `${finalName} is expiring soon!`,
-        isRead: readNotificationIds.includes(item.id),
-        ingredientName: finalName
-      };
-    });
+const notifications = getNotificationData(itemsArray, readNotificationIds);
 
   const handleToggleRead = (id) => {
     setReadNotificationIds(prev =>

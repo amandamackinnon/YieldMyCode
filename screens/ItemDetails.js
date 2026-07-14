@@ -5,6 +5,7 @@ import { FridgeContext } from '../context/FridgeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { itemDetailsStyles as styles } from '../Styles/itemDetailsStyles';
 import { TILE_COLORS } from '../Styles/fridgeStyles';
+import CustomDeleteModal from '../components/CustomDeleteModal';
 
 export default function ItemDetails({ route, navigation }) {
   const insets = useSafeAreaInsets();
@@ -18,6 +19,7 @@ export default function ItemDetails({ route, navigation }) {
   const [inputAmount, setInputAmount] = useState('');
 
   const item = items.find((i) => i.id === itemId);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false); 
 
   if (!item) {
     return (
@@ -28,28 +30,7 @@ export default function ItemDetails({ route, navigation }) {
   }
 
   const triggerDeleteAlert = () => {
-    Alert.alert(
-      "Remove Item?",
-      "Was it wasted or eaten?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "🗑️ Wasted",
-          style: "destructive",
-          onPress: () => {
-            wasteItem(item.id);
-            navigation.goBack();
-          }
-        },
-        {
-          text: "🍽️ Eaten",
-          onPress: () => {
-            consumeItem(item.id);
-            navigation.goBack();
-          }
-        }
-      ]
-    );
+    setDeleteModalVisible(true);
   };
 
   const openDecrementModal = () => {
@@ -109,7 +90,6 @@ export default function ItemDetails({ route, navigation }) {
   return (
     <View style={{ flex: 1, backgroundColor: '#FFF' }}>
       <ScrollView style={styles.container}>
-
 
         <View style={styles.mainCard}>
           <Image source={getImageSource()} style={styles.largeImage} resizeMode="contain" />
@@ -242,7 +222,21 @@ export default function ItemDetails({ route, navigation }) {
           </View>
         </View>
       </Modal>
+
+      <CustomDeleteModal
+        visible={deleteModalVisible}
+        onClose={() => setDeleteModalVisible(false)}
+        onWaste={() => {
+          setDeleteModalVisible(false);
+          wasteItem(item.id);
+          navigation.goBack();
+        }}
+        onConsume={() => {
+          setDeleteModalVisible(false);
+          consumeItem(item.id);
+          navigation.goBack();
+        }}
+      />
     </View>
   );
 }
-

@@ -243,4 +243,59 @@ export const itemDetailsStyles = StyleSheet.create({
     fontSize: 16,
   },
 
+  overlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dims the background screen
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    alertBox: {
+      width: '80%',
+      backgroundColor: '#fff',
+      borderRadius: 14,
+      padding: 20,
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+    title: {
+      fontSize: 20,
+      fontFamily: 'NunitoBold',
+      marginBottom: 8,
+    },
+    message: {
+      fontSize: 16,
+      color: '#666',
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    buttonContainer: {
+      width: '100%',
+      gap: 10,
+    },
+    button: {
+      width: '100%',
+      paddingVertical: 12,
+      borderRadius: 8,
+      alignItems: 'center',
+    },
+    buttonText: {
+      color: '#fff',
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    cancelButton: {
+      width: '100%',
+      paddingVertical: 12,
+      alignItems: 'center',
+      marginTop: 4,
+    },
+    cancelButtonText: {
+      color: '#666',
+      fontSize: 16,
+    },
+
 });

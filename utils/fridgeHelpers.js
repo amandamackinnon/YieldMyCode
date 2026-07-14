@@ -27,7 +27,7 @@ export const unitData = [
   { label: 'lb', value: 'lb' },
 ];
 
-export const getNotificationData = (fridgeItems) => {
+export const getNotificationData = (fridgeItems, readNotificationIds = []) => {
   if (!fridgeItems) return [];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -46,16 +46,23 @@ export const getNotificationData = (fridgeItems) => {
 
       if (expiryDateObj <= threeDaysFromNow) {
         const daysLeft = Math.round((expiryDateObj - today) / (1000 * 60 * 60 * 24));
-        const itemName = item.name.toLowerCase();
-        const isPlural = itemName.endsWith('s');
+        const itemName = item.name || 'Unknown Item';
+        const lowerName = itemName.toLowerCase();
+        const isPlural = lowerName.endsWith('s');
         const expireExpires = isPlural ? 'expire' : 'expires';
 
-        let message = `Your ${itemName} ${expireExpires} soon!`;
-        if (daysLeft === 0) message = `The ${itemName} ${expireExpires} today`;
-        if (daysLeft === 1) message = `The ${itemName} ${expireExpires} tomorrow`;
-        if (daysLeft < 0) message = `The ${itemName} ${isPlural ? 'have' : 'has'} expired!`;
-
-        notifications.push({ id: `expire-${item.id}`, text: message, type: 'expiry', urgent: daysLeft <= 1 });
+        let message = `Your ${lowerName} ${expireExpires} soon!`;
+        if (daysLeft === 0) message = `The ${lowerName} ${expireExpires} today`;
+        if (daysLeft === 1) message = `The ${lowerName} ${expireExpires} tomorrow`;
+        if (daysLeft < 0) message = `The ${lowerName} ${isPlural ? 'have' : 'has'} expired!`;
+        notifications.push({ 
+          id: item.id || `expire-${Math.random()}`, 
+          text: message, 
+          isRead: readNotificationIds.includes(item.id),
+          ingredientName: itemName,
+          type: 'expiry', 
+          urgent: daysLeft <= 1 
+        });
       }
     } catch (e) { console.log(e); }
   });
