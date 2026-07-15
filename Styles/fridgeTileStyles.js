@@ -1,7 +1,7 @@
 import { StyleSheet, Platform } from 'react-native';
 
 export const fridgeTileStyles = StyleSheet.create({ 
-      tileContainer: {
+    tileContainer: {
     width: '48%',
     marginHorizontal: '1%',
     backgroundColor: '#FFFFFF',
@@ -10,13 +10,11 @@ export const fridgeTileStyles = StyleSheet.create({
     paddingRight: 15,
     paddingLeft: 7,
   },
-
     tile: {
     width: '100%',
     alignItems: 'center',
     paddingBottom: 10,
    },
-
     imageBackgroundCircle: {
     width: 175,
     height: 175,
@@ -28,7 +26,6 @@ export const fridgeTileStyles = StyleSheet.create({
     marginBottom: 5,
     paddingTop: 25,
   },
-
     innerWhiteCircle: {
     width: 110,
     height: 110,
@@ -37,13 +34,11 @@ export const fridgeTileStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
     foodImage: {
     width: 75,
     height: 75,
   },
-
- bannerOverlay: {
+    bannerOverlay: {
     position: 'absolute',
     bottom: '50%',
     left: 0,
@@ -55,11 +50,9 @@ export const fridgeTileStyles = StyleSheet.create({
     borderBottomWidth: 2,
     borderColor: 'white',
   },
-
   bannerRed1: {
     backgroundColor: '#FF380080',
   },
-
   bannerRed: {
     backgroundColor: '#FF3800',
   },
@@ -73,20 +66,21 @@ export const fridgeTileStyles = StyleSheet.create({
     letterSpacing: 0.5,
     textAlign: 'center',
   },
-
     expiredInnerCircle: {
     backgroundColor: '#D9D9D9',
-    opacity: 0.7,
+    opacity: 0.4,
   },
-
-   expiredImage: {
-    opacity: 0.35,
+    expiredImage: {
+    opacity: 0.4,
   },
-
+  expiredItemName: {
+  opacity: 1, 
+  color: '#FFFFFF', 
+  fontFamily: 'NunitoBold', 
+},
     expiredText: {
     opacity: 0.45,
   },
-
     itemName: {
     fontSize: 16,
     fontFamily: 'NunitoBold',
@@ -94,7 +88,6 @@ export const fridgeTileStyles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 2,
   },
-
     tileFooterRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -102,7 +95,6 @@ export const fridgeTileStyles = StyleSheet.create({
     width: 175,
     marginTop: 10,
   },
-
     qtyBox: {
     borderWidth: 1,
     borderColor: '#333',
@@ -113,13 +105,11 @@ export const fridgeTileStyles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#fff',
   },
-
    qtyText: {
     fontFamily: 'NunitoMedium',
     fontSize: 12,
     color: '#292929',
   },
-
    expiryBadgeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -128,7 +118,6 @@ export const fridgeTileStyles = StyleSheet.create({
     gap: 4,
     marginLeft: 6,
   },
-
   cleanExpiryText: {
     borderWidth: 1,
     borderColor: '#292929',
@@ -141,7 +130,6 @@ export const fridgeTileStyles = StyleSheet.create({
     textAlign: 'center',
     color: '#292929',
   },
-
    statusDot: {
     position: 'absolute',
     width: 12,

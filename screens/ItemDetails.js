@@ -1,11 +1,13 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Pressable, Image, ScrollView, Alert, Modal, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, Pressable, Image, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { FridgeContext } from '../context/FridgeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { itemDetailsStyles as styles } from '../Styles/itemDetailsStyles';
 import { TILE_COLORS } from '../Styles/fridgeStyles';
 import CustomDeleteModal from '../components/CustomDeleteModal';
+import DecrementModal from '../components/DecrementModal';
+import { fetchRecipesForIngredient } from '../utils/apiHelpers';
 
 export default function ItemDetails({ route, navigation }) {
   const insets = useSafeAreaInsets();
@@ -14,12 +16,11 @@ export default function ItemDetails({ route, navigation }) {
 
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
-
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [inputAmount, setInputAmount] = useState('');
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false); 
 
   const item = items.find((i) => i.id === itemId);
-  const [deleteModalVisible, setDeleteModalVisible] = useState(false); 
 
   if (!item) {
     return (
@@ -28,10 +29,6 @@ export default function ItemDetails({ route, navigation }) {
       </View>
     );
   }
-
-  const triggerDeleteAlert = () => {
-    setDeleteModalVisible(true);
-  };
 
   const openDecrementModal = () => {
     setInputAmount(Math.ceil(item.qty / 2).toString());
@@ -50,33 +47,14 @@ export default function ItemDetails({ route, navigation }) {
   };
 
   const findRecipes = async () => {
-    setLoading(true);
-    const apiKey = 'e7de26d39bf344c88aaf33e8ee08eda4';
-    const ingredientName = encodeURIComponent(item.name);
-    const url = `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${ingredientName}&number=20&apiKey=${apiKey}`;
-
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      if (data && data.length > 0) {
-        setRecipes(data);
-      } else {
-        Alert.alert("No Recipes Found", `Couldn't find any recipes containing ${item.name}.`);
-      }
-    } catch (error) {
-      Alert.alert("Error", "Could not fetch recipes. Check your network link.");
-    } finally {
-      setLoading(false);
-    }
+    const data = await fetchRecipesForIngredient(item.name, setLoading);
+    if (data.length > 0) setRecipes(data);
   };
 
   const navigateToTrivia = () => {
     navigation.navigate('FridgeTab', {
       screen: 'FoodTrivia',
-      params: {
-        ingredient: item.name,
-        clickId: Date.now()
-      },
+      params: { ingredient: item.name, clickId: Date.now() },
       initialRouteName: 'FridgeHome'
     });
   };
@@ -84,7 +62,8 @@ export default function ItemDetails({ route, navigation }) {
   const getImageSource = () => {
     if (!item.imageUrl || item.imageUrl.trim() === '' || item.imageUrl.includes('no.jpg')) {
       return require('../assets/modal-tile-image.png');
-    } return { uri: item.imageUrl };
+    }
+    return { uri: item.imageUrl };
   };
 
   return (
@@ -120,29 +99,21 @@ export default function ItemDetails({ route, navigation }) {
               {item.qty} {item.unit || 'pcs'}
             </Text>
 
-            <Pressable style={({ pressed }) => [
-              styles.counterButton,
-              { opacity: pressed ? 0.7 : 1.0 }
-            ]}
-              onPress={openDecrementModal}>
+            <Pressable 
+              style={({ pressed }) => [styles.counterButton, { opacity: pressed ? 0.7 : 1.0 }]}
+              onPress={openDecrementModal}
+            >
               <Ionicons name="remove-sharp" size={30} color="#FFF" />
             </Pressable>
 
-            <TouchableOpacity style={styles.removeButton} onPress={triggerDeleteAlert}>
+            <TouchableOpacity style={styles.removeButton} onPress={() => setDeleteModalVisible(true)}>
               <Ionicons name="trash-outline" size={35} color="#EF4E23" />
             </TouchableOpacity>
           </View>
 
-          <View style={{
-            flexDirection: 'column',
-            gap: 8,
-            width: 160,
-            alignItems: 'stretch'
-          }}>
+          <View style={{ flexDirection: 'column', gap: 8, width: 160, alignItems: 'stretch' }}>
             <TouchableOpacity style={[styles.triviaButton, { marginTop: 0, marginBottom: -2,  width: '100%' }]} onPress={navigateToTrivia} disabled={loading}>
-              <Text style={styles.triviaButtonText}>
-                Food Trivia
-              </Text>
+              <Text style={styles.triviaButtonText}>Food Trivia</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={[styles.recipeButton, { marginTop: 0, width: '100%' }]} onPress={findRecipes} disabled={loading}>
@@ -151,8 +122,8 @@ export default function ItemDetails({ route, navigation }) {
               </Text>
             </TouchableOpacity>
           </View>
-
         </View>
+
         {recipes.length > 0 && (
           <View style={styles.recipeListContainer}>
             <Text style={styles.recipeSectionTitle}>Recipe Ideas:</Text>
@@ -177,51 +148,15 @@ export default function ItemDetails({ route, navigation }) {
         )}
       </ScrollView>
 
-      <Modal
-        animationType="fade"
-        transparent={true}
+      <DecrementModal
         visible={isModalVisible}
-        onRequestClose={() => setIsModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-
-            <Text style={styles.modalSubtitle}>
-              How many {item.unit || 'pcs'} are you removing? (Max: {item.qty})
-            </Text>
-
-            <TextInput
-              style={styles.numericInput}
-              keyboardType="numeric"
-              value={inputAmount}
-              onChangeText={setInputAmount}
-              selectTextOnFocus
-              autoFocus
-            />
-
-            <View style={styles.modalButtonRow}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.wasteBtn]}
-                onPress={() => handlePartialAction('wasted')}>
-                <Text style={styles.actionBtnText}>🗑️ Wasted</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.modalButton, styles.eatenBtn]}
-                onPress={() => handlePartialAction('consumed')}>
-                <Text style={styles.actionBtnText}>🍽️ Eaten</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelBtn]}
-                onPress={() => setIsModalVisible(false)}>
-                <Text style={styles.cancelBtnText}>Cancel</Text>
-              </TouchableOpacity>
-
-            </View>
-          </View>
-        </View>
-      </Modal>
+        onClose={() => setIsModalVisible(false)}
+        unit={item.unit}
+        maxQty={item.qty}
+        inputAmount={inputAmount}
+        setInputAmount={setInputAmount}
+        onAction={handlePartialAction}
+      />
 
       <CustomDeleteModal
         visible={deleteModalVisible}

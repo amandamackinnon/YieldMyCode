@@ -245,7 +245,7 @@ export const itemDetailsStyles = StyleSheet.create({
 
   overlay: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dims the background screen
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', 
       justifyContent: 'center',
       alignItems: 'center',
     },

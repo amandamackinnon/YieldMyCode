@@ -1,4 +1,4 @@
-// navigation/AppNavigator.js
+
 import React, { useState, createContext, useContext, useMemo } from 'react';
 import { TouchableOpacity, Platform, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -6,14 +6,10 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-
-// Context, Helpers & Components
 import { FridgeContext } from '../context/FridgeContext';
 import { getNotificationData } from '../utils/fridgeHelpers';
 import TabBarIcon from '../components/icons/TabBarIcon';
 import NotificationModal from '../components/NotificationModal';
-
-// Screens
 import Fridge from '../screens/Fridge';
 import AddToFridge from '../screens/AddToFridge';
 import Profile from '../screens/Profile';
@@ -21,7 +17,7 @@ import ItemDetails from '../screens/ItemDetails';
 import RecipeDetails from '../screens/RecipeDetails';
 import FoodTriviaScreen from '../screens/FoodTriviaScreen';
 
-// Notification Context
+
 const NotificationModalContext = createContext();
 export const useNotificationModal = () => useContext(NotificationModalContext);
 
@@ -32,9 +28,7 @@ const navigationRef = React.createRef();
 function FridgeStack() {
   const { showNotifications } = useNotificationModal();
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerRight: () => (
+    <Stack.Navigator screenOptions={{ headerRight: () => (
           <TouchableOpacity onPress={showNotifications} style={{ marginRight: 20 }}>
             <Ionicons name="notifications" size={28} color="#E07A5F" />
           </TouchableOpacity>
@@ -213,7 +207,7 @@ export default function AppNavigator() {
           onRecipePress={(ingredientName) => {
             setModalVisible(false);
             navigationRef.current?.navigate('FridgeTab', { screen: 'FridgeHome' });
-
+            
             const randomOffset = Math.floor(Math.random() * 10);
             setTimeout(() => {
               navigationRef.current?.navigate('FridgeTab', {

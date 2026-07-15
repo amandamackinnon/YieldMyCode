@@ -44,7 +44,7 @@ export default function FridgeTile({ item, index, navigation }) {
               <Image source={imageSource} style={[styles.foodImage, itemHasExpired && styles.expiredImage]} resizeMode="contain" />
             </View>
             {bannerElement}
-            <Text style={[styles.itemName, itemHasExpired && styles.expiredText]}>{item.name}</Text>
+            <Text style={[styles.itemName, itemHasExpired && styles.expiredItemName]}>{item.name}</Text>
           </View>
         </TouchableOpacity>
 

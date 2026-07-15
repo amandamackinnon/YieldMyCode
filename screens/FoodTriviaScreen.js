@@ -114,7 +114,7 @@ export default function FoodTriviaScreen({ route, navigation }) {
           
           {selectedAnswer && (
             <Text style={[styles.feedbackText, { color: selectedAnswer === content.correctAnswer ? '#699966' : '#EF4E23' }]}>
-              {selectedAnswer === content.correctAnswer ? '⭐️ Correct! Now you\'re cooking!' : '❌ Incorrect, better luck next time!'}
+              {selectedAnswer === content.correctAnswer ? '🔥 Correct! Now you\'re cooking!' : '🍅 Incorrect! Better luck next time!'}
             </Text>
           )}
         </View>
