@@ -1,5 +1,5 @@
 import React, { useState, useContext, useRef } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, Image, Modal } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, Image, Modal, FlatList } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useFonts } from 'expo-font';
@@ -15,7 +15,7 @@ const SPOONACULAR_API_KEY = Constants.expoConfig?.extra?.spoonacularApiKey || Co
 export default function AddToFridge({ navigation }) {
   const { addItem } = useContext(FridgeContext);
   const webDatePickerRef = useRef(null);
-
+  const flatListRef = useRef(null);
   const [name, setName] = useState('');
   const [qty, setQty] = useState('');
   const [unit, setUnit] = useState('pcs');
@@ -41,6 +41,12 @@ export default function AddToFridge({ navigation }) {
       setExpiryDate(selectedDate);
       setDisplayDateString(formatEuropeanDate(selectedDate));
     }
+  };
+
+  const handleFocus = () => {
+    setTimeout(() => {
+      flatListRef.current?.flashScrollIndicators();
+    }, 250);
   };
 
   const handleSave = async () => {
@@ -140,12 +146,19 @@ export default function AddToFridge({ navigation }) {
             placeholder="UNIT"
             value={unit}
             onChange={item => setUnit(item.value)}
+            onFocus={handleFocus}
             flatListProps={{
+              ref: flatListRef,
+              indicatorStyle: 'black',
               showsVerticalScrollIndicator: true,
               persistentScrollbar: true,
-              scrollIndicatorInsets: { top: 0, left: 0, bottom: 0, right: 0 },
               contentContainerStyle: {
                 paddingRight: 12,
+              },
+              onLayout: () => {
+                setTimeout(() => {
+                  flatListRef.current?.flashScrollIndicators();
+                }, 50);
               }
             }}
           />
@@ -186,7 +199,7 @@ export default function AddToFridge({ navigation }) {
           <View style={styles.iosModalContainer}>
             <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFillObject} />
             <View style={styles.iosModalContent}>
-              <DateTimePicker value={expiryDate} mode="date" display="inline" onChange={onDateChange} themeVariant="light"/>
+              <DateTimePicker value={expiryDate} mode="date" display="inline" onChange={onDateChange} themeVariant="light" />
               <TouchableOpacity style={styles.iosDoneButton} onPress={() => setShowDatePicker(false)}>
                 <Text style={styles.iosDoneButtonText}>Confirm Date</Text>
               </TouchableOpacity>
