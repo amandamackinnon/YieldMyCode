@@ -186,7 +186,7 @@ export default function AddToFridge({ navigation }) {
           <View style={styles.iosModalContainer}>
             <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFillObject} />
             <View style={styles.iosModalContent}>
-              <DateTimePicker value={expiryDate} mode="date" display="inline" onChange={onDateChange} />
+              <DateTimePicker value={expiryDate} mode="date" display="inline" onChange={onDateChange} themeVariant="light"/>
               <TouchableOpacity style={styles.iosDoneButton} onPress={() => setShowDatePicker(false)}>
                 <Text style={styles.iosDoneButtonText}>Confirm Date</Text>
               </TouchableOpacity>
