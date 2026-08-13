@@ -193,21 +193,9 @@ export default function AppNavigator() {
           notifications={notifications}
           onToggleRead={handleToggleRead}
           onMarkAllOrUndo={handleMarkAllOrUndo}
-          onFactPress={(ingredientName) => {
-            setModalVisible(false);
-            navigationRef.current?.navigate('FridgeTab', {
-              screen: 'FoodTrivia',
-              params: {
-                ingredient: ingredientName,
-                clickId: Date.now()
-              },
-              initialRouteName: 'FridgeHome' 
-            });
-          }}
           onRecipePress={(ingredientName) => {
             setModalVisible(false);
             navigationRef.current?.navigate('FridgeTab', { screen: 'FridgeHome' });
-            
             const randomOffset = Math.floor(Math.random() * 10);
             setTimeout(() => {
               navigationRef.current?.navigate('FridgeTab', {

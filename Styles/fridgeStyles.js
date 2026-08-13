@@ -203,7 +203,6 @@ export const fridgeStyles = StyleSheet.create({
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.2,
     shadowRadius: 12,
-    elevation: 8,
   },
 
   dropdownHeader: {
