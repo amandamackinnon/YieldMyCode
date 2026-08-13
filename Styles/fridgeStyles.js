@@ -228,8 +228,7 @@ export const fridgeStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#EAEAEA',
+   
   },
 
   indicatorDot: {
@@ -243,7 +242,10 @@ export const fridgeStyles = StyleSheet.create({
   notificationText: {
     flex: 1,
     fontSize: 14,
-    lineHeight: 18,
+    lineHeight: 16,
+    fontFamily: "NunitoMedium",
+    
+
   },
 
 });

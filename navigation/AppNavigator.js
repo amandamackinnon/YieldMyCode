@@ -43,7 +43,7 @@ function FridgeStack() {
           headerShadowVisible: false,
           headerTitleAlign: 'left',
           headerTitleStyle: { fontSize: 32, fontFamily: 'NunitoSemiBold' },
-        }}/>
+        }} />
       <Stack.Screen
         name="AddToFridge"
         component={AddToFridge}
@@ -52,7 +52,7 @@ function FridgeStack() {
           headerShown: false,
           cardStyle: { backgroundColor: 'transparent' },
           animation: 'fade',
-        }}/>
+        }} />
       <Stack.Screen
         name="ItemDetails"
         component={ItemDetails}
@@ -63,7 +63,7 @@ function FridgeStack() {
           headerShadowVisible: false,
           headerTitleAlign: 'left',
           headerTitleStyle: { fontSize: 32, fontFamily: 'NunitoSemiBold' },
-        }}/>
+        }} />
       <Stack.Screen
         name="FoodTrivia"
         component={FoodTriviaScreen}
@@ -73,7 +73,7 @@ function FridgeStack() {
           headerTintColor: 'black',
           headerShadowVisible: false,
           headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 30 }
-        }}/>
+        }} />
     </Stack.Navigator>
   );
 }
@@ -124,7 +124,7 @@ function MainTabs() {
               <Ionicons name="notifications" size={28} color="#E07A5F" />
             </TouchableOpacity>
           ),
-        }}/>
+        }} />
       <Tab.Screen
         name="FridgeTab"
         component={FridgeStack}
@@ -140,7 +140,7 @@ function MainTabs() {
               navigation.navigate('FridgeTab', { screen: 'AddToFridge' });
             }, 50);
           },
-        })}/>
+        })} />
     </Tab.Navigator>
   );
 }
@@ -197,14 +197,15 @@ export default function AppNavigator() {
           onMarkAllOrUndo={handleMarkAllOrUndo}
           onRecipePress={(ingredientName) => {
             setModalVisible(false);
-            const randomOffset = Math.floor(Math.random() * 10)
+            const uniqueId = `${Date.now()}-${Math.random()}`;
+            const randomOffset = Math.floor(Math.random() * 100);
             navigationRef.current?.navigate('RecipeDetails', {
               ingredient: ingredientName,
               recipeId: null,
-              clickId: Date.now(),
+              clickId: uniqueId,
               offset: randomOffset
-            }, 50);
-          }}/>    
+            });
+          }}/>
       </NavigationContainer>
     </NotificationModalContext.Provider>
   );

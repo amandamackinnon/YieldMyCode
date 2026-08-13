@@ -87,7 +87,7 @@ export default function Fridge({ navigation, route }) {
       const origin = items.find(i => `expire-${i.id}` === alert.id);
       return {
         ...alert,
-        text: origin ? `${origin.name} expires soon!` : alert.text,
+        text: origin ? `${origin.name} expires soon` : alert.text,
         ingredientName: origin ? origin.name : null,
         isRead: false
       };

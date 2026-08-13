@@ -65,16 +65,15 @@ export default function NotificationModal({
               </View>
 
               {item.ingredientName && !item.isRead && (
-                <View style={styles.actionLinksContainer}>
+                <View>
 
                   <TouchableOpacity
                     onPress={() => {
                       onClose();
                       onRecipePress(item.ingredientName);
                     }}
-                    style={styles.linkTouchTarget}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                    <Text style={styles.actionLinkText}>Would you like to see a recipe?</Text>
+                    <Text style={styles.notificationText}>Would you like to see a recipe?</Text>
                   </TouchableOpacity>
                 </View>
               )}
