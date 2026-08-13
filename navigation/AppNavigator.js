@@ -43,7 +43,7 @@ function FridgeStack() {
           headerShadowVisible: false,
           headerTitleAlign: 'left',
           headerTitleStyle: { fontSize: 32, fontFamily: 'NunitoSemiBold' },
-        }} />
+        }}/>
       <Stack.Screen
         name="AddToFridge"
         component={AddToFridge}
@@ -52,7 +52,7 @@ function FridgeStack() {
           headerShown: false,
           cardStyle: { backgroundColor: 'transparent' },
           animation: 'fade',
-        }} />
+        }}/>
       <Stack.Screen
         name="ItemDetails"
         component={ItemDetails}
@@ -63,7 +63,7 @@ function FridgeStack() {
           headerShadowVisible: false,
           headerTitleAlign: 'left',
           headerTitleStyle: { fontSize: 32, fontFamily: 'NunitoSemiBold' },
-        }} />
+        }}/>
       <Stack.Screen
         name="FoodTrivia"
         component={FoodTriviaScreen}
@@ -73,7 +73,7 @@ function FridgeStack() {
           headerTintColor: 'black',
           headerShadowVisible: false,
           headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 30 }
-        }} />
+        }}/>
     </Stack.Navigator>
   );
 }
@@ -109,7 +109,7 @@ function MainTabs() {
         },
         tabBarItemStyle: { paddingHorizontal: 0 },
       })}>
-    
+
       <Tab.Screen
         name="Profile"
         component={Profile}
@@ -128,7 +128,7 @@ function MainTabs() {
       <Tab.Screen
         name="FridgeTab"
         component={FridgeStack}
-        options={{ title: 'Fridge' }}/>
+        options={{ title: 'Fridge' }} />
       <Tab.Screen
         name="Add"
         component={View}
@@ -140,7 +140,7 @@ function MainTabs() {
               navigation.navigate('FridgeTab', { screen: 'AddToFridge' });
             }, 50);
           },
-          })}/>
+        })}/>
     </Tab.Navigator>
   );
 }
@@ -188,26 +188,23 @@ export default function AppNavigator() {
               headerTitleStyle: { fontFamily: 'NunitoSemiBold', fontSize: 30 }
             }}/>
         </RootStack.Navigator>
-        
-        <NotificationModal
-  visible={modalVisible}
-  onClose={() => setModalVisible(false)}
-  notifications={notifications}
-  onToggleRead={handleToggleRead}
-  onMarkAllOrUndo={handleMarkAllOrUndo}
-  onRecipePress={(ingredientName) => {
-    setModalVisible(false);
-    const randomOffset = Math.floor(Math.random() * 10);
 
-    // Directly navigate to the RootStack screen
-    navigationRef.current?.navigate('RecipeDetails', {
-      ingredient: ingredientName,
-      recipeId: null,
-      clickId: Date.now(),
-      offset: randomOffset
-    }, 50);
-  }} 
-/>
+        <NotificationModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          notifications={notifications}
+          onToggleRead={handleToggleRead}
+          onMarkAllOrUndo={handleMarkAllOrUndo}
+          onRecipePress={(ingredientName) => {
+            setModalVisible(false);
+            const randomOffset = Math.floor(Math.random() * 10)
+            navigationRef.current?.navigate('RecipeDetails', {
+              ingredient: ingredientName,
+              recipeId: null,
+              clickId: Date.now(),
+              offset: randomOffset
+            }, 50);
+          }}/>    
       </NavigationContainer>
     </NotificationModalContext.Provider>
   );
