@@ -68,16 +68,14 @@ export default function NotificationModal({
                 <View style={styles.actionLinksContainer}>
 
                   <TouchableOpacity
-  onPress={() => {
-    onClose();
-    // Pass execution back to AppNavigator's onRecipePress handler
-    onRecipePress(item.ingredientName);
-  }}
-  style={styles.linkTouchTarget}
-  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
->
-  <Text style={styles.actionLinkText}>Would you like to see a recipe?</Text>
-</TouchableOpacity>
+                    onPress={() => {
+                      onClose();
+                      onRecipePress(item.ingredientName);
+                    }}
+                    style={styles.linkTouchTarget}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                    <Text style={styles.actionLinkText}>Would you like to see a recipe?</Text>
+                  </TouchableOpacity>
                 </View>
               )}
             </View>

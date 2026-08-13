@@ -43,21 +43,21 @@ export default function Fridge({ navigation, route }) {
   };
 
   const handleRecipePress = async (ingredientName) => {
-    if (!ingredientName) return;
-    setShowNotifications(false);
+  if (!ingredientName) return;
+  setShowNotifications(false);
 
-    try {
-      const randomRecipe = await fetchRecipeIdea(ingredientName);
-      navigation.navigate('RecipeDetails', {
-        ingredient: ingredientName,
-        recipeId: randomRecipe?.id || null,
-        autoLoad: true,
-        clickId: Date.now()
-      });
-    } catch (err) {
-      console.log("Error during recipe navigation routing:", err);
-    }
-  };
+  try {
+    const randomRecipe = await fetchRecipeIdea(ingredientName);
+    navigation.navigate('RecipeDetails', {
+      ingredient: ingredientName,
+      recipeId: randomRecipe?.id || null,
+      autoLoad: true,
+      clickId: Date.now()
+    });
+  } catch (err) {
+    console.log("Error during recipe navigation routing:", err);
+  }
+};
 
   const toggleMarkAsRead = (id) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: !n.isRead } : n));
