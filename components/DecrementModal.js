@@ -21,8 +21,9 @@ export default function DecrementModal({
                     <TextInput
                         style={{
                             width: '60%',
-                            borderBottomWidth: 2,
-                            borderBottomColor: '#E07A5F',
+                            borderWidth: 1,
+                            borderColor: 'grey',
+                            borderRadius: 4, 
                             fontSize: 24,
                             textAlign: 'center',
                             marginBottom: 20,
@@ -37,24 +38,24 @@ export default function DecrementModal({
 
                     <View style={{ flexDirection: 'row', width: '100%', gap: 10, justifyContent: 'space-between' }}>
                         <TouchableOpacity
-                            style={{ flex: 1, backgroundColor: '#E07A5F', paddingVertical: 12, borderRadius: 8, alignItems: 'center' }}
+                            style={{ flex: 1, backgroundColor: '#FF3800', paddingVertical: 12, borderRadius: 4, alignItems: 'center' }}
                             onPress={() => onAction('wasted')}
                         >
                             <Text style={{ color: '#fff', fontWeight: '600' }}>🗑️ Wasted</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                            style={{ flex: 1, backgroundColor: '#699966', paddingVertical: 12, borderRadius: 8, alignItems: 'center' }}
+                            style={{ flex: 1, backgroundColor: 'rgba(98, 159, 85, 1)', paddingVertical: 12, borderRadius: 4, alignItems: 'center' }}
                             onPress={() => onAction('consumed')}
                         >
                             <Text style={{ color: '#fff', fontWeight: '600' }}>🍽️ Eaten</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                            style={{ flex: 1, borderColors: '#ccc', borderWidth: 1, paddingVertical: 12, borderRadius: 8, alignItems: 'center' }}
+                            style={{ flex: 1, backgroundColor: '#EAEAEA', borderWidth: 0, paddingVertical: 12, borderRadius: 4, alignItems: 'center' }}
                             onPress={onClose}
                         >
-                            <Text style={{ color: '#666' }}>Cancel</Text>
+                            <Text style={{ color: 'black', fontSize: 14, fontWeight: 600 }}>Cancel</Text>
                         </TouchableOpacity>
                     </View>
 

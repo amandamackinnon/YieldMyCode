@@ -65,31 +65,15 @@ export default function NotificationModal({
               </View>
 
               {item.ingredientName && !item.isRead && (
-                <View style={styles.actionLinksContainer}>
-                  <TouchableOpacity
-                    onPress={() => onFactPress(item.ingredientName)}
-                    style={styles.linkTouchTarget}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  >
-                    <Text style={styles.actionLinkText}>Would you like some food trivia?</Text>
-                  </TouchableOpacity>
+                <View>
 
                   <TouchableOpacity
-                    onPress={() => { onClose();
-                      if (navigation) {
-                        navigation.navigate('RecipeDetails', {
-                          ingredient: item.ingredientName,
-                          autoLoad: true,
-                          clickId: Date.now()
-                        });
-                      } else {
-                        onRecipePress(item.ingredientName);
-                      }
+                    onPress={() => {
+                      onClose();
+                      onRecipePress(item.ingredientName);
                     }}
-                    style={styles.linkTouchTarget}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  >
-                    <Text style={styles.actionLinkText}>Would you like to see a recipe?</Text>
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                    <Text style={styles.notificationText}>Would you like to see a recipe?</Text>
                   </TouchableOpacity>
                 </View>
               )}

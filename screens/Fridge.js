@@ -22,6 +22,7 @@ export default function Fridge({ navigation, route }) {
   const [notifications, setNotifications] = useState([]);
   const [previousNotificationState, setPreviousNotificationState] = useState(null);
   const [factTracking, setFactTracking] = useState({});
+   const flatListRef = useRef(null);
 
 
   const handleFactPress = (ingredientName) => {
@@ -42,21 +43,21 @@ export default function Fridge({ navigation, route }) {
   };
 
   const handleRecipePress = async (ingredientName) => {
-    if (!ingredientName) return;
-    setShowNotifications(false);
+  if (!ingredientName) return;
+  setShowNotifications(false);
 
-    try {
-      const randomRecipe = await fetchRecipeIdea(ingredientName);
-      navigation.navigate('RecipeDetails', {
-        ingredient: ingredientName,
-        recipeId: randomRecipe?.id || null,
-        autoLoad: true,
-        clickId: Date.now()
-      });
-    } catch (err) {
-      console.log("Error during recipe navigation routing:", err);
-    }
-  };
+  try {
+    const randomRecipe = await fetchRecipeIdea(ingredientName);
+    navigation.navigate('RecipeDetails', {
+      ingredient: ingredientName,
+      recipeId: randomRecipe?.id || null,
+      autoLoad: true,
+      clickId: Date.now()
+    });
+  } catch (err) {
+    console.log("Error during recipe navigation routing:", err);
+  }
+};
 
   const toggleMarkAsRead = (id) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: !n.isRead } : n));
@@ -86,7 +87,7 @@ export default function Fridge({ navigation, route }) {
       const origin = items.find(i => `expire-${i.id}` === alert.id);
       return {
         ...alert,
-        text: origin ? `${origin.name} expires soon!` : alert.text,
+        text: origin ? `${origin.name} expires soon` : alert.text,
         ingredientName: origin ? origin.name : null,
         isRead: false
       };
@@ -134,18 +135,30 @@ export default function Fridge({ navigation, route }) {
         onChange={item => setSelectedCategory(item.value)}
         renderLeftIcon={() => <Ionicons name="search" size={25} color="grey" style={{ marginRight: 10 }} />}
         renderRightIcon={() => <View style={{ width: 0, height: 0 }} />}
+        
       />
 
       <FlatList
+        ref={flatListRef} 
         data={filteredInventory}
         renderItem={({ item, index }) => <FridgeTile item={item} index={index} navigation={navigation} />}
         keyExtractor={item => item.id.toString()}
         numColumns={2}
         columnWrapperStyle={styles.row}
         showsVerticalScrollIndicator={true}
-        persistentScrollbar={true}
-        scrollIndicatorInsets={{ top: 0, left: 0, bottom: 0, right: -15 }}
-        contentContainerStyle={{ width: '100%' }}
+        persistentScrollbar={true} 
+        indicatorStyle="black"     
+        scrollIndicatorInsets={{ top: 0, left: 0, bottom: 0, right: 1 }}
+        contentContainerStyle={{ 
+          width: '100%',
+          paddingRight: 12, 
+        }}
+         onLayout={() => {
+          setTimeout(() => {
+            flatListRef.current?.flashScrollIndicators();
+          }, 200); 
+        }}
+
         ListEmptyComponent={() => (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
             <Image source={require('../assets/modal-tile-image.png')} style={{ width: 200, height: 200, marginBottom: 20, opacity: 0.8 }} resizeMode="contain" />

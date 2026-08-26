@@ -138,7 +138,6 @@ export const addToFridgeStyles = StyleSheet.create({
     color: 'black',
     fontFamily: 'NunitoMedium',
   },
-
   button: {
     backgroundColor: 'white',
     paddingVertical: 12,

@@ -203,7 +203,6 @@ export const fridgeStyles = StyleSheet.create({
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.2,
     shadowRadius: 12,
-    elevation: 8,
   },
 
   dropdownHeader: {
@@ -229,8 +228,7 @@ export const fridgeStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#EAEAEA',
+   
   },
 
   indicatorDot: {
@@ -244,7 +242,10 @@ export const fridgeStyles = StyleSheet.create({
   notificationText: {
     flex: 1,
     fontSize: 14,
-    lineHeight: 18,
+    lineHeight: 16,
+    fontFamily: "NunitoMedium",
+    
+
   },
 
 });
