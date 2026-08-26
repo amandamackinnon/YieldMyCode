@@ -118,11 +118,6 @@ export const fridgeStyles = StyleSheet.create({
     fontSize: 30,
   },
   
-  qtyContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-  },
 
   bannerOverlay: {
     position: 'absolute',
