@@ -3,21 +3,20 @@ import { StyleSheet, Platform } from 'react-native';
 export const fridgeTileStyles = StyleSheet.create({ 
     tileContainer: {
     width: '48%',
-    marginHorizontal: '1%',
     backgroundColor: '#FFFFFF',
     borderRadius: 4,
-    overflow: 'hidden',
-    paddingRight: 15,
-    paddingLeft: 7,
   },
     tile: {
     width: '100%',
     alignItems: 'center',
     paddingBottom: 10,
    },
+    tilePressable: {
+    width: '100%',
+  },
     imageBackgroundCircle: {
-    width: 175,
-    height: 175,
+    width: '100%',
+    aspectRatio: 1,
     borderRadius: 4,
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -92,7 +91,7 @@ export const fridgeTileStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: 175,
+    width: '100%',
     marginTop: 10,
   },
     qtyBox: {
@@ -115,6 +114,7 @@ export const fridgeTileStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-end',
     flex: 1,
+    minWidth: 0,
     gap: 4,
     marginLeft: 6,
   },
@@ -129,6 +129,7 @@ export const fridgeTileStyles = StyleSheet.create({
     backgroundColor: '#fff',
     textAlign: 'center',
     color: '#292929',
+    flexShrink: 1,
   },
    statusDot: {
     position: 'absolute',

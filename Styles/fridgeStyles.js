@@ -5,7 +5,6 @@ export const fridgeStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
     paddingHorizontal: 10,
-    paddingRight: -20,
     paddingTop: 15,
   },
 

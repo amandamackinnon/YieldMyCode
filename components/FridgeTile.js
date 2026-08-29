@@ -38,7 +38,11 @@ export default function FridgeTile({ item, index, navigation }) {
   return (
     <View style={[styles.tileContainer, itemHasExpired && styles.expiredTile]}>
       <View style={styles.tile}>
-        <TouchableOpacity activeOpacity={0.8} onPress={() => navigation.navigate('ItemDetails', { itemId: item.id })}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles.tilePressable}
+          onPress={() => navigation.navigate('ItemDetails', { itemId: item.id })}
+        >
           <View style={[styles.imageBackgroundCircle, { backgroundColor }]}>
             <View style={[styles.innerWhiteCircle, itemHasExpired && styles.expiredInnerCircle]}>
               <Image source={imageSource} style={[styles.foodImage, itemHasExpired && styles.expiredImage]} resizeMode="contain" />
@@ -63,4 +67,3 @@ export default function FridgeTile({ item, index, navigation }) {
     </View>
   );
 }
-

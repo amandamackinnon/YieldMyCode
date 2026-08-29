@@ -1,8 +1,9 @@
 {
   "expo": {
-    "name": "myStuff",
-    "slug": "myStuff",
+    "name": "Yield",
+    "slug": "yield",
     "version": "1.0.0",
+    "description": "Yield is a smart grocery tracker that helps you organize your virtual fridge, monitor expiry dates, discover ingredient-based recipes, track food consumption and waste, and enjoy food facts and trivia.",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -13,13 +14,19 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.barcelonacodeschool.yield",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "versionCode": 1,
+      "package": "com.barcelonacodeschool.yield",
       "edgeToEdgeEnabled": true
     },
     "web": {
@@ -29,8 +36,10 @@
       "@react-native-community/datetimepicker"
     ],
     "extra": {
-      "spoonacularApiKey": "e7de26d39bf344c88aaf33e8ee08eda4"
+      "spoonacularApiKey": "e7de26d39bf344c88aaf33e8ee08eda4",
+      "eas": {
+        "projectId": "6bdeff39-ebac-4a33-9276-13a11bec235b"
+      }
     }
-    
   }
 }
