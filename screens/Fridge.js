@@ -151,7 +151,8 @@ export default function Fridge({ navigation, route }) {
         scrollIndicatorInsets={{ top: 0, left: 0, bottom: 0, right: 1 }}
         contentContainerStyle={{ 
           width: '100%',
-          paddingRight: 12, 
+          paddingRight: 5,
+          paddingLeft: 5,
         }}
          onLayout={() => {
           setTimeout(() => {
